@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: vite-electron-react-mui-template
+appId: com.merkaba-wallet.app
+productName: MerkabaWallet
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: vite-electron-react-mui-template
+  executableName: MerkabaWallet
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
@@ -33,7 +33,7 @@ linux:
     - AppImage
     - snap
     - deb
-  maintainer: electronjs.org
+  maintainer: bakon
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}
