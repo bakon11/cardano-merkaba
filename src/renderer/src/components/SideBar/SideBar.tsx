@@ -1,6 +1,9 @@
 import { Sheet, Typography, Button } from '@mui/joy/'
+import { menuHook } from '../../hooks/menuHook'
 
 export const SideBar = (): JSX.Element => {
+  const [menu, setMenu] = menuHook()
+
   const buttonStyle = {
     display: 'flex',
     alignItems: 'center',
@@ -59,12 +62,26 @@ export const SideBar = (): JSX.Element => {
           Menu
         </Typography>
         {/* Place your menu items here. Example: */}
-        <Button variant="outlined" color="primary" sx={buttonStyle}>
+        <Button
+          variant="outlined"
+          color="primary"
+          sx={buttonStyle}
+          onClick={() => setMenu('WalletView')}
+        >
           Wallet
         </Button>
         <br />
         <Button variant="plain" color="primary" sx={buttonStyle}>
           Minter
+        </Button>
+        <br />
+        <Button
+          variant="plain"
+          color="primary"
+          sx={buttonStyle}
+          onClick={() => setMenu('MainHomeView')}
+        >
+          Home
         </Button>
         {/* Add more menu items as needed */}
       </Sheet>

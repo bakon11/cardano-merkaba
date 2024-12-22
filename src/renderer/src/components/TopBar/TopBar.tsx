@@ -1,7 +1,12 @@
 import { DarkLightToggle } from '../DarkLightToggle/DarkLightToggle'
 import { Sheet, Typography } from '@mui/joy/'
+import { menuHook } from '../../hooks/menuHook'
+import { WalletButtons } from '../WalletMenus/Buttons'
+import icon from '../../../../../resources/icon.png'
 
 export const TopBar = (): JSX.Element => {
+  const [menu, setMenu] = menuHook()
+
   return (
     <>
       {/* Top App Bar */}
@@ -20,7 +25,10 @@ export const TopBar = (): JSX.Element => {
           backgroundColor: 'background.body'
         }}
       >
-        <Typography level="h4">Merkaba Wallet</Typography>
+        <Typography level="h4" sx={{ display: 'flex', alignItems: 'center' }}>
+          <img src={icon} alt="Icon" height="25" style={{ marginRight: '0.5rem' }} /> Merkaba
+        </Typography>
+        {menu === 'WalletView' && <WalletButtons />}
         <DarkLightToggle />
       </Sheet>
     </>

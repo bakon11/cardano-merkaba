@@ -28,12 +28,17 @@
     "@fontsource/space-grotesk": "^5.1.0",
     "@harmoniclabs/bip32_ed25519": "^0.1.1",
     "@harmoniclabs/plu-ts": "^0.8.0-dev5",
+    "@mui/icons-material": "^6.2.1",
     "@mui/joy": "^5.0.0-beta.51",
+    "@mui/material": "^6.2.1",
     "bip38": "^3.1.1",
     "bip39": "^3.1.0",
     "cbor-x": "^1.5.8",
     "crypto-js": "^4.2.0",
-    "electron-updater": "^6.1.7"
+    "electron-updater": "^6.1.7",
+    "knex": "^3.1.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
@@ -55,6 +60,7 @@
     "react-router-dom": "^7.0.2",
     "reusable": "^1.1.0",
     "typescript": "^5.5.2",
-    "vite": "^5.3.1"
+    "vite": "^5.3.1",
+    "vite-plugin-node-polyfills": "^0.22.0"
   }
 }

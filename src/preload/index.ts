@@ -1,8 +1,11 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { getWalletDBData } from '../db/sqlite3API'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  getWalletDBData: getWalletDBData
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

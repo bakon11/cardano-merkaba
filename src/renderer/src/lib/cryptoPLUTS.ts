@@ -38,6 +38,7 @@ export const genRootPrivateKey = async (entropy: Uint8Array) => {
     return rootKey
   } catch (error) {
     console.log('root key error: ', error)
+    return 'root key error'
   }
 }
 
