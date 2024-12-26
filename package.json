@@ -1,10 +1,10 @@
 {
-  "name": "merkaba-wallet",
+  "name": "cardano-merkaba",
   "version": "1.0.0",
-  "description": "A NFT/FT minter with Wallet functionality build in.",
+  "description": "A tool to give you full access to the Cardano Network.",
   "main": "./out/main/index.js",
   "author": "bakon",
-  "homepage": "https://github.com/bakon11/merkaba-wallet",
+  "homepage": "https://github.com/bakon11/cardano-merkaba",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
