@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { mnemonicToEntropy, generateMnemonic, validateMnemonic } from 'bip39'
-import { Address, Credential, harden, PublicKey, XPrv } from '@harmoniclabs/plu-ts'
+import { generateMnemonic, mnemonicToEntropy, validateMnemonic } from 'bip39'
+import { harden, XPrv } from '@harmoniclabs/plu-ts'
 import CryptoJS from 'crypto-js'
-import * as plutsBip from '@harmoniclabs/bip32_ed25519'
+
+function harden1(num: number): number {
+  return 0x80000000 + num
+}
 
 export const genSeedPhrase = async () => {
   try {
@@ -27,13 +30,13 @@ export const validateSeedPhrase = async (seed: string) => {
   }
 }
 
-export const seedPhraseToEntropy = async (seed_phrase: string) => {
+export const seedPhraseToEntropy = async (seed_phrase: any) => {
   return mnemonicToEntropy(seed_phrase)
 }
 
-export const genRootPrivateKey = async (entropy: Uint8Array) => {
+export const genRootPrivateKey = async (entropy: any) => {
   try {
-    const rootKey: plutsBip.XPrv = plutsBip.XPrv.fromEntropy(entropy, '')
+    const rootKey = XPrv.fromEntropy(Buffer.from(entropy, 'hex'), Buffer.from(''))
     // console.log("rootKey", rootKey);
     return rootKey
   } catch (error) {
@@ -42,18 +45,25 @@ export const genRootPrivateKey = async (entropy: Uint8Array) => {
   }
 }
 
-export const genAccountPrivatekey = async (rootKey: plutsBip.XPrv, index: number) => {
+export const genAccountPrivatekey = async (rootKey: XPrv, index: number) => {
   // hardened derivation
   const accountKey = rootKey
-    .derive(harden(1852)) // purpose
-    .derive(harden(1815)) // coin type
+    .derive(harden1(1852)) // purpose
+    .derive(harden1(1815)) // coin type
     .derive(harden(index)) // account #0
   return accountKey
 }
 
-export const genAddressPrivatekey = async (accountKey: any, type: number, index: number) => {
+export const genAddressPrivateKey = async (accountKey: any, index: number) => {
   const spendingKey = accountKey
-    .derive(type) // 0 external || 1 change || 2 stake key
+    .derive(0) // 0 external || 1 change || 2 stake key
+    .derive(index) // index
+  return spendingKey
+}
+
+export const genAddressStakeKey = async (accountKey: any, index: number) => {
+  const spendingKey = accountKey
+    .derive(2) // 0 external || 1 change || 2 stake key
     .derive(index) // index
   return spendingKey
 }

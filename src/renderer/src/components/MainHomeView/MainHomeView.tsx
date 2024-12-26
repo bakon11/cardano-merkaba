@@ -49,14 +49,15 @@ export const MainHomeView: React.FC = () => {
             </Typography>
           </li>
           <li>
-          <Typography level="body1" mb={2}>
-            Stake Pool view and management
-          </Typography>
+            <Typography level="body1" mb={2}>
+              Stake Pool view and management
+            </Typography>
           </li>
           <li>
-          <Typography level="body1" mb={2}>
-            Governance: Ability to view Proposals and Actions, DRep explorer, voting and delegating
-          </Typography>
+            <Typography level="body1" mb={2}>
+              Governance: Ability to view Proposals and Actions, DRep explorer, voting and
+              delegating
+            </Typography>
           </li>
           {/* Add more updates here */}
         </ul>

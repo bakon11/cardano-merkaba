@@ -8,6 +8,7 @@ import CssBaseline from '@mui/joy/CssBaseline'
 import '@fontsource/space-grotesk'
 import { MainHomeView } from '../components/MainHomeView/MainHomeView'
 import { WalletView } from '../components/WalletView/WalletView'
+import { CreateWallet } from '../components/CreateWallet/CreateWallet'
 import { menuHook } from '../hooks/menuHook'
 
 const App = (): JSX.Element => {
@@ -20,6 +21,7 @@ const App = (): JSX.Element => {
         <SideBar />
         {menu === 'MainHomeView' && <MainHomeView />}
         {menu === 'WalletView' && <WalletView />}
+        {menu === 'CreateWallet' && <CreateWallet />}
       </CssVarsProvider>
     </>
   )
