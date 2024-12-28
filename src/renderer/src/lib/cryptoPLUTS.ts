@@ -5,10 +5,6 @@ import { generateMnemonic, mnemonicToEntropy, validateMnemonic } from 'bip39'
 import { harden, XPrv } from '@harmoniclabs/plu-ts'
 import CryptoJS from 'crypto-js'
 
-function harden1(num: number): number {
-  return 0x80000000 + num
-}
-
 export const genSeedPhrase = async () => {
   try {
     const mnemonic = generateMnemonic(256)
@@ -48,8 +44,8 @@ export const genRootPrivateKey = async (entropy: any) => {
 export const genAccountPrivatekey = async (rootKey: XPrv, index: number) => {
   // hardened derivation
   const accountKey = rootKey
-    .derive(harden1(1852)) // purpose
-    .derive(harden1(1815)) // coin type
+    .derive(harden(1852)) // purpose
+    .derive(harden(1815)) // coin type
     .derive(harden(index)) // account #0
   return accountKey
 }

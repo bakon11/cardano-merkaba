@@ -1,116 +1,66 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react'
 import { Sheet, Typography, Button } from '@mui/joy'
-import {
-  genSeedPhrase,
-  seedPhraseToEntropy,
-  genRootPrivateKey,
-  genAccountPrivatekey,
-  genAddressPrivateKey,
-  genAddressStakeKey,
-} from '../../lib/cryptoPLUTS'
+import { seedPhraseToEntropy, genSeedPhrase } from '../../lib/cryptoPLUTS'
 import { menuHook } from '../../hooks/menuHook'
-import { fromBuffer, toBuffer } from '../../lib/utils'
+// import { fromBuffer, toBuffer } from '../../lib/utils'
+// import { StakeAddress } from '@harmoniclabs/cardano-ledger-ts'
+// import { blake2b_224 } from '@harmoniclabs/crypto'
 import * as pluts from '@harmoniclabs/plu-ts'
-import { blake2b_224 } from '@harmoniclabs/crypto'
 
 export const CreateWallet: React.FC = () => {
   const [seedPhrase, setSeedPhrase] = React.useState<any>('')
+  const [entropy, setEntropy] = React.useState<any>('')
+  const [baseAddress, setBaseAddress] = React.useState<any>('')
+  const [stakeAddress, setStakeAddress] = React.useState<any>('')
   const [menu, setMenu] = menuHook()
 
   const genNewSeedPhrase = async (): Promise<any> => {
-    // const seedPhrase: any = await genSeedPhrase()
-    // console.log('seedPhrase', seedPhrase)
-    // const seedPhraseTest = [ 'earth','unlock','drill','mirror','setup','economy','sphere','illegal','stamp','wedding','pill','act','desert','near','hidden','gadget','media','grass','join','wealth','acid','medal','segment','equal']
-    const seedPhrase =
-      'earth unlock drill mirror setup economy sphere illegal stamp wedding pill act desert near hidden gadget media grass join wealth acid medal segment equal'
+    const seedPhrase: any = await genSeedPhrase()
+    console.log('seedPhrase', seedPhrase)
+    // This seed phrase is strictly for testing purposes
+    // const seedPhrase =
+    //   'earth unlock drill mirror setup economy sphere illegal stamp wedding pill act desert near hidden gadget media grass join wealth acid medal segment equal'
     setSeedPhrase(seedPhrase)
 
-    const entropy = await seedPhraseEntropy(seedPhrase)
+    const entropy = await seedPhraseToEntropy(seedPhrase)
     console.log('entropy', entropy)
 
-    const rootKey: any = await rootPKey(entropy)
-    console.log('rootKey', toBuffer(rootKey?.bytes))
-    // console.log('rootKey', rootKey?.bytes)
-    // console.log('rootKey', fromBuffer(toBuffer(rootKey?.bytes)))
-
-    const accountKeyPrv = await accountPrivatekey(rootKey, 0)
-    console.log('accountKeyPrv', accountKeyPrv.toString())
-    // console.log('accountKeyPrv', toBuffer(accountKeyPrv.bytes))
-
-    const accountKeyPub = accountKeyPrv.public()
-    // console.log('accountKeyPub', accountKeyPub.bytes)
-    // console.log('accountKeyPub', fromBuffer(toBuffer(accountKeyPub.bytes)))
-    console.log('accountKeyPub', toBuffer(accountKeyPub.bytes))
-
-    const accountAddressKeyPrv = await accountAddressPrivateKey(accountKeyPrv, 0)
-    console.log('accountAddressKeyPrv', accountAddressKeyPrv)
-    // console.log('accountAddressKeyPrv', toBuffer(accountAddressKeyPrv.bytes))
-
-    const accountAddressKeyPub = accountAddressKeyPrv.public()
-    console.log('accountAddressKeyPub: ', toBuffer(accountAddressKeyPub.bytes))
-    
-    const accountAddressStakeKeyPrv = await accountAddressStakeKey(accountKeyPrv, 0)
-    console.log('accountAddressStakeKeyPrv', accountAddressStakeKeyPrv)
-    // console.log('accountAddressStakeKeyPrv', toBuffer(accountAddressStakeKeyPrv.bytes))
-    console.log(
-      '###############################################################################################################'
-    )
-
-    console.log(
-      '###############################################################################################################'
-    )
-    const addr: any = pluts.Address.fromEntropy(entropy, 'testnet')
-    console.log('addr', addr)
-
-    const baseAddress = new pluts.Address('testnet', addr.paymentCreds, addr.stakeCreds, 'base')
-    console.log('base address entropy', baseAddress)
-    console.log('base address entropy', baseAddress.toString())
-
-    const stakeAddr = new pluts.StakeAddress('testnet', addr.stakeCreds.hash, 'stakeKey')
-    console.log('stake address entropy', stakeAddr)
-    console.log('stake address entropy', stakeAddr.toString())
-    console.log(
-      '###############################################################################################################'
-    )
-
-    console.log(
-      '###############################################################################################################'
-    )
-    const addr2: any = pluts.Address.fromXPrv(accountAddressStakeKeyPrv, 'testnet')
-    console.log('addr2', addr2)
-
-    const baseAddress2 = new pluts.Address('testnet', addr2.paymentCreds, addr2.stakeCreds, 'base')
-    console.log('base address2 xprv', baseAddress2)
-    console.log('base address2 xprv', baseAddress2.toString())
-
-    const stakeAddr2 = new pluts.StakeAddress('testnet', addr2.stakeCreds.hash, 'stakeKey')
-    console.log('stake address2 xprv', stakeAddr2)
-    console.log('stake address2 xprv', stakeAddr2.toString())
-    console.log(
-      '###############################################################################################################'
-    )
+    const rootKey: any = pluts.XPrv.fromEntropy(entropy, '')
+    console.log('rootKey', rootKey.toString())
 
     return seedPhrase
   }
 
-  const seedPhraseEntropy = async (seedPhrase: any): Promise<any> => {
-    return await seedPhraseToEntropy(seedPhrase)
+  const genBaseAddress = async (entropy: any) => {
+    const addressFromEntropy: any = pluts.Address.fromEntropy(entropy, 'testnet', 0, 0)
+    console.log('addressFromEntropy', addressFromEntropy)
+
+    const baseAddress = new pluts.Address(
+      'testnet',
+      addressFromEntropy.paymentCreds,
+      addressFromEntropy.stakeCreds,
+      'base'
+    )
+    console.log('base address entropy', baseAddress)
+    console.log('base address entropy', baseAddress.toString())
+    return baseAddress
   }
 
-  const rootPKey = async (entropy: any): Promise<any> => {
-    return await genRootPrivateKey(entropy)
-  }
+  const genStakeAddress = async (entropy: any) => {
+    const addressFromEntropy: any = pluts.Address.fromEntropy(entropy, 'testnet', 0, 0)
+    console.log('addressFromEntropy', addressFromEntropy)
 
-  const accountPrivatekey = async (rootKey: any, index: number): Promise<any> => {
-    return await genAccountPrivatekey(rootKey as pluts.XPrv, index)
-  }
-
-  const accountAddressPrivateKey = async (accountKeyPrv: any, index: number): Promise<any> => {
-    return await genAddressPrivateKey(accountKeyPrv, index)
-  }
-  const accountAddressStakeKey = async (accountKeyPrv: any, index: number): Promise<any> => {
-    return await genAddressStakeKey(accountKeyPrv, index)
+    const stakeAddress = new pluts.Address(
+      'testnet',
+      addressFromEntropy.paymentCreds,
+      addressFromEntropy.stakeCreds,
+      'stake'
+    )
+    console.log('stake address entropy', stakeAddress)
+    console.log('stake address entropy', stakeAddress.toString())
+    return stakeAddress
   }
 
   return (

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as pluts from '@harmoniclabs/plu-ts'
 import { decode } from 'cbor-x'
@@ -295,8 +296,8 @@ export const hex2a = (hexx: any) => {
 export const a2hex = (ascii: any) => {
   const arr1 = []
   for (let n = 0, l = ascii.length; n < l; n++) {
-    const hex = Number(ascii.charCodeAt(n)).toString(16)
-    arr1.push(hex)
+    const hex: string | never = Number(ascii.charCodeAt(n)).toString(16)
+    arr1.push(hex as never)
   }
   return arr1.join('')
 }

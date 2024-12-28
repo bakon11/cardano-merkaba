@@ -1,4 +1,5 @@
 # Cardano Merkaba
+
 "Your transformative journey into the Cardano blockchain, where innovation meets spiritual ascension."
 
 ## Why the Name Merkaba?
@@ -19,7 +20,7 @@ What differentiates this from everyone else is that Cardano Merkaba is aimed to 
 
 ## Infrastructure and Tools
 
-Cardano Merkaba is being fully developed using tools like PLU-TS for off-chain and on-chain transaction generation. It allows you to specify your own backend infrastructure and to be a truly decentralized tool for all your Cardano needs, something that most current tools, especially wallets, don't give the ability to do.
+Cardano Merkaba is being fully developed using - **[**Harmonic Labs PLU-TS Tools**](https://github.com/HarmonicLabs/ ) for off-chain and on-chain transaction generation. It allows you to specify your own backend infrastructure and to be a truly decentralized tool for all your Cardano needs, something that most current tools, especially wallets, don't give the ability to do.
 
 ### Cardano Nodes
 - **[IOG - Cardano-Node (Haskell Node)](https://github.com/IntersectMBO/)**
