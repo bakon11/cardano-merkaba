@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import * as React from 'react'
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
+import { networkSelectHook } from '../../hooks/networkSelectHook'
 
 let db: any = null
 
@@ -25,7 +27,7 @@ export const initializeDB = async () => {
 export const setupTables = async (network = 'preprod') => {
   const db = await initializeDB()
   const walletsColumns =
-    'id INTEGER PRIMARY KEY AUTOINCREMENT, entropyEncrypt TEXT NOT NULL, walletPassword TEXT NOT NULL, walletID TEXT UNIQUE'
+    'id INTEGER PRIMARY KEY AUTOINCREMENT, entropyEncrypt TEXT NOT NULL, walletID TEXT UNIQUE, walletName TEXT'
   const accountsColumns =
     'id INTEGER PRIMARY KEY AUTOINCREMENT, entropyEncrypt TEXT NOT NULL,  walletPassword TEXT NOT NULL, walletID TEXT UNIQUE'
   const addressesColumns =
@@ -42,16 +44,30 @@ export const setupTables = async (network = 'preprod') => {
   return null
 }
 
-initializeDB()
-  .then(() => setupTables())
-  .catch((error) => {
-    console.error('Failed to initialize database:', error)
-    process.exit(1)
-  })
+export const initDB = async () => {
+  initializeDB()
+    .then(() => setupTables())
+    .catch((error) => {
+      console.error('Failed to initialize database:', error)
+      process.exit(1)
+    })
+}
 
 export const getWalletDBData = async () => {
   const db = await initializeDB()
   const SQL = `SELECT * FROM wallets`
   const data = await db.all(SQL)
+  await db.close()
   return data
+}
+
+export const saveNewWallet = async (walletData: any) => {
+  const db = await initializeDB()
+  const SQLWallet = `INSERT INTO wallets (entropyEncrypt, walletID, wallletName) VALUES (?, ?, ?)`
+  const SQLAccount = `INSERT INTO accounts (entropyEncrypt, walletID, accountIndex) VALUES (?, ?, ?)`
+  const SQLAddress = `INSERT INTO account_addresses (walletID, accountIndex, addressIndex, baseAddress_bech32, stakeAddress_bech32, createdAt) VALUES (?, ?, ?, ?, ?, ?)`
+
+  await db.run(SQLWallet, [walletData.entropyEncrypt, walletData.walletID, walletData.wallletName])
+  await db.close()
+  return null
 }

@@ -1,11 +1,21 @@
+import React from 'react'
 import { DarkLightToggle } from '../DarkLightToggle/DarkLightToggle'
-import { Sheet, Typography } from '@mui/joy/'
+import { SelectNetwork } from '../SelectNetwork/SelectNetwork'
+import { Sheet, Typography, IconButton, Menu, MenuItem } from '@mui/joy'
 import { menuHook } from '../../hooks/menuHook'
 import { WalletButtons } from '../WalletMenus/Buttons'
 import icon from '../../../../../resources/icon.png'
+import MenuIcon from '@mui/icons-material/Menu'
 
 export const TopBar = (): JSX.Element => {
   const [menu, setMenu] = menuHook()
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    // If the menu is open, close it; otherwise, open it
+    setAnchorEl(anchorEl ? null : event.currentTarget)
+  }
 
   return (
     <>
@@ -29,7 +39,25 @@ export const TopBar = (): JSX.Element => {
           <img src={icon} alt="Icon" height="25" style={{ marginRight: '0.5rem' }} /> Merkaba
         </Typography>
         {menu === 'WalletView' && <WalletButtons />}
-        <DarkLightToggle />
+        <Sheet>
+          {/* Settings Menu Button */}
+          <IconButton onClick={handleClick} size="sm">
+            <MenuIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={() => setAnchorEl(null)} // Close when clicking outside the menu
+            sx={{ mt: 1 }}
+          >
+            <MenuItem>
+              <SelectNetwork />
+            </MenuItem>
+            <MenuItem>
+              <DarkLightToggle />
+            </MenuItem>
+          </Menu>
+        </Sheet>
       </Sheet>
     </>
   )

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import { TxBuilder, Address, Hash28, Hash, UTxO, Value, TxOut, VKeyWitness, VKey } from "@harmoniclabs/plu-ts";
 import * as pluts from '@harmoniclabs/plu-ts'
-import { splitAsset, fromBuffer } from './utils.ts'
+import { splitAsset, fromBuffer } from './utils'
 
 export const txBuilder_PLUTS: any = async (
   protocolParameters: any,
@@ -31,9 +31,9 @@ export const txBuilder_PLUTS: any = async (
   Constructing UTxO instances from CBORs gathered through CIP30 getUtxos() method
   #############################d############################################################################
   */
-  const inputsCbor: any = utxoInputsCBOR.map(pluts.UTxO.fromCbor) // UTxO[]
+  // const inputsCbor: any = utxoInputsCBOR.map(pluts.UTxO.fromCbor) // UTxO[]
   // console.log("inputs", inputsCbor);
-  const inputsCborParsed = inputsCbor.map((utxo: any) => ({ utxo: utxo }))
+  // const inputsCborParsed = inputsCbor.map((utxo: any) => ({ utxo: utxo }))
   // console.log("inputsCborParsed", inputsCborParsed[1].utxo.resolved.value.lovelaces);
 
   /*

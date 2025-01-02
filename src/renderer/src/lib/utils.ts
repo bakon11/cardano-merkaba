@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as pluts from '@harmoniclabs/plu-ts'
@@ -12,7 +13,7 @@ const ogmiosServer = 'https://ogmiosmain.onchainapps.io'
 const kupoServer = 'https://kupomain.onchainapps.io'
 const carpServer = 'https://carp.onchainapps.io'
 const koiosServer = 'https://api.koios.rest/api/v1'
-const koiosApiKey = ''
+// const koiosApiKey = ''
 
 /*
 ##########################################################################################################
@@ -142,91 +143,6 @@ export const constructKoiosProtocolParams = async (protocolParamsKoiosRes: any) 
 
   return defaultProtocolParameters
 }
-
-/*
-##########################################################################################################
-Generate addresses and keys and save them to keys.json.
-keys.json needs to have seedphrase and spending password included before hand.
-#############################d############################################################################
-*/
-/*
-export const genKeys = async () => {
-  let keys = fs.readFileSync("keys.json", "utf8");
-  // console.log("keys", keys);
-  const seedPhrase = JSON.parse(keys).seedPhrase;
-  const walletPassword = JSON.parse(keys).walletPassword;
-  // const seedPhrase = await genSeedPhrase();
-  // console.log("seedPhrase", seedPhrase);
-  const entropy = await seedPhraseToEntropy1(seedPhrase);
-  // console.log("entropy", entropy);
-  const rootXPRV: any = await genRootPrivateKey1(entropy);
-  // console.log("rootXPRV", rootXPRV.to_bech32());
-  // console.log("rootXPUB", rootXPRV.to_public().to_bech32());
-  console.log("creating wallet/account/address");
-  const accountKeyPrv: any = await genAccountKeyPrv(rootXPRV, 1852, 1815, 0);
-  // console.log("accountKeyPrv", await encrypt( walletPassword, accountKeyPrv.to_bech32() ));
-  // let keyBech = accountKeyPrv.to_bech32();
-  // console.log("accountKeyPrv", keyBech.to_raw_key());
-  // console.log("accountKeyPub", accountKeyPrv.to_public().to_bech32());
-  const accountAddressKeyPrv: any = await genAddressSigningKey(accountKeyPrv, 0);
-  // console.log("AccountAddressKeyPrv Key", await encrypt( walletPassword, accountAddressKeyPrv.to_bech32()));
-  // console.log("AccountAddressKeyPRV Key", accountAddressKeyPrv.to_bech32());
-  // console.log("AccountAddressKeyPUB Key", accountAddressKeyPrv.to_public().to_bech32());
-  const accountStakeKeyPrv: any = await genStakeKey(accountKeyPrv, 0);
-  // console.log("accountStakeKeyPrv", await encrypt( walletPassword, accountStakeKeyPrv.to_bech32()));
-  // console.log("accountStakeKeyPrv", accountStakeKeyPrv.to_bech32());
-  // console.log("accountStakeKeyPub", accountStakeKeyPrv.to_public().to_bech32());
-  const baseAddress: any = await genBaseAddr(1, accountAddressKeyPrv.to_public(), accountStakeKeyPrv.to_public());
-  // console.log("baseAddress", baseAddress.to_address().to_bech32());
-  const stakeAddress: any = await genRewardAddr(1, accountStakeKeyPrv.to_public());
-  // console.log("stakeAddress", stakeAddress.to_address().to_bech32());
-  // create/upgrade the database without version checks
-  let newKeys: any = {
-    seedPhrase,
-    walletPassword,
-    walletID: rootXPRV.to_public().to_bech32().slice(100),
-    accountIndex: 0,
-    // walletName: !walletName ? "wallet " + 0 : walletName,
-    rootXPRV: await encrypt(walletPassword, rootXPRV.to_bech32()),
-    rootXPUB: rootXPRV.to_public().to_bech32(),
-    accountKeyPrv: await encrypt(walletPassword, accountKeyPrv.to_bech32()),
-    accountKeyPub: accountAddressKeyPrv.to_public().to_bech32(),
-    accountAddressKeyPrv: await encrypt(walletPassword, accountAddressKeyPrv.to_bech32()),
-    accountAddressKeyPub: accountAddressKeyPrv.to_public().to_bech32(),
-    accountAddressKeyPubHash: toHex(accountAddressKeyPrv.to_public().to_bech32()),
-    accountStakeKeyPrv: await encrypt(walletPassword, accountStakeKeyPrv.to_bech32()),
-    accountStakeKeyPub: accountStakeKeyPrv.to_public().to_bech32(),
-    baseAddress_bech32: baseAddress.to_address().to_bech32(),
-    baseAddress_hash: toHex(baseAddress.to_address().to_bytes()),
-    stakeAddress: stakeAddress.to_address().to_bech32(),
-  };
-  console.log("new keys: ", newKeys);
-  // fs.writeFileSync("keys.json", JSON.stringify({ ...newKeys }, null, 2));
-};
-*/
-/*
-##########################################################################################################
-Parse stake address from base address
-#############################d############################################################################
-*/
-/*
-export const convertAddressToStake = async (address: string) => {
-  // use only if address is hashed
-  // const addressBase = CSLwasm.Address.from_bytes(Buffer.from(address, "hex")).to_bech32();
-  const stake_cred: any = CSLwasm.BaseAddress?.from_address(CSLwasm.Address.from_bech32(address))?.stake_cred();
-  // console.log("stake cred", stake_cred);
-  const reward_addr_bytes = new Uint8Array(29);
-  reward_addr_bytes.set([0xe1], 0);
-  reward_addr_bytes.set(stake_cred.to_bytes().slice(4, 32), 1);
-  const reward_addr: any = CSLwasm.RewardAddress.from_address(CSLwasm.Address.from_bytes(reward_addr_bytes));
-  // console.log("reward_addr", reward_addr);
-  const stake_addr = reward_addr.to_address().to_bech32();
-  // console.log("stake_addr", stake_addr);
-  const stakePKH = Buffer.from(reward_addr_bytes).toString("hex").slice(2);
-  // console.log("stakePKH", stakePKH);
-  return stake_addr;
-};
-*/
 
 /*
 ##########################################################################################################
