@@ -1,4 +1,9 @@
-# Cardano Merkaba
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f9fa23f8-9b39-4757-8bf2-f0149ebc866b" alt="logo">
+</p>
+
+## Cardano Merkaba
 
 "Your transformative journey into the Cardano blockchain, where innovation meets spiritual ascension."
 
@@ -7,8 +12,9 @@
 Here, Merkaba transcends its traditional mystical roots, where it was a symbol of divine ascent via Ezekiel's chariot. In this context, it's adopted as a spiritual movement symbolizing the journey into the Cardano blockchain, representing not just technological innovation but also a personal transformation towards enlightenment and balance in the digital age.
 
 ## Why Another Project That Might Feel Like a Wallet to Some?
+The Cardano Merkaba is build using the PLU-TS Library and is create to run as a stand alone applicaiton in a trustless manner on your own Cardano infrastructure.
 
-The Cardano Merkaba plans on going beyond what any wallet project is doing nowadays on Cardano, and maybe simply become what I always thought Cardano Daedalus wallet could have been.
+And plans on going beyond what any wallet project is doing nowadays on Cardano, and maybe simply become what I always thought Cardano Daedalus wallet could have been.
 
 The plan here is to really embrace decentralization by giving Cardano users a tool where they can not only choose their own infrastructure to access the Cardano Blockchain but also provide them tools to:
 
