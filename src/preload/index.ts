@@ -1,10 +1,14 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { getWalletDBData } from '../db/sqlite3API'
+import {setupWalletTables, getWalletDBData, saveNewWallet, saveNewAccount, saveNewAccountAddress } from '../db/sqlite3API'
 
 // Custom APIs for renderer
 const api = {
-  getWalletDBData: getWalletDBData
+  setupWalletTables: setupWalletTables,
+  getWalletDBData: getWalletDBData,
+  saveNewWallet: saveNewWallet,
+  saveNewAccount: saveNewAccount,
+  saveNewAccountAddress: saveNewAccountAddress
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

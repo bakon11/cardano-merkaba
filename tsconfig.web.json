@@ -15,5 +15,8 @@
         "src/renderer/src/*"
       ]
     }
+  },
+  "rules": {
+    "prettier/prettier": "error", // This enables Prettier within ESLint
   }
 }

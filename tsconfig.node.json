@@ -1,8 +1,11 @@
 {
   "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
-  "include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*", "src/renderer/**/*", "src/db/**/*"],
+  "include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*", "src/renderer/**/*", "src/db/**/*", "src/preload/*.d.ts"],
   "compilerOptions": {
     "composite": true,
-    "types": ["electron-vite/node"]
+    "types": ["electron-vite/node"],
+  },
+  "rules": {
+    "prettier/prettier": "error", // This enables Prettier within ESLint
   }
 }

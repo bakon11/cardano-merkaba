@@ -7,7 +7,7 @@ export const WalletButtons = (): JSX.Element => {
   const [menu, setMenu] = menuHook()
   return (
     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-      <Button variant="outlined" color="primary" onClick={() => setMenu('WalletView')}>
+      <Button variant="outlined" color="primary" onClick={() => setMenu('ViewWallets')}>
         View Wallets
       </Button>
       <Button variant="outlined" color="primary" onClick={() => setMenu('CreateWallet')}>

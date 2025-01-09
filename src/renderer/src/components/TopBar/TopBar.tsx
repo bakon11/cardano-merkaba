@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 import { DarkLightToggle } from '../DarkLightToggle/DarkLightToggle'
 import { SelectNetwork } from '../SelectNetwork/SelectNetwork'
 import { Sheet, Typography, IconButton, Menu, MenuItem } from '@mui/joy'
 import { menuHook } from '../../hooks/menuHook'
 import { WalletButtons } from '../WalletMenus/Buttons'
-import icon from '../../../../../resources/icon.png'
+import icon from '../../../../../resources/logo.png'
 import MenuIcon from '@mui/icons-material/Menu'
 
 export const TopBar = (): JSX.Element => {
@@ -12,9 +13,10 @@ export const TopBar = (): JSX.Element => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLElement>): void => {
     // If the menu is open, close it; otherwise, open it
     setAnchorEl(anchorEl ? null : event.currentTarget)
+    return void 0
   }
 
   return (
@@ -38,7 +40,7 @@ export const TopBar = (): JSX.Element => {
         <Typography level="h4" sx={{ display: 'flex', alignItems: 'center' }}>
           <img src={icon} alt="Icon" height="25" style={{ marginRight: '0.5rem' }} /> Merkaba
         </Typography>
-        {menu === 'WalletView' && <WalletButtons />}
+        {menu === 'ViewWallets' && <WalletButtons />}
         <Sheet>
           {/* Settings Menu Button */}
           <IconButton onClick={handleClick} size="sm">

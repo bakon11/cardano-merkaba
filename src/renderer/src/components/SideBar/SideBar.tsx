@@ -9,28 +9,27 @@ export const SideBar = (): JSX.Element => {
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    height: '50px',
+    height: '40px',
     padding: 0,
-    fontSize: '12px',
+    fontSize: '14px',
     fontWeight: 'bold',
-    borderColor: 'primary.500',
-    borderWidth: '2px',
-    borderRadius: '10px',
-    background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
-    boxShadow: '0 0 8px rgba(255, 107, 107, 0.5), 0 0 12px rgba(78, 205, 196, 0.5)',
+    border: '2px solid #00ff00', // Neon green border
+    borderRadius: '0', // Flat edges for a retro look
+    background: 'linear-gradient(135deg, #000000, #333333)', // Dark gradient background
+    boxShadow: '0 0 5px #00ff00, 0 0 20px #00ff00, 0 0 1px #00ff00', // Neon glow effect
+    color: '#00ff00', // Text color in neon green
+    fontFamily: 'monospace', // Retro coding font
+    textTransform: 'uppercase', // All caps for intensity
+    letterSpacing: '1px', // Spacing for that digital look
     '&:hover': {
-      background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
-      boxShadow: '0 0 12px rgba(255, 107, 107, 0.7), 0 0 16px rgba(78, 205, 196, 0.7)'
+      background: 'linear-gradient(135deg, #1a1a1a, #4d4d4d)', // Slightly lighter on hover
+      boxShadow: '0 0 5px #00ff00, 0 0 25px #00ff00, 0 0 1px #00ff00', // More intense glow
     },
     '&:active': {
-      background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
-      boxShadow: 'inset 0 0 12px rgba(255, 107, 107, 0.5), inset 0 0 12px rgba(78, 205, 196, 0.5)'
+      background: 'linear-gradient(135deg, #262626, #666666)', // Even lighter when pressed
+      boxShadow: 'inset 0 0 5px #00ff00, inset 0 0 1px #00ff00', // Inset glow for pressed effect
     },
-    // Apply the custom font to the button text
-    fontFamily: 'var(--joy-fontFamily-button)',
-    textTransform: 'uppercase', // Optional, for a more dynamic look
-    letterSpacing: '1px' // Optional, adds some coolness to the text
-  }
+  };
 
   return (
     <>
@@ -66,9 +65,9 @@ export const SideBar = (): JSX.Element => {
           variant="outlined"
           color="primary"
           sx={buttonStyle}
-          onClick={() => setMenu('WalletView')}
+          onClick={() => setMenu('ViewWallets')}
         >
-          Wallet
+          Wallets
         </Button>
         <br />
         <Button variant="plain" color="primary" sx={buttonStyle}>

@@ -11,17 +11,17 @@ import {
 import { networkSelectHook } from '../../hooks/networkSelectHook'
 import * as pluts from '@harmoniclabs/plu-ts'
 import { menuHook } from '../../hooks/menuHook'
-import { SeedPhraseDisplay } from './SeedPhraseDisplay'
 import { CreateWalletAccounts } from './CreateWalletAccounts'
-import { VerifySeedPhrase } from './VerifySeedPhrase'
+import { EnterSeedPhrase  } from './EnterSeedPhrase'
 
-export const CreateWallet: React.FC = () => {
+
+export const RestoreWallet: React.FC = () => {
   const saveNewWallet = (walletData: any): any => window.api.saveNewWallet(walletData)
   const saveNewAccount = (accountData: any): any => window.api.saveNewAccount(accountData)
   const saveNewAccountAddress = (addressData: any): any =>
     window.api.saveNewAccountAddress(addressData)
 
-  const [seedPhrase, setSeedPhrase] = React.useState<any>('')
+  const [seedPhrase, setSeedPhrase] = React.useState<string[]>(Array(24).fill(''))
   const [entropy, setEntropy] = React.useState<string>('')
   const [progress, setProgress] = React.useState<number>(0)
   const [network, setNetwork] = networkSelectHook()
@@ -165,42 +165,6 @@ export const CreateWallet: React.FC = () => {
         <Button variant="outlined" color="primary" onClick={() => saveWalletData()}>
           Test Save
         </Button>
-        {progress === 0 && (
-          <SeedPhraseDisplay
-            seedPhrase={seedPhrase}
-            createNewWallet={createNewWallet}
-            handelSetProgress={handelSetProgress}
-          />
-        )}
-        {progress === 1 && (
-          <CreateWalletAccounts
-            accountCount={accountCount}
-            setAccountCount={setAccountCount}
-            spendingPassword={spendingPassword}
-            setSpendingPassword={setSpendingPassword}
-            spendingPasswordCheck={spendingPasswordCheck}
-            setSpendingPasswordCheck={setSpendingPasswordCheck}
-            passwordMatch={passwordMatch}
-            setPasswordMatch={setPasswordMatch}
-            walletName={walletName}
-            setWalletName={setWalletName}
-            accountsInfo={accountsInfo}
-            handelSetProgress={handelSetProgress}
-            status={status}
-            setStatus={setStatus}
-          />
-        )}
-        {progress === 2 && (
-          <VerifySeedPhrase
-            entropy={entropy}
-            verified={verified}
-            setVerified={setVerified}
-            status={status}
-            setStatus={setStatus}
-            handelSetProgress={handelSetProgress}
-            saveWalletData={saveWalletData}
-          />
-        )}
       </Sheet>
     </>
   )

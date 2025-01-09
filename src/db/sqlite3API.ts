@@ -1,10 +1,5 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import * as React from 'react'
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
-import { networkSelectHook } from '../../hooks/networkSelectHook'
-
 let db: any = null
 
 export const initializeDB = async () => {
@@ -20,54 +15,146 @@ export const initializeDB = async () => {
     return db
   } catch (error) {
     console.error('DB error con:', error)
-    process.exit(1) // Exit with an error code if DB connection fails at startup
+    // process.exit(1) // Exit with an error code if DB connection fails at startup
   }
 }
 
-export const setupTables = async (network = 'preprod') => {
+export const setupWalletTables = async (network = 'testnet') => {
+  console.log('Setting up tables for network: ', network)
   const db = await initializeDB()
-  const walletsColumns =
-    'id INTEGER PRIMARY KEY AUTOINCREMENT, entropyEncrypt TEXT NOT NULL, walletID TEXT UNIQUE, walletName TEXT'
-  const accountsColumns =
-    'id INTEGER PRIMARY KEY AUTOINCREMENT, entropyEncrypt TEXT NOT NULL,  walletPassword TEXT NOT NULL, walletID TEXT UNIQUE'
-  const addressesColumns =
-    'id INTEGER PRIMARY KEY AUTOINCREMENT, walletID TEXT UNIQUE, accountIndex INTEGER NOT NULL, rootXPUB TEXT UNIQUE, rootXPRV TEXT, accountKeyPub TEXT UNIQUE, accountAddressKeyPub TEXT UNIQUE, FOREIGN KEY (walletID) REFERENCES wallets(walletID) ON DELETE CASCADE'
+  const walletsColumns = `
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  walletId TEXT NOT NULL,
+  entropyEncrypt TEXT NOT NULL,
+  walletName TEXT NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (walletId)`
+  const accountsColumns = `  
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  walletId TEXT NOT NULL,
+  accountIndex INTEGER NOT NULL,
+  accountName TEXT NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (walletId) REFERENCES wallets(walletId) ON DELETE CASCADE,
+  UNIQUE (walletId, accountIndex)`
+  const addressesColumns = `
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  walletId TEXT NOT NULL,
+  accountIndex INTEGER NOT NULL,
+  addressIndex INTEGER NOT NULL,
+  baseAddress_bech32 TEXT NOT NULL,
+  stakeAddress_bech32 TEXT NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (walletId, accountIndex) REFERENCES accounts_${network}(walletId, accountIndex) ON DELETE CASCADE,
+  UNIQUE (walletId, accountIndex, addressIndex),
+  UNIQUE (walletId, accountIndex, baseAddress_bech32),
+  UNIQUE (walletId, accountIndex, stakeAddress_bech32)`
 
-  const SQLCreateWalletsTBL = `CREATE TABLE IF NOT EXISTS Wallets ( ${walletsColumns}  )`
-  const SQLCreateAccountsTBL = `CREATE TABLE IF NOT EXISTS Accounts_${network} ( ${accountsColumns}  )`
-  const SQLCreateAccountAddressesTBL = `CREATE TABLE IF NOT EXISTS  Account_Addresses_${network} ( ${addressesColumns}  )`
-
-  await db.run(SQLCreateWalletsTBL)
-  await db.run(SQLCreateAccountsTBL)
-  await db.run(SQLCreateAccountAddressesTBL)
-
-  return null
-}
-
-export const initDB = async () => {
-  initializeDB()
-    .then(() => setupTables())
-    .catch((error) => {
-      console.error('Failed to initialize database:', error)
-      process.exit(1)
-    })
+  const SQLCreateWalletsTBL = `CREATE TABLE IF NOT EXISTS wallets ( ${walletsColumns} )`
+  const SQLCreateAccountsTBL = `CREATE TABLE IF NOT EXISTS accounts_${network} ( ${accountsColumns} )`
+  const SQLCreateAccountAddressesTBL = `CREATE TABLE IF NOT EXISTS account_addresses_${network} ( ${addressesColumns} )`
+  try {
+    await db.run(SQLCreateWalletsTBL)
+    await db.run(SQLCreateAccountsTBL)
+    await db.run(SQLCreateAccountAddressesTBL)
+    await db.close()
+    return null
+  } catch (error) {
+    console.error('Error creating wallet tables:', error)
+    await db.close()
+    return 'error'
+    // process.exit(1)
+  }
 }
 
 export const getWalletDBData = async () => {
+  let network = localStorage.getItem('networkSelect') || 'testnet'
+  console.log('Getitng data from DB for network: ', network)
   const db = await initializeDB()
-  const SQL = `SELECT * FROM wallets`
-  const data = await db.all(SQL)
-  await db.close()
-  return data
+  const SQL = `
+  SELECT 
+    w.walletId, 
+    w.walletName,
+    a.accountName,
+    a.accountIndex,
+    aa.addressIndex,
+    aa.baseAddress_bech32,
+    aa.stakeAddress_bech32
+  FROM 
+    wallets w
+  JOIN 
+    accounts_testnet a ON w.walletId = a.walletId
+  JOIN 
+    account_addresses_testnet aa ON a.walletId = aa.walletId AND a.accountIndex = aa.accountIndex
+  ORDER BY 
+    w.walletName, a.accountName, aa.addressIndex`
+
+  try{
+    const data = await db.all(SQL)
+    await db.close()
+    return data
+  }catch(error){
+    console.error('Error getting wallet data:', error)
+    await db.close()
+    return 'error'
+  }
+
 }
 
 export const saveNewWallet = async (walletData: any) => {
   const db = await initializeDB()
-  const SQLWallet = `INSERT INTO wallets (entropyEncrypt, walletID, wallletName) VALUES (?, ?, ?)`
-  const SQLAccount = `INSERT INTO accounts (entropyEncrypt, walletID, accountIndex) VALUES (?, ?, ?)`
-  const SQLAddress = `INSERT INTO account_addresses (walletID, accountIndex, addressIndex, baseAddress_bech32, stakeAddress_bech32, createdAt) VALUES (?, ?, ?, ?, ?, ?)`
+  console.log('saving walletData', walletData)
+  const SQLWallet = `INSERT INTO wallets (entropyEncrypt, walletId, walletName) VALUES ( ?, ?, ? )`
+  try {
+    await db.run(SQLWallet, [walletData.entropyEncrypt, walletData.walletId, walletData.walletName])
+    await db.close()
+    return 'ok'
+  } catch (error) {
+    console.error('Error saving new wallet data:', error)
+    await db.close()
+    // process.exit(1)
+    return 'error'
+  }
+}
 
-  await db.run(SQLWallet, [walletData.entropyEncrypt, walletData.walletID, walletData.wallletName])
-  await db.close()
-  return null
+export const saveNewAccount = async (accountData: any) => {
+  let network = localStorage.getItem('networkSelect') || 'testnet'
+  const db = await initializeDB()
+  const SQLAccount = `INSERT INTO  accounts_${network} ( walletId, accountIndex, accountName) VALUES (?, ?, ?)`
+  try {
+    await db.run(SQLAccount, [
+      accountData.walletId,
+      accountData.accountIndex,
+      accountData.accountName
+    ])
+    await db.close()
+    return 'ok'
+  } catch (error) {
+    console.error('Error saving new account data:', error)
+    await db.close()
+    // process.exit(1)
+    return 'error'
+  }
+}
+
+export const saveNewAccountAddress = async (addressData: any) => {
+  let network = localStorage.getItem('networkSelect') || 'testnet'
+  const db = await initializeDB()
+  const SQLAddress = `INSERT INTO account_addresses_${network} (walletId, accountIndex, addressIndex, baseAddress_bech32, stakeAddress_bech32) VALUES (?, ?, ?, ?, ?)`
+  try {
+    await db.run(SQLAddress, [
+      addressData.walletId,
+      addressData.accountIndex,
+      addressData.addressIndex,
+      addressData.baseAddress_bech32,
+      addressData.stakeAddress_bech32
+    ])
+    await db.close()
+    return 'ok'
+  } catch (error) {
+    console.error('Error saving new address data:', error)
+    await db.close()
+    // process.exit(1)
+    return 'error'
+  }
 }

@@ -26,15 +26,15 @@ export const validateSeedPhrase = (seed: string) => {
   }
 }
 
-export const seedPhraseToEntropy = async (seed_phrase: any) => {
+export const seedPhraseToEntropy = (seed_phrase: any) => {
   return mnemonicToEntropy(seed_phrase)
 }
 
-export const genRootPrivateKey = async (entropy: any) => {
+export const genRootPrivateKey = (entropy: any) => {
   try {
     const rootKey = pluts.XPrv.fromEntropy(entropy, '')
     // console.log("rootKey", rootKey);
-    return rootKey
+    return rootKey as pluts.XPrv
   } catch (error) {
     console.log('root key error: ', error)
     return 'root key error'
@@ -109,12 +109,6 @@ export const genStakeAddressFromEntropy = (
   return stakeAddress
 }
 
-// export const addr0 = Address.fromXPrv(xprv_root, 'testnet')
-
-//export const addr1 = Address.testnet(
-//  Credential.keyHash(new PublicKey(priv1.public().toPubKeyBytes()).hash)
-//)
-
 export const encrypt = (passPhrase: string, text: string) => {
   try {
     const encrypted = CryptoJS.AES.encrypt(JSON.stringify(text), passPhrase).toString()
@@ -134,3 +128,13 @@ export const decrypt = (passPhrase: string, text: string) => {
     return error
   }
 }
+
+
+//Examples
+// export const addr0 = Address.fromXPrv(xprv_root, 'testnet')
+
+//export const addr1 = Address.testnet(
+//  Credential.keyHash(new PublicKey(priv1.public().toPubKeyBytes()).hash)
+//)
+// creates bech32 address from entropy private key
+// console.log("prvKey", pluts.Address.fromXPrv(prvKey, network as pluts.NetworkT).toString() )

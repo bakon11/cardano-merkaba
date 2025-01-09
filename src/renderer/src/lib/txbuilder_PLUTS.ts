@@ -41,7 +41,7 @@ export const txBuilder_PLUTS: any = async (
   Generate inputs from utxoInputsKupo
   #############################d############################################################################
   */
-  utxoInputsKupo = await selectInputs(utxoInputsKupo, utxoOutputs)
+  // utxoInputsKupo = await selectInputs(utxoInputsKupo, utxoOutputs)
   let inputs: any = []
   Promise.all(
     await utxoInputsKupo.map(async (utxo: any) => {
@@ -249,7 +249,7 @@ const createOutputValues = async (output: any, txBuilder: any) => {
         Object.entries(value).map(([asset, quantity]: any) => {
           let assetNew = pluts.Value.singleAsset(
             new pluts.Hash28(splitAsset(asset)[0]),
-            fromHex(splitAsset(asset)[1]),
+            fromBuffer(splitAsset(asset)[1]),
             quantity
           )
           outputAssets.push(assetNew)
@@ -273,7 +273,7 @@ const createOutputValues = async (output: any, txBuilder: any) => {
         Object.entries(value).map(([asset, quantity]: any) => {
           let assetNew = pluts.Value.singleAsset(
             new pluts.Hash28(splitAsset(asset)[0]),
-            fromHex(splitAsset(asset)[1]),
+            fromBuffer(splitAsset(asset)[1]),
             quantity
           )
           outputAssets.push(assetNew)

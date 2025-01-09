@@ -4,7 +4,6 @@
 import * as pluts from '@harmoniclabs/plu-ts'
 import { decode } from 'cbor-x'
 import { Buffer } from 'node:buffer'
-import * as fs from 'node:fs'
 // import fetch from 'node-fetch'
 // const ogmiosServer = "http://192.168.8.2:1337";
 // const kupoServer = "http://192.168.8.3:1442";
@@ -175,7 +174,7 @@ export const CarpApi = async (jsonRaw: any) => {
 
 /*
 ##########################################################################################################
-Take CIP25 metadata and convert it to JSON
+Take CIP25 CBOR metadata and convert it to JSON
 #############################d############################################################################
 */
 export const metadataCbortoJSON = async (cborString: string) => {

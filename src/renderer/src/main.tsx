@@ -8,7 +8,8 @@ import App from './containers/App'
 const routing = (
   <Router>
     <Routes>
-      <Route path="/" element={<App />} />
+      { /*<Route path="/" element={<App />} /> */} // This is the original line
+      <Route path="*" element={<App />} />
     </Routes>
   </Router>
 )
