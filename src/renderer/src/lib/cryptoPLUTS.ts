@@ -18,7 +18,7 @@ export const genSeedPhrase = () => {
 
 export const validateSeedPhrase = (seed: string) => {
   try {
-    const validate = validateMnemonic(seed)
+    const validate: boolean = validateMnemonic(seed)
     return validate
   } catch (error) {
     console.log(error)

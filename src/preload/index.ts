@@ -1,11 +1,11 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import {setupWalletTables, getWalletDBData, saveNewWallet, saveNewAccount, saveNewAccountAddress } from '../db/sqlite3API'
+import {setupWalletTables, getAllWallets, saveNewWallet, saveNewAccount, saveNewAccountAddress } from '../db/sqlite3API'
 
 // Custom APIs for renderer
 const api = {
   setupWalletTables: setupWalletTables,
-  getWalletDBData: getWalletDBData,
+  getAllWallets: getAllWallets,
   saveNewWallet: saveNewWallet,
   saveNewAccount: saveNewAccount,
   saveNewAccountAddress: saveNewAccountAddress

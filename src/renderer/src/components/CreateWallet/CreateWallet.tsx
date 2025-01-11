@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Sheet, Button } from '@mui/joy'
+import { Sheet, Button, Typography } from '@mui/joy'
 import {
   seedPhraseToEntropy,
   genSeedPhrase,
@@ -145,7 +145,7 @@ export const CreateWallet: React.FC = () => {
 
   return (
     <>
-      <h1>Creating Wallet on {network}</h1>
+      <Typography level="h4" >Creating Wallet on {network}</Typography>
       <Sheet
         sx={{
           top: 60,
@@ -159,12 +159,15 @@ export const CreateWallet: React.FC = () => {
           color: 'text.primary'
         }}
       >
-        <Button variant="outlined" color="primary" onClick={() => setMenu('WalletView')}>
+        <Button variant="outlined" color="primary" onClick={() => setMenu('ViewWallets')}>
           Cancel
         </Button>
-        <Button variant="outlined" color="primary" onClick={() => saveWalletData()}>
+        {/*       
+         <Button variant="outlined" color="primary" onClick={() => saveWalletData()}>
           Test Save
         </Button>
+        */}
+
         {progress === 0 && (
           <SeedPhraseDisplay
             seedPhrase={seedPhrase}

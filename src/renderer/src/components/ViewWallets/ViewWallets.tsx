@@ -3,14 +3,17 @@ import * as React from 'react'
 import Sheet from '@mui/joy/Sheet'
 import { Typography } from '@mui/joy'
 import { WalletSelectionTable } from './WalletSelectionTable'
+import { menuHook } from '../../hooks/menuHook'
 
 export const ViewWallets: React.FC = () => {
-  const fetchWalletData = (): any => window.api.getWalletDBData()
-  const [wallets, setWallets] = React.useState<any>([])
+  const getAllWallets = (): any => window.api.getAllWallets()
+  const [ wallets, setWallets ] = React.useState<any>([])
+  const [ menu, setMenu ] = menuHook()
+  
 
-  const walletData = async (): Promise<any> => {
+  const getAllWalletsFromDb = async (): Promise<any> => {
     try {
-      const data = await fetchWalletData()
+      const data = await getAllWallets()
       console.log('data', data)
       setWallets(data)
       return data
@@ -20,7 +23,7 @@ export const ViewWallets: React.FC = () => {
   }
 
   React.useEffect(() => {
-    walletData()
+    getAllWalletsFromDb()
   }, [])
 
   return (
@@ -39,13 +42,12 @@ export const ViewWallets: React.FC = () => {
       <Typography level="h2" mb={3}>
         Wallets
       </Typography>
-      <ul>
-        {wallets.length > 0 ? (
+     
+        { menu === "ViewWallets" && wallets.length > 0 ? (
          <WalletSelectionTable accounts={wallets} />
         ) : (
           <WalletInfoFAQ />
         )}
-      </ul>
     </Sheet>
   )
 }

@@ -2,8 +2,20 @@ import React from 'react'
 import { Sheet, Typography, IconButton, Table } from '@mui/joy'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
+import { selectedAccountHook } from '../../hooks/selectedAccountHook'
+import { menuHook } from '../../hooks/menuHook'
 
+// Define the Account type for clarity and type checking
 interface Account {
+  accountName: string
+  accountIndex: number
+  baseAddress_bech32: string
+  stakeAddress_bech32: string
+  walletId: string
+  walletName: string
+}
+
+interface AccountProps {
   walletId: string
   walletName: string
   accountName: string
@@ -11,16 +23,18 @@ interface Account {
   addressIndex: number
   baseAddress_bech32: string
   stakeAddress_bech32: string
+  initialOpen: boolean
+  row: {
+    walletName: string
+    walletId: string
+    accounts: Account[]
+  }
 }
 
-interface WalletAccountsProps {
-  accounts: Account[]
-}
-
-const Row = (props: { row: Account; initialOpen?: boolean }) => {
-  const { row } = props
-  const [open, setOpen] = React.useState(props.initialOpen || false)
-
+const Row: React.FC<AccountProps> = ({ row, initialOpen }) => {
+  const [open, setOpen] = React.useState(initialOpen || false)
+  const [selectedAccount, setSelectedAccount] = selectedAccountHook()
+  const [menu, setMenu] = menuHook()
   return (
     <React.Fragment>
       <tr>
@@ -69,16 +83,23 @@ const Row = (props: { row: Account; initialOpen?: boolean }) => {
                 <thead>
                   <tr>
                     <th>Account Name</th>
-                    <th >Account Index</th>
+                    <th>Account Index</th>
                     <th>Base Address</th>
                     <th>Stake Address</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {props.row.accounts.map((account) => (
-                    <tr key={account.accountIndex} onClick={() => alert(JSON.stringify(account))} style={{ cursor: 'pointer' }} >
+                  {row.accounts.map((account) => (
+                    <tr
+                      key={account.accountIndex}
+                      onClick={() => {
+                        setSelectedAccount(JSON.stringify(account))
+                        setMenu('SelectedAccountView')
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <th scope="row">{account.accountName}</th>
-                      <td >{account.accountIndex}</td>
+                      <td>{account.accountIndex}</td>
                       <td>
                         <Typography
                           noWrap
@@ -107,7 +128,11 @@ const Row = (props: { row: Account; initialOpen?: boolean }) => {
   )
 }
 
-export const WalletSelectionTable = ({ accounts }: WalletAccountsProps) => {
+interface WalletAccountsProps {
+  accounts: Account[]
+}
+
+export const WalletSelectionTable: React.FC<WalletAccountsProps> = ({ accounts }) => {
   // Group accounts by walletId
   const groupedAccounts = accounts.reduce(
     (acc, account) => {

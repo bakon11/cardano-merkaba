@@ -14,33 +14,6 @@ const carpServer = 'https://carp.onchainapps.io'
 const koiosServer = 'https://api.koios.rest/api/v1'
 // const koiosApiKey = ''
 
-/*
-##########################################################################################################
-Fetching Chain info and Ogmios health
-#############################d############################################################################
-*/
-export const ogmiosHealth = async () => {
-  const requestOptions: any = {
-    method: 'GET',
-    redirect: 'follow'
-  }
-
-  let settings = {}
-  settings = {
-    method: 'GET',
-    headers: {},
-    redirect: 'follow'
-  }
-  try {
-    const fetchResponse = await fetch(`${ogmiosServer}/health`, requestOptions)
-    const data = await fetchResponse.json()
-    // console.log(data);
-    return data
-  } catch (e) {
-    console.log(e)
-    return e
-  }
-}
 
 /*
 ##########################################################################################################

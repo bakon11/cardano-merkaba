@@ -4,7 +4,7 @@ import { DarkLightToggle } from '../DarkLightToggle/DarkLightToggle'
 import { SelectNetwork } from '../SelectNetwork/SelectNetwork'
 import { Sheet, Typography, IconButton, Menu, MenuItem } from '@mui/joy'
 import { menuHook } from '../../hooks/menuHook'
-import { WalletButtons } from '../WalletMenus/Buttons'
+import { WalletButtons } from '../WalletMenus/WalletButtons'
 import icon from '../../../../../resources/logo.png'
 import MenuIcon from '@mui/icons-material/Menu'
 

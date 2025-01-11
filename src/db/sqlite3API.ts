@@ -67,7 +67,7 @@ export const setupWalletTables = async (network = 'testnet') => {
   }
 }
 
-export const getWalletDBData = async () => {
+export const getAllWallets = async () => {
   let network = localStorage.getItem('networkSelect') || 'testnet'
   console.log('Getitng data from DB for network: ', network)
   const db = await initializeDB()
@@ -99,6 +99,41 @@ export const getWalletDBData = async () => {
     return 'error'
   }
 
+}
+
+export const getWalletAccountInfo = async (walletId: string, accountIndex: number) => {
+  let network = localStorage.getItem('networkSelect') || 'testnet'
+  console.log('Getitng data from DB for network: ', network)
+  const db = await initializeDB()
+  const SQL = `
+  SELECT 
+    w.walletId, 
+    w.walletName,
+    a.accountName,
+    a.accountIndex,
+    aa.addressIndex,
+    aa.baseAddress_bech32,
+    aa.stakeAddress_bech32
+  FROM 
+    wallets w
+  JOIN 
+    accounts_testnet a ON w.walletId = a.walletId
+  JOIN 
+    account_addresses_testnet aa ON a.walletId = aa.walletId AND a.accountIndex = aa.accountIndex
+  WHERE
+    w.walletId = '${walletId}' AND a.accountIndex = ${accountIndex}
+  ORDER BY 
+    w.walletName, a.accountName, aa.addressIndex`
+
+  try{
+    const data = await db.all(SQL)
+    await db.close()
+    return data
+  }catch(error){
+    console.error('Error getting wallet data:', error)
+    await db.close()
+    return 'error'
+  }
 }
 
 export const saveNewWallet = async (walletData: any) => {

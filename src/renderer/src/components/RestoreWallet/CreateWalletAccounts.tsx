@@ -178,7 +178,7 @@ export const CreateWalletAccounts: React.FC<CreateWalletAccountsProps> = ({
             </Typography>
           )}
           <Button variant="outlined" color="primary" onClick={() => handelSetProgress(false)}>
-            Continue
+            Save
           </Button>
         </Sheet>
       </Sheet>

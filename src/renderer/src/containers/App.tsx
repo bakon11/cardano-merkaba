@@ -9,8 +9,8 @@ import '@fontsource/space-grotesk'
 import { MainHomeView } from '../components/MainHomeView/MainHomeView'
 import { ViewWallets } from '../components/ViewWallets/ViewWallets'
 import { CreateWallet } from '../components/CreateWallet/CreateWallet'
-import {RestoreWallet } from '../components/RestoreWallet/RestoreWallet'
-
+import { RestoreWallet } from '../components/RestoreWallet/RestoreWallet'
+import { SelectedAccountView } from '../components/ViewWallets/SelectedAccountView'
 import { menuHook } from '../hooks/menuHook'
 
 const App = (): JSX.Element => {
@@ -25,6 +25,7 @@ const App = (): JSX.Element => {
         {menu === 'ViewWallets' && <ViewWallets />}
         {menu === 'CreateWallet' && <CreateWallet />}
         {menu === 'RestoreWallet' && <RestoreWallet />}
+        {menu === 'SelectedAccountView' && <SelectedAccountView />}
       </CssVarsProvider>
     </>
   )

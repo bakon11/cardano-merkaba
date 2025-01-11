@@ -2,14 +2,15 @@ import * as React from 'react'
 import { Sheet, Typography, Button } from '@mui/joy'
 import { menuHook } from '../../hooks/menuHook'
 import { Input } from '@mui/joy'
+import { validateSeedPhrase } from '../../lib/cryptoPLUTS'
 
 interface EnterSeedPhraseProps {
   seedPhrase: string[]
-  setSeedPhrase: (seedPhrase: string) => void
+  setSeedPhrase: (seedPhrase: string[]) => void
   status: string
   setStatus: (status: string) => void
   handelSetProgress: (back: boolean) => void
-  saveWalletData: () => void
+  createWallet: () => void
 }
 
 export const EnterSeedPhrase: React.FC<EnterSeedPhraseProps> = ({
@@ -18,10 +19,10 @@ export const EnterSeedPhrase: React.FC<EnterSeedPhraseProps> = ({
   status,
   setStatus,
   handelSetProgress,
-
+  createWallet
 }) => {
   const [menu, setMenu] = menuHook()
-
+  const [verified, setVerified] = React.useState<boolean>(false)
   const handleChange = (index: number, value: string) => {
     const newWords: string[] = [...seedPhrase]
     newWords[index] = value
@@ -29,7 +30,14 @@ export const EnterSeedPhrase: React.FC<EnterSeedPhraseProps> = ({
   }
 
   const handleVerify = () => {
-
+    const validateSeedPhraseResult: boolean | any = validateSeedPhrase(seedPhrase.join(' '))
+    console.log('seedPhrase', seedPhrase.join(' '))
+    console.log('validateSeedPhraseResult', validateSeedPhraseResult)
+    validateSeedPhraseResult
+      ? setStatus('Seed Phrase Verified')
+      : setStatus('Seed Phrase is invalid')
+    validateSeedPhraseResult && createWallet()
+    setVerified(validateSeedPhraseResult)
   }
 
   React.useEffect(() => {
@@ -40,16 +48,16 @@ export const EnterSeedPhrase: React.FC<EnterSeedPhraseProps> = ({
     <>
       <Sheet sx={{ p: 2 }}>
         <Typography level="h1" sx={{ textAlign: 'center' }}>
-          Please verify your seed phrase.
+          Please Enter your seed phrase.
         </Typography>
         <br />
         <hr />
         <br />
         <Typography level="body-md" sx={{ textAlign: 'left' }}>
-          Since this is a newly generated account, we need to make sure you have written down your
-          seed phrase properly.
+          Restoring a wallet from seed phrase is a sensitive operation. Make sure you are in a
+          private and secure enviroment.
         </Typography>
-        {words.length > 1 && (
+        {seedPhrase.length > 1 && (
           <Sheet
             sx={{
               display: 'grid',
@@ -60,10 +68,10 @@ export const EnterSeedPhrase: React.FC<EnterSeedPhraseProps> = ({
               p: 2
             }}
           >
-            {words.map((_, index: number) => (
+            {seedPhrase.map((_, index: number) => (
               <Input
                 key={index}
-                value={words[index]}
+                value={seedPhrase[index]}
                 onChange={(e) => handleChange(index, e.target.value)}
                 sx={{
                   textAlign: 'center',
@@ -95,16 +103,14 @@ export const EnterSeedPhrase: React.FC<EnterSeedPhraseProps> = ({
           bgcolor: 'background.body'
         }}
       >
-        <Button variant="outlined" color="primary" onClick={() => handelSetProgress( true )}>
-          Back
-        </Button>
         {status !== '' && (
           <Typography level="body-md" sx={{ textAlign: 'center' }}>
             {status}
           </Typography>
         )}
-        {verified === true && (
-          <Button variant="outlined" color="primary" onClick={() => setMenu('WalletView')}>
+
+        {verified && (
+          <Button variant="outlined" color="primary" onClick={() => handelSetProgress(false)}>
             Continue
           </Button>
         )}
