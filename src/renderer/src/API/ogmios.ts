@@ -4,52 +4,79 @@ import { splitAsset, fromBuffer } from '../lib/utils'
 import { OgmiosUtxos } from './utxosExample/'
 
 interface OgmiosRequest {
-  jsonrpc: string
-  method: string
-  params: object
-  id: string
+  jsonrpc: '2.0';
+  method: string;
+  params: object;
+  id: string;
+}
+// Define the structure of each UTXO value
+interface AssetValue {
+  [key: string]: number
 }
 
-export const wsp = (method: string, params: object): any => {
-  // Retrieve the Ogmios hook from localStorage or set a default value
-  let ogmiosHook = localStorage.getItem('ogmiosHook') || 'ws://192.168.1.247:1337'
-  // Initialize WebSocket connection
-  const OgmiosWS = new W3CWebSocket(ogmiosHook)
+interface UtxoValue {
+  ada?: {
+    lovelace: number
+  }
+  [key: string]: AssetValue | undefined
+}
+
+export interface Utxo {
+  transaction: {
+    id: string
+  }
+  index: number
+  address: string
+  value: UtxoValue
+}
+
+interface Result {
+  lovelace: number
+  assets: {
+    [key: string]: AssetValue
+  }
+}
+
+
+export const wsp = (method: string, params: object): W3CWebSocket => {
+  const host  = localStorage.getItem('ogmiosHook') || 'ws://192.168.1.247:1337';
+  const headers = {
+    'dmtr-api-key': 'dmtr_ogmiosXXX',
+}
+
+  const OgmiosWS = new W3CWebSocket(host);
 
   OgmiosWS.onopen = () => {
-    console.log('Ogmios Connection opened')
-    sessionStorage.setItem('ogmiosHealth', 'connected')
+    console.log('Ogmios Connection opened');
+    sessionStorage.setItem('ogmiosHealth', 'connected');
 
-    // Prepare the message to be sent
     const message: OgmiosRequest = {
       jsonrpc: '2.0',
-      method: method,
-      params: params,
+      method,
+      params,
       id: 'init-1234-5678'
-    }
+    };
 
     try {
-      OgmiosWS.send(JSON.stringify(message))
+      OgmiosWS.send(JSON.stringify(message));
     } catch (error) {
-      console.error('Ogmios WS error on sending message: ', error)
-      sessionStorage.setItem('ogmiosHealth', 'error')
-      // Here, we're not returning because this is an event handler, not a function call
+      console.error('Ogmios WS error on sending message:', error);
+      sessionStorage.setItem('ogmiosHealth', 'error');
     }
-  }
+  };
 
   OgmiosWS.onerror = (error: Event) => {
-    console.error('Ogmios Connection Error:', error)
-    sessionStorage.setItem('ogmiosHealth', 'error')
-  }
+    console.error('Ogmios Connection Error:', error);
+    sessionStorage.setItem('ogmiosHealth', 'error');
+  };
 
   OgmiosWS.onclose = (event: CloseEvent) => {
-    console.log('Ogmios Connection closed:', event)
-    sessionStorage.setItem('ogmiosHealth', 'closed')
-  }
+    console.log('Ogmios Connection closed:', event);
+    sessionStorage.setItem('ogmiosHealth', 'closed');
+  };
 
-  // Return the WebSocket instance for further use if needed
-  return OgmiosWS
-}
+  return OgmiosWS;
+};
 
 /*
 ##########################################################################################################
@@ -79,33 +106,46 @@ export const ogmiosHealth = async () => {
   }
 }
 
-// Define the structure of each UTXO value
-interface AssetValue {
-  [key: string]: number
-}
 
-interface UtxoValue {
-  ada?: {
-    lovelace: number
+export const getAccountUtxoInfoOgmios = async (addresses: string[]): Promise<Utxo[] | null> => {
+  const params = {
+    addresses: [...addresses]
   }
-  [key: string]: AssetValue | undefined
-}
 
-export interface Utxo {
-  transaction: {
-    id: string
-  }
-  index: number
-  address: string
-  value: UtxoValue
-}
+  try {
+    const accountInfoWS = wsp('queryLedgerState/utxo', params);
+    return await new Promise((resolve, reject) => {
+      accountInfoWS.onmessage = (e: MessageEvent) => {
+        try {
+          const results = JSON.parse(e.data);
+          console.log('WebSocket message received:', results);
+          resolve(results.result as Utxo[]); // Type assertion for Utxo array
+        } catch (parseError) {
+          console.error('Error parsing WebSocket message:', parseError);
+          reject(parseError);
+        }
+      };
 
-interface Result {
-  lovelace: number
-  assets: {
-    [key: string]: AssetValue
+      accountInfoWS.onerror = (error: Event) => {
+        console.error('WebSocket error:', error);
+        reject(error);
+      };
+
+      accountInfoWS.onclose = (event: CloseEvent) => {
+        console.log('WebSocket connection closed:', event);
+        if (!event.wasClean) {
+          reject(new Error('WebSocket connection was closed unexpectedly'));
+        } else {
+          resolve(null); // Connection closed cleanly, but no data received
+        }
+      };
+    });
+  } catch (error) {
+    console.error('Failed to get account info:', error);
+    throw error; // Re-throw to be handled by the caller if needed
   }
-}
+};
+
 export const parseOgmiosUtxosForWallet = (utxos: Utxo[]): Result => {
   utxos = OgmiosUtxos
   let totalLovelace: number = 0

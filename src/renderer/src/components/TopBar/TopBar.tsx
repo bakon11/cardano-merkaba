@@ -7,6 +7,7 @@ import { menuHook } from '../../hooks/menuHook'
 import { WalletButtons } from '../WalletMenus/WalletButtons'
 import icon from '../../../../../resources/logo.png'
 import MenuIcon from '@mui/icons-material/Menu'
+import { NodeConfigModal } from '../SettingsModal/SelectBackendModal'
 
 export const TopBar = (): JSX.Element => {
   const [menu, setMenu] = menuHook()
@@ -42,6 +43,7 @@ export const TopBar = (): JSX.Element => {
         </Typography>
         {menu === 'ViewWallets' && <WalletButtons />}
         <Sheet>
+          <NodeConfigModal />
           {/* Settings Menu Button */}
           <IconButton onClick={handleClick} size="sm">
             <MenuIcon />

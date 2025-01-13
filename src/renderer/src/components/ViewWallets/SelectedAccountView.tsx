@@ -13,10 +13,9 @@ export const SelectedAccountView: React.FC<SelectedAccountViewProps> = () => {
 
   
   React.useEffect(() => {
-    getAccountUtxoInfoOgmios(account.baseAddress_bech32).then((data) => {
+    getAccountUtxoInfoOgmios([account.baseAddress_bech32]).then((data) => {
       console.log('data', data)
-      setAccountInfo(data
-      )})
+      setAccountInfo(data)})
   }, [])
 
   return (
