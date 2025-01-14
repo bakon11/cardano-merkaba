@@ -4,6 +4,7 @@ import Select from '@mui/joy/Select'
 import Option from '@mui/joy/Option'
 import { networkSelectHook } from '../../hooks/networkSelectHook'
 
+
 export const SelectNetwork: React.FC = () => {
   const [network, setNetwork] = networkSelectHook()
   const setupWalletTables = ( network: string ): void => window.api.setupWalletTables( network )

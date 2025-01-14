@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Sheet, Button, Stack, Modal, ModalClose, Typography } from '@mui/joy'
-import { SelectNode, NodeFaqs } from './SelectNode' 
+import { SelectNode, NodeFaqs } from './SelectNode'
 import { SelectIndexer, IndexerFaqs } from './SelectIndexer'
 
 interface NodeConfigModalProps {
@@ -34,17 +34,17 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = () => {
         <>
           <Sheet
             sx={{
-              top: 60,
+              top: 0,
               left: 60,
               width: 1400,
-              height: 800,
+              height: 900,
               overflowY: 'auto',
               p: 4,
               bgcolor: 'background.body',
               color: 'text.primary'
             }}
           >
-             <ModalClose variant="plain" sx={{ m: 1 }} />
+            <ModalClose variant="plain" sx={{ m: 1 }} />
             <Stack direction="row" spacing={2} justifyContent="center">
               {/*Sheet Node configuration*/}
               <SelectNode
@@ -71,12 +71,14 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = () => {
             </Stack>
             <br />
             <Sheet
-            sx={{
-              textAlign: 'center',
-              p: 1
-            }}>
+              sx={{
+                textAlign: 'center',
+                p: 1
+              }}
+            >
               <Typography level="body-md">
-                At the current stage you need at least and Ogmios instance hooked up to a Cardano Node.
+                At the current stage you need at least and Ogmios instance hooked up to a Cardano
+                Node.
               </Typography>
             </Sheet>
             <Sheet>
@@ -153,4 +155,3 @@ const InfraFaqs: React.FC = () => {
     </Sheet>
   )
 }
-

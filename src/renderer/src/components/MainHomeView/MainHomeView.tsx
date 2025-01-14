@@ -70,7 +70,11 @@ export const MainHomeView: React.FC = () => {
       </Typography>
       <Typography>
         The Cardano Merkaba is build using the PLU-TS Library and is create to run as a stand alone
-        applicaiton in a trustless manner on your own Cardano infrastructure.
+        applicaiton in a trustless manner on your own Cardano infrastructure. Currently main requirment for node is Ogmios hooked up to Cardano Node.
+      </Typography>
+      <br />
+      <Typography>
+        In the near future options like Harmonic Labs - Gerolamo (Typescript node with browser support) will be an option too, and to run it locally as well.
       </Typography>
       <Typography level="body-md" sx={{ mt: 2, fontWeight: 'bold' }}>
         What does that mean?

@@ -54,6 +54,11 @@ export const SelectNode: React.FC<SelectNodeProps> = ({
             <Radio value="ogmios" />
             <label style={{ marginLeft: '8px' }}>Ogmios - Cardano Node</label>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Radio value="gerolamo" disabled/>
+            <label style={{ marginLeft: '8px' }}>Harmonic Labs - Gerolamo</label>
+          </div>
+          
         </RadioGroup>
       </FormControl>
 
@@ -66,13 +71,13 @@ export const SelectNode: React.FC<SelectNodeProps> = ({
             fullWidth
           />
           <Input
-            placeholder="API Header"
+            placeholder="API Header (optional)"
             value={apiHeader}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiHeader(e.target.value)}
             fullWidth
           />
           <Input
-            placeholder="API Key"
+            placeholder="API Key (optional)"
             value={apiKey}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
             fullWidth

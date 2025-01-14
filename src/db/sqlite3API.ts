@@ -1,11 +1,55 @@
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
+import { join, dirname } from 'path'
+import { ipcRenderer } from 'electron' 
+import * as fs from 'fs'
 let db: any = null
 
 export const initializeDB = async () => {
+  const isDev = await ipcRenderer.invoke('is-dev')
+  let dbPath: string = await ipcRenderer.invoke('get-user-path');
+  console.log('isDev:', isDev)
+  
+  
+  // Check if in development mode
+  if (isDev) {
+    dbPath = join(__dirname, '../../src/db/merkaba.db'); // Adjust this path according to your project structure
+    console.log('Using development database path:', dbPath);
+  } else {
+    // For production, get the user data path asynchronously
+    const userDataPath = await ipcRenderer.invoke('get-user-path'); // For renderer process
+    // or if in main process:
+    // const userDataPath = getUserPathMain();
+    dbPath = join(userDataPath, './db/merkaba.db');
+    console.log('Using production database path:', dbPath);
+  }
+  
+    // Ensure the directory exists
+    const dir = dirname(dbPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true }); // Create the directory with all intermediate directories
+    }
+
+  if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, '')
+    console.log('Created merkaba.db because it was not found.')
+  } else {
+    console.log('merkaba.db already exists.')
+  }
+  try {
+    fs.accessSync(
+      dbPath,
+      fs.constants.R_OK | fs.constants.W_OK
+    )
+    console.log('Database file is accessible')
+  } catch (err) {
+    console.error('Database file is not accessible:', err)
+    // Handle error, perhaps by creating the file or informing the user
+  }
+
   try {
     db = await open({
-      filename: './src/db/merkaba.db',
+      filename: dbPath,
       driver: sqlite3.Database
     })
     db.configure('busyTimeout', 5000)
@@ -17,9 +61,10 @@ export const initializeDB = async () => {
     console.error('DB error con:', error)
     // process.exit(1) // Exit with an error code if DB connection fails at startup
   }
+
 }
 
-export const setupWalletTables = async (network = 'testnet') => {
+export const setupWalletTables = async (network = 'testnet'): Promise<null | string> => {
   console.log('Setting up tables for network: ', network)
   const db = await initializeDB()
   const walletsColumns = `
@@ -89,16 +134,15 @@ export const getAllWallets = async () => {
   ORDER BY 
     w.walletName, a.accountName, aa.addressIndex`
 
-  try{
+  try {
     const data = await db.all(SQL)
     await db.close()
     return data
-  }catch(error){
+  } catch (error) {
     console.error('Error getting wallet data:', error)
     await db.close()
     return 'error'
   }
-
 }
 
 export const getWalletAccountInfo = async (walletId: string, accountIndex: number) => {
@@ -121,15 +165,14 @@ export const getWalletAccountInfo = async (walletId: string, accountIndex: numbe
   JOIN 
     account_addresses_testnet aa ON a.walletId = aa.walletId AND a.accountIndex = aa.accountIndex
   WHERE
-    w.walletId = '${walletId}' AND a.accountIndex = ${accountIndex}
   ORDER BY 
     w.walletName, a.accountName, aa.addressIndex`
 
-  try{
+  try {
     const data = await db.all(SQL)
     await db.close()
     return data
-  }catch(error){
+  } catch (error) {
     console.error('Error getting wallet data:', error)
     await db.close()
     return 'error'

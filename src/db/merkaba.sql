@@ -36,4 +36,4 @@ CREATE TABLE IF NOT EXISTS account_addresses_testnet (
 
 -- This SQL will generate DROP TABLE statements for all tables in your SQLite database
 SELECT 'DROP TABLE ' || name || ';' FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';
-drop table account_addresses_mainnet; drop table accounts_testnet; drop table account_addresses_testnet; drop table wallets; drop table accounts_mainnet;
+drop table account_addresses_mainnet; drop table accounts_testnet; drop table account_addresses_testnet; drop table wallets; drop table accounts_mainnet; 

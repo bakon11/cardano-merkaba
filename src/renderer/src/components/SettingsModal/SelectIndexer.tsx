@@ -58,6 +58,10 @@ export const SelectIndexer: React.FC<SelectIndexerProps> = ({
             <Radio value="kupo" />
             <label style={{ marginLeft: '8px' }}>Kupo Indexer</label>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Radio value="dbsync" disabled />
+            <label style={{ marginLeft: '8px' }}>DBSync</label>
+          </div>          
         </RadioGroup>
       </FormControl>
 
@@ -69,13 +73,13 @@ export const SelectIndexer: React.FC<SelectIndexerProps> = ({
           fullWidth
         />
         <Input
-          placeholder="API Header"
+          placeholder="API Header (optional)"
           value={apiHeader}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiHeader(e.target.value)}
           fullWidth
         />
         <Input
-          placeholder="API Key"
+          placeholder="API Key (optional)"
           value={apiKey}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
           fullWidth

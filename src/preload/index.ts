@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import {setupWalletTables, getAllWallets, saveNewWallet, saveNewAccount, saveNewAccountAddress } from '../db/sqlite3API'
 
@@ -10,7 +10,6 @@ const api = {
   saveNewAccount: saveNewAccount,
   saveNewAccountAddress: saveNewAccountAddress
 }
-
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.

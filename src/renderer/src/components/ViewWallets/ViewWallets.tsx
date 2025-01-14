@@ -29,7 +29,7 @@ export const ViewWallets: React.FC = () => {
   return (
     <Sheet
       sx={{
-        top: 60,
+        top: 20,
         left: 60,
         width: 1400,
         height: 800,

@@ -64,7 +64,7 @@ export const TabsSegmentedControls = () => {
   )
 }
 
-import { CssVarsProvider, Box, Divider, Button, Input } from '@mui/joy'
+import { Box, Divider, Button, Input } from '@mui/joy'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts' // You would need to install recharts for this
 
 const data = [

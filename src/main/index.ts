@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { app, shell, BrowserWindow, session, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/logo.png?asset'
@@ -55,6 +55,15 @@ app.whenReady().then(async () => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  // Setup IPC handler for getUserPath
+  ipcMain.handle('get-user-path', () => {
+    return app.getPath('userData')
+  })
+
+  ipcMain.handle('is-dev', () => {
+    return is.dev
+  })
+
   createWindow()
 
   app.on('activate', function () {
@@ -72,6 +81,3 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
-
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.
