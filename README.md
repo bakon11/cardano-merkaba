@@ -45,3 +45,12 @@ Stay tuned for more information.
 ![image](https://github.com/user-attachments/assets/065487af-8e92-4c27-b258-3c179c3651f3)
 ![image](https://github.com/user-attachments/assets/0730ace5-4801-4989-aab6-b899bfbcb072)
 
+## How to run
+Quickest way to run this repo atm is to 
+
+1) `git clone https://github.com/bakon11/cardano-merkaba`
+2) `cd cardano-merkaba`
+3) `npm install`
+4) `npm run dev`
+
+
