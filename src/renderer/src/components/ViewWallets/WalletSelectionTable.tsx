@@ -4,6 +4,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import { selectedAccountHook } from '../../hooks/selectedAccountHook'
 import { menuHook } from '../../hooks/menuHook'
+import { backendHook } from '../../hooks/backendHook'
 
 // Define the Account type for clarity and type checking
 interface Account {
@@ -35,6 +36,16 @@ const Row: React.FC<AccountProps> = ({ row, initialOpen }) => {
   const [open, setOpen] = React.useState(initialOpen || false)
   const [selectedAccount, setSelectedAccount] = selectedAccountHook()
   const [menu, setMenu] = menuHook()
+  const [backEnd, setBackEnd]: [string[] | null, (config: string) => Promise<void>] = backendHook()
+
+  const handleSelectAccount = (account: Account) => {
+    const backend = JSON.parse(backEnd)
+    console.log("backend", backend[1])
+    backend[1] === "" && alert(`Backend: ${backend[0]}, is missing the hostname.`)
+    // setSelectedAccount(JSON.stringify(account))
+    // setMenu('SelectedAccountView')
+  }
+
   return (
     <React.Fragment>
       <tr>
@@ -93,8 +104,7 @@ const Row: React.FC<AccountProps> = ({ row, initialOpen }) => {
                     <tr
                       key={account.accountIndex}
                       onClick={() => {
-                        setSelectedAccount(JSON.stringify(account))
-                        setMenu('SelectedAccountView')
+                        handleSelectAccount(account)
                       }}
                       style={{ cursor: 'pointer' }}
                     >

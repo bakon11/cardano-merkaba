@@ -4,15 +4,20 @@ import ReactDOM from 'react-dom/client'
 import { ReusableProvider } from 'reusable'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import App from './containers/App'
+import Wallet from './containers/Wallet'
+import Minter from './containers/Minter'
 
 const routing = (
   <Router>
     <Routes>
-      { /*<Route path="/" element={<App />} /> */} // This is the original line
-      <Route path="*" element={<App />} />
+      <Route path="/" element={<App />} />
+      <Route path="/wallet" element={<Wallet />} />
+      <Route path="/minter" element={<Minter />} />
+      <Route path="*" element={<App />} /> {/* Catch-all route */}
     </Routes>
   </Router>
 )
+
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(

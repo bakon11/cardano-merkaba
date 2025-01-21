@@ -1,8 +1,14 @@
 import { Sheet, Typography, Button } from '@mui/joy/'
 import { menuHook } from '../../hooks/menuHook'
+import { useNavigate } from 'react-router-dom'
 
 export const SideBar = (): JSX.Element => {
   const [menu, setMenu] = menuHook()
+  const navigate = useNavigate()
+
+  const handleNavigate = (path) => {
+    navigate(path)
+  }
 
   const buttonStyle = {
     display: 'flex',
@@ -23,13 +29,13 @@ export const SideBar = (): JSX.Element => {
     letterSpacing: '1px', // Spacing for that digital look
     '&:hover': {
       background: 'linear-gradient(135deg, #1a1a1a, #4d4d4d)', // Slightly lighter on hover
-      boxShadow: '0 0 5px #00ff00, 0 0 25px #00ff00, 0 0 1px #00ff00', // More intense glow
+      boxShadow: '0 0 5px #00ff00, 0 0 25px #00ff00, 0 0 1px #00ff00' // More intense glow
     },
     '&:active': {
       background: 'linear-gradient(135deg, #262626, #666666)', // Even lighter when pressed
-      boxShadow: 'inset 0 0 5px #00ff00, inset 0 0 1px #00ff00', // Inset glow for pressed effect
-    },
-  };
+      boxShadow: 'inset 0 0 5px #00ff00, inset 0 0 1px #00ff00' // Inset glow for pressed effect
+    }
+  }
 
   return (
     <>
@@ -65,12 +71,23 @@ export const SideBar = (): JSX.Element => {
           variant="outlined"
           color="primary"
           sx={buttonStyle}
-          onClick={() => setMenu('ViewWallets')}
+          onClick={() => {
+            setMenu('ViewWallets')
+            handleNavigate('/wallet')
+          }}
         >
           Wallets
         </Button>
         <br />
-        <Button variant="plain" color="primary" sx={buttonStyle}>
+        <Button
+          variant="plain"
+          color="primary"
+          sx={buttonStyle}
+          onClick={() => {
+            setMenu('MinterHome')
+            handleNavigate('/minter')
+          }}
+        >
           Minter
         </Button>
         <br />
@@ -78,7 +95,10 @@ export const SideBar = (): JSX.Element => {
           variant="plain"
           color="primary"
           sx={buttonStyle}
-          onClick={() => setMenu('MainHomeView')}
+          onClick={() => {
+            setMenu('MainHomeView')
+            handleNavigate('/')
+          }}
         >
           Home
         </Button>

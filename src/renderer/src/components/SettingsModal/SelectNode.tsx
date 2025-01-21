@@ -1,27 +1,39 @@
 import * as React from 'react'
-import { Sheet, Button, Stack, Input, RadioGroup, FormControl, FormLabel, Radio, Typography } from '@mui/joy'
+import {
+  Sheet,
+  Button,
+  Stack,
+  Input,
+  RadioGroup,
+  FormControl,
+  FormLabel,
+  Radio,
+  Typography,
+  Tooltip
+} from '@mui/joy'
 
 interface SelectNodeProps {
   selectedNode: string
   setSelectedNode: (setSelectedNode: string) => void
   host: string
-  setHost: (setHost: string) => void
+  setNodeHost: (setNodeHost: string) => void
   apiHeader: string
-  setApiHeader: (setApiHeader: string) => void
+  setNodeApiHeader: (setNodeApiHeader: string) => void
   apiKey: string
-  setApiKey: (setApiKey: string) => void
+  setNodeApiKey: (setNodeApiKey: string) => void
 }
 
 export const SelectNode: React.FC<SelectNodeProps> = ({
   selectedNode,
   setSelectedNode,
   host,
-  setHost,
+  setNodeHost,
   apiHeader,
-  setApiHeader,
+  setNodeApiHeader,
   apiKey,
-  setApiKey
+  setNodeApiKey
 }) => {
+
   return (
     <Sheet
       variant="outlined"
@@ -50,15 +62,16 @@ export const SelectNode: React.FC<SelectNodeProps> = ({
           value={selectedNode}
           onChange={(e) => setSelectedNode(e.target.value)}
         >
+          <Tooltip title="Ogmios instance attached to Cardano Node, the most common setup now days" color="primary" placement="top" variant="outlined">
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Radio value="ogmios" />
+              <label style={{ marginLeft: '8px' }}>Ogmios - Cardano Node</label>
+            </div>
+          </Tooltip>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Radio value="ogmios" />
-            <label style={{ marginLeft: '8px' }}>Ogmios - Cardano Node</label>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Radio value="gerolamo" disabled/>
+            <Radio value="gerolamo" disabled />
             <label style={{ marginLeft: '8px' }}>Harmonic Labs - Gerolamo</label>
           </div>
-          
         </RadioGroup>
       </FormControl>
 
@@ -67,19 +80,19 @@ export const SelectNode: React.FC<SelectNodeProps> = ({
           <Input
             placeholder="Host Address: https://hostname:port"
             value={host}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHost(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNodeHost(e.target.value)}
             fullWidth
           />
           <Input
             placeholder="API Header (optional)"
             value={apiHeader}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiHeader(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNodeApiHeader(e.target.value)}
             fullWidth
           />
           <Input
             placeholder="API Key (optional)"
             value={apiKey}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNodeApiKey(e.target.value)}
             fullWidth
           />
         </Stack>

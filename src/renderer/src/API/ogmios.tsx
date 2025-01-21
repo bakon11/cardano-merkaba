@@ -1,13 +1,14 @@
+import * as React from 'react'
 import { w3cwebsocket as W3CWebSocket } from 'websocket'
 import * as pluts from '@harmoniclabs/plu-ts'
 import { splitAsset, fromBuffer } from '../lib/utils'
 import { OgmiosUtxos } from './utxosExample/'
 
 interface OgmiosRequest {
-  jsonrpc: '2.0';
-  method: string;
-  params: object;
-  id: string;
+  jsonrpc: '2.0'
+  method: string
+  params: object
+  id: string
 }
 // Define the structure of each UTXO value
 interface AssetValue {
@@ -37,46 +38,54 @@ interface Result {
   }
 }
 
-
 export const wsp = (method: string, params: object): W3CWebSocket => {
-  const host  = localStorage.getItem('ogmiosHook') || 'ws://192.168.1.247:1337';
+  // const [backEnd, setBackEnd]: [string | null, (config: string) => Promise<void>] = backendHook()
+  const backend = localStorage.getItem('backendHook') || ['ogmios', 'ws://192.168.1.247:1337', '', '']
+  console.log('backend', JSON.parse(backend as any)[0])
+  if (backend === null) {
+    // Handle the case where backEnd is null, maybe set a default here
+    console.warn('Backend configuration is null, setting default')
+    localStorage.setItem('backendHook', JSON.stringify(['ogmios', 'ws://192.168.1.247:1337', '', ''])) // Initialize with an empty array if null
+    // setBackEnd(JSON.stringify(['ogmios', 'ws://192.168.1.247:1337', '', ''])) // Initialize with an empty array if null
+    return
+  }
   const headers = {
-    'dmtr-api-key': 'dmtr_ogmiosXXX',
-}
+    'dmtr-api-key': 'dmtr_ogmiosXXX'
+  }
 
-  const OgmiosWS = new W3CWebSocket(host);
+  const OgmiosWS = new W3CWebSocket(JSON.parse(backend as any)[1])
 
   OgmiosWS.onopen = () => {
-    console.log('Ogmios Connection opened');
-    sessionStorage.setItem('ogmiosHealth', 'connected');
+    console.log('Ogmios Connection opened')
+    sessionStorage.setItem('ogmiosHealth', 'connected')
 
     const message: OgmiosRequest = {
       jsonrpc: '2.0',
       method,
       params,
       id: 'init-1234-5678'
-    };
+    }
 
     try {
-      OgmiosWS.send(JSON.stringify(message));
+      OgmiosWS.send(JSON.stringify(message))
     } catch (error) {
-      console.error('Ogmios WS error on sending message:', error);
-      sessionStorage.setItem('ogmiosHealth', 'error');
+      console.error('Ogmios WS error on sending message:', error)
+      sessionStorage.setItem('ogmiosHealth', 'error')
     }
-  };
+  }
 
   OgmiosWS.onerror = (error: Event) => {
-    console.error('Ogmios Connection Error:', error);
-    sessionStorage.setItem('ogmiosHealth', 'error');
-  };
+    console.error('Ogmios Connection Error:', error)
+    sessionStorage.setItem('ogmiosHealth', 'error')
+  }
 
   OgmiosWS.onclose = (event: CloseEvent) => {
-    console.log('Ogmios Connection closed:', event);
-    sessionStorage.setItem('ogmiosHealth', 'closed');
-  };
+    console.log('Ogmios Connection closed:', event)
+    sessionStorage.setItem('ogmiosHealth', 'closed')
+  }
 
-  return OgmiosWS;
-};
+  return OgmiosWS
+}
 
 /*
 ##########################################################################################################
@@ -106,45 +115,44 @@ export const ogmiosHealth = async () => {
   }
 }
 
-
 export const getAccountUtxoInfoOgmios = async (addresses: string[]): Promise<Utxo[] | null> => {
   const params = {
     addresses: [...addresses]
   }
 
   try {
-    const accountInfoWS = wsp('queryLedgerState/utxo', params);
+    const accountInfoWS = wsp('queryLedgerState/utxo', params)
     return await new Promise((resolve, reject) => {
       accountInfoWS.onmessage = (e: MessageEvent) => {
         try {
-          const results = JSON.parse(e.data);
-          console.log('WebSocket message received:', results);
-          resolve(results.result as Utxo[]); // Type assertion for Utxo array
+          const results = JSON.parse(e.data)
+          console.log('WebSocket message received:', results)
+          resolve(results.result as Utxo[]) // Type assertion for Utxo array
         } catch (parseError) {
-          console.error('Error parsing WebSocket message:', parseError);
-          reject(parseError);
+          console.error('Error parsing WebSocket message:', parseError)
+          reject(parseError)
         }
-      };
+      }
 
       accountInfoWS.onerror = (error: Event) => {
-        console.error('WebSocket error:', error);
-        reject(error);
-      };
+        console.error('WebSocket error:', error)
+        reject(error)
+      }
 
       accountInfoWS.onclose = (event: CloseEvent) => {
-        console.log('WebSocket connection closed:', event);
+        console.log('WebSocket connection closed:', event)
         if (!event.wasClean) {
-          reject(new Error('WebSocket connection was closed unexpectedly'));
+          reject(new Error('WebSocket connection was closed unexpectedly'))
         } else {
-          resolve(null); // Connection closed cleanly, but no data received
+          resolve(null) // Connection closed cleanly, but no data received
         }
-      };
-    });
+      }
+    })
   } catch (error) {
-    console.error('Failed to get account info:', error);
-    throw error; // Re-throw to be handled by the caller if needed
+    console.error('Failed to get account info:', error)
+    throw error // Re-throw to be handled by the caller if needed
   }
-};
+}
 
 export const parseOgmiosUtxosForWallet = (utxos: Utxo[]): Result => {
   utxos = OgmiosUtxos
@@ -189,7 +197,7 @@ export const parseOgmiosUtxosForWallet = (utxos: Utxo[]): Result => {
 
 /*
 ##########################################################################################################
-Generate inputs from utxoInputsKupo
+Generate inputs from utxoInputsOgmios
 #############################d############################################################################
 */
 export const paraseOgmiosUtxoToPlutsTX = async (utxoInputsKupo: any) => {
