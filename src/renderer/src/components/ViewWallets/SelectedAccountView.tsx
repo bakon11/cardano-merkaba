@@ -30,7 +30,7 @@ export const SelectedAccountView: React.FC<SelectedAccountViewProps> = () => {
 
   return (
     <>
-      <Typography level="h4">{account.accountName}</Typography>
+
       <Sheet
         sx={{
           top: 20,
@@ -63,10 +63,10 @@ export const WalletTabs: React.FC<WalletTabsProps> = ({ accountInfo }) => {
     <Tabs orientation="vertical" size="sm">
       <TabList>
         <Tab variant="outlined" color="neutral">
-          Account
+          Account: {accountInfo && accountInfo.account.accountName}
         </Tab>
         <Tab variant="outlined" color="neutral">
-          Transactions
+          Assets
         </Tab>
       </TabList>
       <TabPanel value={0}>
@@ -74,7 +74,7 @@ export const WalletTabs: React.FC<WalletTabsProps> = ({ accountInfo }) => {
         <AccountDashboard accountInfo={accountInfo} />{' '}
       </TabPanel>
       <TabPanel value={1}>
-        <AccountAssetsDashboard assets={accountInfo.assets} />{' '}
+         <AccountAssetsDashboard assets={accountInfo && accountInfo.assets && accountInfo.assets} /> {' '} 
       </TabPanel>
     </Tabs>
   )
@@ -101,7 +101,6 @@ export const AccountDashboard: React.FC<AccountDashboardProps> = ({ accountInfo 
     <Sheet sx={{ width: '100%', bgcolor: 'background.level1', borderRadius: 'sm', p: 2 }}>
       {/* Account Information */}
       <Box>
-        <Typography level="h4">Account #0</Typography>
         <Typography level="body-md">
           (m/1852'/1815'/{accountInfo ? accountInfo.account.accountIndex : '****'}')
         </Typography>
@@ -169,6 +168,7 @@ export const AccountDashboard: React.FC<AccountDashboardProps> = ({ accountInfo 
 
 import { List, ListItem, ListItemButton } from '@mui/joy';
 
+
 interface Asset {
   policyId: string;
   tokenName: string;
@@ -204,15 +204,27 @@ export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ 
       }))
     );
 
-    return flatAssets.reduce((acc, asset) => {
-      if (!acc[asset.policyId] && (asset.policyId.toLowerCase().includes(term.toLowerCase()) || asset.tokenNameDecoded.toLowerCase().includes(term.toLowerCase()))) {
-        acc[asset.policyId] = [];
-      }
-      if (acc[asset.policyId] && asset.tokenNameDecoded.toLowerCase().includes(term.toLowerCase())) {
+    if (term === '') {
+      // If the search term is empty, return all assets
+      return flatAssets.reduce((acc, asset) => {
+        if (!acc[asset.policyId]) {
+          acc[asset.policyId] = [];
+        }
         acc[asset.policyId].push(asset);
-      }
-      return acc;
-    }, {} as { [key: string]: Asset[] });
+        return acc;
+      }, {} as { [key: string]: Asset[] });
+    } else {
+      // Filter assets based on search term
+      return flatAssets.reduce((acc, asset) => {
+        if (!acc[asset.policyId] && (asset.policyId.toLowerCase().includes(term.toLowerCase()) || asset.tokenNameDecoded.toLowerCase().includes(term.toLowerCase()))) {
+          acc[asset.policyId] = [];
+        }
+        if (acc[asset.policyId] && asset.tokenNameDecoded.toLowerCase().includes(term.toLowerCase())) {
+          acc[asset.policyId].push(asset);
+        }
+        return acc;
+      }, {} as { [key: string]: Asset[] });
+    }
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -220,6 +232,11 @@ export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ 
     setSearchTerm(term);
     setFilteredAssets(filterAssets(term));
   };
+
+  React.useEffect(() => {
+    // Initial load with all assets
+    setFilteredAssets(filterAssets(''));
+  }, [assets]); // This effect runs when 'assets' prop changes
 
   return (
     <Sheet sx={{ width: '100%', bgcolor: 'background.level1', borderRadius: 'sm', p: 2 }}>
@@ -235,7 +252,7 @@ export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ 
       <List>
         {Object.entries(filteredAssets).map(([policyId, tokens]) => (
           <React.Fragment key={policyId}>
-            <Typography level="body-md" sx={{ mt: 2 }}>{policyId}</Typography>
+            <Typography level="h5" sx={{ mt: 2 }}>Poliocy ID: {policyId}</Typography>
             {tokens.map((asset, index) => (
               <ListItem key={index} sx={{ p: 0 }}>
                 <ListItemButton 
@@ -255,8 +272,8 @@ export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ 
                   {/* Placeholder for asset image */}
                   <div style={{ width: '50px', height: '50px', backgroundColor: '#e0e0e0', marginRight: '10px' }}></div>
                   <div>
-                    <Typography level="body1">{asset.tokenNameDecoded}</Typography>
-                    <Typography level="body2">{`Amount: ${asset.amount}`}</Typography>
+                    <Typography level="body-md">{asset.tokenNameDecoded}</Typography>
+                    <Typography level="body-md">{`Amount: ${asset.amount}`}</Typography>
                   </div>
                   <Button 
                     size="sm" 

@@ -155,7 +155,7 @@ export const getAccountUtxoInfoOgmios = async (addresses: string[]): Promise<Utx
 }
 
 export const parseOgmiosUtxosForWallet = (utxos: Utxo[]): Result => {
-  utxos = OgmiosUtxos
+  // utxos = OgmiosUtxos
   let totalLovelace: number = 0
   const assets: { [key: string]: AssetValue } = {}
 

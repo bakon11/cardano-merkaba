@@ -41,9 +41,9 @@ const Row: React.FC<AccountProps> = ({ row, initialOpen }) => {
   const handleSelectAccount = (account: Account) => {
     const backend = JSON.parse(backEnd)
     console.log("backend", backend[1])
-    backend[1] === "" && alert(`Backend: ${backend[0]}, is missing the hostname.`)
-    // setSelectedAccount(JSON.stringify(account))
-    // setMenu('SelectedAccountView')
+    if(backend[1] === "") {return alert(`Backend: ${backend[0]}, is missing the hostname.`)}
+    setSelectedAccount(JSON.stringify(account))
+    setMenu('SelectedAccountView')
   }
 
   return (
