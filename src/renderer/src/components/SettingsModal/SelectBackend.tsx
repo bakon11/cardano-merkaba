@@ -155,11 +155,11 @@ export const SelectBackend: React.FC<SelectBackendProps> = ({}) => {
           <Tooltip
             title={
               <>
-                location of Ogmios instance wheter cloud solution or local: ws://localhost:1337{' '}
+                location of Ogmios instance whether cloud solution or local: ws://localhost:1337{' '}
                 <br />
                 or an IP address of another machine on your network: ws://192.168.1.420
                 <br />
-                or a cloud instance like demeter.run: wss://demeter.run
+                or a cloud instance like demeter.run, you can just use the Authenticated Endpoint URL they provide and don't forget to use wss:// vs https://
               </>
             }
             color="primary"
