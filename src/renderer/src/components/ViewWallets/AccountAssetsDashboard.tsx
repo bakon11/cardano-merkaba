@@ -1,6 +1,6 @@
 import * as React from 'react'
-
 import { List, ListItem, ListItemButton, Sheet, Typography, Button, Input } from '@mui/joy'
+import { toUtf8, fromHex } from '@harmoniclabs/uint8array-utils'
 
 interface Asset {
   policyId: string
@@ -17,15 +17,6 @@ export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ 
   const [searchTerm, setSearchTerm] = React.useState<string>('')
   const [filteredAssets, setFilteredAssets] = React.useState<{ [key: string]: Asset[] }>({})
 
-  // Convert hex to string for token names
-  const hexToString = (hex: string): string => {
-    let str = ''
-    for (let i = 0; i < hex.length; i += 2) {
-      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16))
-    }
-    return str
-  }
-
   // Filter and group assets by Policy ID
   const filterAssets = (term: string): { [key: string]: Asset[] } => {
     const flatAssets: Asset[] = Object.entries(assets.assets).flatMap(([policyId, tokens]) =>
@@ -33,8 +24,11 @@ export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ 
         policyId,
         tokenName,
         amount: amount as number,
-        tokenNameDecoded: hexToString(tokenName)
-      }))
+        tokenNameDecoded: toUtf8(fromHex(tokenName))
+      }
+    
+    ))
+      
     )
 
     if (term === '') {

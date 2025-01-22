@@ -129,12 +129,38 @@ export const decrypt = (passPhrase: string, text: string) => {
   }
 }
 
+/*
+export const xprv_root = XPrv.fromEntropy(
+  mnemonicToEntropy(
+      process.env.SEED_PHRASE!
+  )
+);
 
-//Examples
-// export const addr0 = Address.fromXPrv(xprv_root, 'testnet')
+export const priv0 = (
+  xprv_root
+  .derive(harden(1852))
+  .derive(harden(1815))
+  .derive(harden(0))
+  .derive(0)
+  .derive(0)
+);
 
-//export const addr1 = Address.testnet(
-//  Credential.keyHash(new PublicKey(priv1.public().toPubKeyBytes()).hash)
-//)
-// creates bech32 address from entropy private key
-// console.log("prvKey", pluts.Address.fromXPrv(prvKey, network as pluts.NetworkT).toString() )
+export const priv1 = (
+  xprv_root
+  .derive(harden(1852))
+  .derive(harden(1815))
+  .derive(harden(1))
+  .derive(0)
+  .derive(0)
+);
+
+export const addr0 = Address.fromXPrv( xprv_root, "testnet" );
+
+export const addr1 = Address.testnet(
+  Credential.keyHash(
+      new PublicKey(
+          priv1.public().toPubKeyBytes()
+      ).hash
+  )
+);
+*/
