@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Sheet, Typography, Button } from '@mui/joy'
-import { menuHook } from '../../hooks/menuHook'
-import { seedPhraseToEntropy } from '../../lib/cryptoPLUTS'
+import { menuHook } from '../../../hooks/menuHook'
+import { seedPhraseToEntropy } from '../../../lib/cryptoPLUTS'
 import { Input } from '@mui/joy'
 
 interface VerifySeedPhraseProps {

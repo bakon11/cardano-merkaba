@@ -2,9 +2,9 @@ import React from 'react'
 import { Sheet, Typography, IconButton, Table } from '@mui/joy'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
-import { selectedAccountHook } from '../../hooks/selectedAccountHook'
-import { menuHook } from '../../hooks/menuHook'
-import { backendHook } from '../../hooks/backendHook'
+import { selectedAccountHook } from '../../../hooks/selectedAccountHook'
+import { menuHook } from '../../../hooks/menuHook'
+import { backendHook } from '../../../hooks/backendHook'
 
 // Define the Account type for clarity and type checking
 interface Account {

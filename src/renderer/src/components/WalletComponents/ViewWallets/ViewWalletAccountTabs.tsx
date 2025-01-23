@@ -17,6 +17,9 @@ export const WalletAccountTabs: React.FC<WalletTabsProps> = ({ accountInfo }) =>
         <Tab variant="outlined" color="neutral">
           Assets
         </Tab>
+        <Tab variant="outlined" color="neutral">
+          Send
+        </Tab>
       </TabList>
       <TabPanel value={0}>
         {' '}
@@ -24,6 +27,9 @@ export const WalletAccountTabs: React.FC<WalletTabsProps> = ({ accountInfo }) =>
       </TabPanel>
       <TabPanel value={1}>
          <AccountAssetsDashboard assets={accountInfo && accountInfo.assets && accountInfo.assets} /> {' '} 
+      </TabPanel>
+      <TabPanel value={2}>
+
       </TabPanel>
     </Tabs>
   )

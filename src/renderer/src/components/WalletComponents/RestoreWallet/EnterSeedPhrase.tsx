@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { Sheet, Typography, Button } from '@mui/joy'
-import { menuHook } from '../../hooks/menuHook'
+import { menuHook } from '../../../hooks/menuHook'
 import { Input } from '@mui/joy'
-import { validateSeedPhrase } from '../../lib/cryptoPLUTS'
+import { validateSeedPhrase } from '../../../lib/cryptoPLUTS'
 
 interface EnterSeedPhraseProps {
   seedPhrase: string[]

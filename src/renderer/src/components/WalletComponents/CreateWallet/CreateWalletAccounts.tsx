@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Sheet, Typography, Button } from '@mui/joy'
 import { Input } from '@mui/joy'
-import { menuHook } from '../../hooks/menuHook'
+import { menuHook } from '../../../hooks/menuHook'
 
 interface CreateWalletAccountsProps {
   accountCount: number | any

@@ -2,26 +2,24 @@ import * as React from 'react'
 import { Sheet, Button, Typography } from '@mui/joy'
 import {
   seedPhraseToEntropy,
-  genSeedPhrase,
   genRootPrivateKey,
   genBaseAddressFromEntropy,
   genStakeAddressFromEntropy,
   encrypt
-} from '../../lib/cryptoPLUTS'
-import { networkSelectHook } from '../../hooks/networkSelectHook'
+} from '../../../lib/cryptoPLUTS'
+import { networkSelectHook } from '../../../hooks/networkSelectHook'
 import * as pluts from '@harmoniclabs/plu-ts'
-import { menuHook } from '../../hooks/menuHook'
-import { SeedPhraseDisplay } from './SeedPhraseDisplay'
+import { menuHook } from '../../../hooks/menuHook'
 import { CreateWalletAccounts } from './CreateWalletAccounts'
-import { VerifySeedPhrase } from './VerifySeedPhrase'
+import { EnterSeedPhrase } from './EnterSeedPhrase'
 
-export const CreateWallet: React.FC = () => {
+export const RestoreWallet: React.FC = () => {
   const saveNewWallet = (walletData: any): any => window.api.saveNewWallet(walletData)
   const saveNewAccount = (accountData: any): any => window.api.saveNewAccount(accountData)
   const saveNewAccountAddress = (addressData: any): any =>
     window.api.saveNewAccountAddress(addressData)
 
-  const [seedPhrase, setSeedPhrase] = React.useState<any>('')
+  const [seedPhrase, setSeedPhrase] = React.useState<string[]>(Array(24).fill(''))
   const [entropy, setEntropy] = React.useState<string>('')
   const [progress, setProgress] = React.useState<number>(0)
   const [network, setNetwork] = networkSelectHook()
@@ -38,18 +36,17 @@ export const CreateWallet: React.FC = () => {
 
   // console.log('checking entropy wipe', entropy)
 
-  const createNewWallet = async () => {
-    const seedPhrase: any = await genSeedPhrase()
-
+  const createWallet = async () => {
+    // const seedPhrase: any = await genSeedPhrase()
     //Don't get too excited it's just a random seed phrase used for testing :).
     // const seedPhrase = 'earth unlock drill mirror setup economy sphere illegal stamp wedding pill act desert near hidden gadget media grass join wealth acid medal segment equal'
-    setSeedPhrase(seedPhrase)
+    // setSeedPhrase(seedPhrase)
     console.log('seedPhrase', seedPhrase)
-    const entropy = seedPhraseToEntropy(seedPhrase)
+    const entropy = seedPhraseToEntropy(seedPhrase.join(' '))
     console.log('entropy', entropy)
     const prvKey: any = genRootPrivateKey(entropy)
     // console.log('prvKey', prvKey)
-    const pubKey =  new pluts.PublicKey(prvKey.public().toPubKeyBytes()).toString()
+    const pubKey = new pluts.PublicKey(prvKey.public().toPubKeyBytes()).toString()
     setWalletId(pubKey)
     setEntropy(entropy)
   }
@@ -96,47 +93,45 @@ export const CreateWallet: React.FC = () => {
     if (back === false && progress === 1 && accountCount === 0)
       return setStatus('please create at least one account')
 
-    back === false && progress === 1 && setProgress(progress + 1)
-
+    back === false && progress === 1 && saveWalletData()
     back === true && setProgress(progress - 1)
   }
 
   const saveWalletData = async () => {
     // Save wallet data to the database
     console.log('saving wallet data')
-    console.log("accountsInfo", accountsInfo)
-    const entropyEncrypted = encrypt(spendingPassword, entropy )
+    console.log('accountsInfo', accountsInfo)
+    const entropyEncrypted = encrypt(spendingPassword, entropy)
     console.log('entropyEncrypted', entropyEncrypted)
-    
-    const saveNewWalletRes = await saveNewWallet({ 
-      entropyEncrypt: entropyEncrypted, 
-      walletId: walletId, 
+
+    const saveNewWalletRes = await saveNewWallet({
+      entropyEncrypt: entropyEncrypted,
+      walletId: walletId,
       walletName: walletName
     })
-    console.log("saveNewWalletRes", saveNewWalletRes)
+    console.log('saveNewWalletRes', saveNewWalletRes)
     saveNewWalletRes === 'ok' &&
-    
-    accountsInfo.map(async (account: any) => {
-      // Save account data to the database
-      console.log('saving account data')
-      await saveNewAccount({
-        walletId: walletId,
-        accountIndex: account.accountIndex,
-        accountName: account.accountName
-      })
+      accountsInfo.map(async (account: any) => {
+        // Save account data to the database
+        console.log('saving account data')
+        await saveNewAccount({
+          walletId: walletId,
+          accountIndex: account.accountIndex,
+          accountName: account.accountName
+        })
 
-      // Save account address data to the database
-      console.log('saving account address data')
-      await saveNewAccountAddress({
-        walletId: walletId,
-        accountIndex: account.accountIndex,
-        addressIndex: 0,
-        baseAddress_bech32: account.baseAddress,
-        stakeAddress_bech32: account.stakeAddress
+        // Save account address data to the database
+        console.log('saving account address data')
+        await saveNewAccountAddress({
+          walletId: walletId,
+          accountIndex: account.accountIndex,
+          addressIndex: 0,
+          baseAddress_bech32: account.baseAddress,
+          stakeAddress_bech32: account.stakeAddress
+        })
       })
-    })
     setStatus('Seed Phrase Verified, New wallet setup is complete')
-    setTimeout( () => setMenu('ViewWallets'), 5000)
+    setTimeout(() => setMenu('ViewWallets'), 5000)
   }
 
   React.useEffect(() => {
@@ -145,7 +140,8 @@ export const CreateWallet: React.FC = () => {
 
   return (
     <>
-      <Typography level="h4" >Creating Wallet on {network}</Typography>
+      <Typography level="h4">Restoring Wallet on {network}</Typography>
+
       <Sheet
         sx={{
           top: 60,
@@ -167,12 +163,14 @@ export const CreateWallet: React.FC = () => {
           Test Save
         </Button>
         */}
-
         {progress === 0 && (
-          <SeedPhraseDisplay
+          <EnterSeedPhrase
             seedPhrase={seedPhrase}
-            createNewWallet={createNewWallet}
+            setSeedPhrase={setSeedPhrase}
+            status={status}
+            setStatus={setStatus}
             handelSetProgress={handelSetProgress}
+            createWallet={createWallet}
           />
         )}
         {progress === 1 && (
@@ -191,17 +189,6 @@ export const CreateWallet: React.FC = () => {
             handelSetProgress={handelSetProgress}
             status={status}
             setStatus={setStatus}
-          />
-        )}
-        {progress === 2 && (
-          <VerifySeedPhrase
-            entropy={entropy}
-            verified={verified}
-            setVerified={setVerified}
-            status={status}
-            setStatus={setStatus}
-            handelSetProgress={handelSetProgress}
-            saveWalletData={saveWalletData}
           />
         )}
       </Sheet>

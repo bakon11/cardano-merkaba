@@ -3,7 +3,7 @@ import * as React from 'react'
 import Sheet from '@mui/joy/Sheet'
 import { Typography } from '@mui/joy'
 import { WalletSelectionTable } from './WalletSelectionTable'
-import { menuHook } from '../../hooks/menuHook'
+import { menuHook } from '../../../hooks/menuHook'
 
 export const ViewWallets: React.FC = () => {
   const getAllWallets = (): any => window.api.getAllWallets()

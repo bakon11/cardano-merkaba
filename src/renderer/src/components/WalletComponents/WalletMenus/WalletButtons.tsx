@@ -1,7 +1,7 @@
 import * as React from 'react'
 import Box from '@mui/joy/Box'
 import Button from '@mui/joy/Button'
-import { menuHook } from '../../hooks/menuHook'
+import { menuHook } from '../../../hooks/menuHook'
 
 export const WalletButtons = (): JSX.Element => {
   const [menu, setMenu] = menuHook()
