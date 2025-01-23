@@ -22,7 +22,7 @@ export const SelectedAccountView: React.FC<SelectedAccountViewProps> = () => {
         console.log('data', data)
         const parssedAssets = parseOgmiosUtxosForWallet(data)
         console.log('parssedAssets', parssedAssets)
-        const everything = { account, assets: parssedAssets }
+        const everything = { account, value: parssedAssets, utxos: data }
         console.log('everything', everything)
         setAccountInfo(everything)
       })

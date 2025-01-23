@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Tab, Tabs, TabList, TabPanel } from '@mui/joy'
 import { AccountDashboard } from './AccountDashboard'
 import { AccountAssetsDashboard } from './AccountAssetsDashboard'
+import { SendTxView } from './SendTxView'
 
 interface WalletTabsProps {
   accountInfo: any
@@ -26,10 +27,10 @@ export const WalletAccountTabs: React.FC<WalletTabsProps> = ({ accountInfo }) =>
         <AccountDashboard accountInfo={accountInfo} />{' '}
       </TabPanel>
       <TabPanel value={1}>
-         <AccountAssetsDashboard assets={accountInfo && accountInfo.assets && accountInfo.assets} /> {' '} 
+         <AccountAssetsDashboard value={accountInfo && accountInfo.value && accountInfo.value} /> {' '} 
       </TabPanel>
       <TabPanel value={2}>
-
+        <SendTxView accountInfo={accountInfo} />
       </TabPanel>
     </Tabs>
   )

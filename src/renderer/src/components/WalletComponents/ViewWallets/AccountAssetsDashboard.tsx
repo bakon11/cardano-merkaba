@@ -10,25 +10,21 @@ interface Asset {
 }
 
 interface AccountAssetsDashboardProps {
-  assets: { lovelace: number; assets: { [key: string]: { [key: string]: number } } }
+  value: { lovelace: number; assets: { [key: string]: { [key: string]: number } } }
 }
 
-export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ assets }) => {
+export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ value }) => {
   const [searchTerm, setSearchTerm] = React.useState<string>('')
   const [filteredAssets, setFilteredAssets] = React.useState<{ [key: string]: Asset[] }>({})
-
   // Filter and group assets by Policy ID
   const filterAssets = (term: string): { [key: string]: Asset[] } => {
-    const flatAssets: Asset[] = Object.entries(assets.assets).flatMap(([policyId, tokens]) =>
+    const flatAssets: Asset[] = Object.entries(value.assets).flatMap(([policyId, tokens]) =>
       Object.entries(tokens).map(([tokenName, amount]) => ({
         policyId,
         tokenName,
         amount: amount as number,
         tokenNameDecoded: toUtf8(fromHex(tokenName))
-      }
-    
-    ))
-      
+      }))
     )
 
     if (term === '') {
@@ -75,8 +71,8 @@ export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ 
 
   React.useEffect(() => {
     // Initial load with all assets
-    setFilteredAssets(filterAssets(''))
-  }, [assets]) // This effect runs when 'assets' prop changes
+    value && setFilteredAssets(filterAssets(''))
+  }, [value]) // This effect runs when 'value' prop changes
 
   return (
     <Sheet sx={{ width: '100%', bgcolor: 'background.level1', borderRadius: 'sm', p: 2 }}>

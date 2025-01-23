@@ -26,7 +26,7 @@ export const AccountDashboard: React.FC<AccountDashboardProps> = ({ accountInfo 
         </Typography>
         <Divider />
         <Typography>
-          Total funds: ₳ {accountInfo ? accountInfo.assets.lovelace / 1000000 : '****'}{' '}
+          Total funds: ₳ {accountInfo ? accountInfo.value.lovelace / 1000000 : '****'}{' '}
         </Typography>
         <Typography>Balance: ₳ ****</Typography>
         <Typography>Rewards: ₳ ****</Typography>
@@ -37,7 +37,7 @@ export const AccountDashboard: React.FC<AccountDashboardProps> = ({ accountInfo 
         <Typography level="h4">Available Funds Breakdown</Typography>
         <Divider />
         <Typography color="success">
-          Est. available: ₳ {accountInfo ? accountInfo.assets.lovelace / 1000000 : '****'}
+          Est. available: ₳ {accountInfo ? accountInfo.value.lovelace / 1000000 : '****'}
         </Typography>
         <Typography color="warning">Est. locked: ₳ ****</Typography>
         <Typography>Collateral UTXO: ₳ ****</Typography>
@@ -68,6 +68,21 @@ export const AccountDashboard: React.FC<AccountDashboardProps> = ({ accountInfo 
         </Button>
       </Box>
 
+
+      {/* Receive Address */}
+      <Box mt={2}>
+        <Typography level="h4">Stake Address</Typography>
+        <Input
+          fullWidth
+          value={accountInfo ? accountInfo.account.baseAddress_bech32 : '****'}
+          readOnly
+          endDecorator={
+            <Button variant="outlined" color="neutral">
+              Copy
+            </Button>
+          }
+        />
+      </Box>
       {/* Stake Address */}
       <Box mt={2}>
         <Typography level="h4">Stake Address</Typography>
