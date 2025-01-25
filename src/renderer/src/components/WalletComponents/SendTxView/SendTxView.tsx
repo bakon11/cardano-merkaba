@@ -12,7 +12,7 @@ import {
   ListItem
 } from '@mui/joy'
 import CloseIcon from '@mui/icons-material/Close'
-import { getProtocolParametersOgmios, constructOgmiosProtocolParams } from '../../../API/ogmios'
+import { getProtocolParametersOgmios } from '../../../API/ogmios'
 import { backendHook } from '../../../hooks/backendHook'
 import { toUtf8, fromHex } from '@harmoniclabs/uint8array-utils'
 import { txBuilder_PLUTS } from './txBuilder'

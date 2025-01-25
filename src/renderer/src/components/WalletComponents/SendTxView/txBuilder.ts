@@ -42,12 +42,11 @@ export const txBuilder_PLUTS: any = async (
   #############################d############################################################################
   */
   // utxoInputsKupo = await selectInputs(utxoInputsKupo, utxoOutputs)
-  let inputs: any = []
-
+  let inputsPLUTS: any = []
   Promise.all(
     await utxoInputs.map(async (utxo: any) => {
       // console.log("adding inputs")
-      inputs.push(
+      inputsPLUTS.push(
         new pluts.UTxO({
           utxoRef: {
             id: utxo.transaction.id,
@@ -65,19 +64,19 @@ export const txBuilder_PLUTS: any = async (
     })
   )
 
-  console.log('inputs', inputs)
-  const inputsParsed = inputs.map((utxo: any) => ({ utxo: utxo }))
-  console.log('inputsParsed', inputsParsed)
+  console.log('inputsPLUTS', inputsPLUTS)
+  // const inputsParsed = inputs.map((utxo: any) => ({ utxo: utxo }))
+  // console.log('inputsParsed', inputsParsed)
 
   /*
   ##########################################################################################################
   Creating outputs for receiving address
   #############################d############################################################################
   */
-  let outputsParsed: pluts.TxOut[] = []
+  let outputsPLUTS: pluts.TxOut[] = []
   Promise.all(
     await utxoOutputs.map(async (output: any) => {
-      outputsParsed.push(
+      outputsPLUTS.push(
         new pluts.TxOut({
           address: pluts.Address.fromString(output.address),
           value: await createOutputValues(output, txBuilder) // parse kupo value
@@ -117,9 +116,9 @@ export const txBuilder_PLUTS: any = async (
   */
   try {
     let builtTx = txBuilder.buildSync({
-      inputs: inputsParsed,
+      inputs: inputsPLUTS,
       changeAddress,
-      outputs: outputsParsed,
+      outputs: outputsPLUTS,
       invalidAfter: ttl,
       metadata: txMeta
     })

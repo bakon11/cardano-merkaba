@@ -54,9 +54,9 @@ export const genAddressPrv = (xprv_root: pluts.XPrv, accIndex: number, addressTy
   return xprv_root
   .derive(pluts.harden(1852))
   .derive(pluts.harden(1815))
-  .derive(pluts.harden(0))
-  .derive(0)
-  .derive(0)
+  .derive(pluts.harden(accIndex))
+  .derive(addressType)
+  .derive(addressIndex)
 }
 
 export const genAddressPrivateKey = (accountKey: any, index: number) => {

@@ -3,25 +3,24 @@
 import * as pluts from '@harmoniclabs/plu-ts'
 import { splitAsset, fromBuffer } from '../../lib/utils'
 import { createInputValuesOgmios } from '../../API/ogmios'
-import { fromAscii, toHex } from '@harmoniclabs/uint8array-utils'
 
 export const txBuilderMint: any = async (
   protocolParameters: any,
   utxoInputs: any,
   utxoOutputs: any,
   changeAddress: any,
-  // accountAddressKeyPrv: any,
+  accountAddressKeyPrv: any,
   metadata: any,
   script: any,
-  scriptAddr: any
+  scriptAddr: any,
+  mintedValue: any
 ) => {
-
   /*
   ##########################################################################################################
   Constructing TxBuilder instance
   #############################d############################################################################
   */
- 
+
   const txBuilder = new pluts.TxBuilder(protocolParameters)
   console.log('txBuilder protocolParamters', txBuilder)
 
@@ -93,7 +92,8 @@ export const txBuilderMint: any = async (
     ##########################################################################################################
   */
   const txMeta: any = new pluts.TxMetadata({
-    [metadata.label]: pluts.jsonToMetadata(metadata.properties)
+    [metadata.label]: pluts.jsonToMetadata(metadata.properties),
+    [metadata.label]: pluts.jsonToMetadata(metadata.properties),
   })
   // console.log("txMeta", txMeta);
 
@@ -110,23 +110,17 @@ export const txBuilderMint: any = async (
 
   /*
   ##########################################################################################################
+  Find UTXO for collateral
+  #############################d############################################################################
+  */
+  const colateral = inputs.find((u) => u.resolved.value.lovelaces > 15_000_000)
+  console.log('colateral', colateral)
+
+  /*
+  ##########################################################################################################
   Build Transaction
   #############################d############################################################################
   */
- const colateral = inputs.find(u => u.resolved.value.lovelaces > 15_000_000);
- console.log('colateral', colateral)
-  const mintedValue = new pluts.Value([
-    {
-      // policy: scriptAddr.paymentCreds.hash,
-      policy: scriptAddr.paymentCreds.hash,
-      assets: [
-        {
-          name: fromAscii('Merkaba'),
-          quantity: 1
-        }
-      ]
-    }
-  ])
   // console.log('address from strng', pluts.Address.fromString(changeAddress))
   try {
     let builtTx = txBuilder.buildSync({
@@ -152,22 +146,21 @@ export const txBuilderMint: any = async (
       ]
     })
     // Sign tx hash
-    // const signedTx = accountAddressKeyPrv.sign(builtTx.body.hash.toBuffer())
+    const signedTx = accountAddressKeyPrv.sign(builtTx.body.hash.toBuffer())
     // console.log("txBuffer", builtTx.body.hash.toBuffer());
-
-    // const VKeyWitness = new pluts.VKeyWitness(
-    //  new pluts.VKey(signedTx.pubKey),
-    //  new pluts.Signature(signedTx.signature)
-    // )
+    const VKeyWitness = new pluts.VKeyWitness(
+      new pluts.VKey(signedTx.pubKey),
+      new pluts.Signature(signedTx.signature)
+    )
     // console.log("VKeyWitness", VKeyWitness);
-    // builtTx.witnesses.addVKeyWitness(VKeyWitness)
+    builtTx.witnesses.addVKeyWitness(VKeyWitness)
     // const txCBOR = builtTx.toCbor().toString()
     // console.log('builtTx', builtTx)
     // console.log('txCBOR', txCBOR)
     // console.log("builtTx hash: ", builtTx.hash);
     // console.log('builtTx complete: ', builtTx.isComplete)
     // console.log('bytes', hexToBytes(txCBOR))
-    
+
     return builtTx
   } catch (error) {
     console.log('txBuilder.buildSync', error)
