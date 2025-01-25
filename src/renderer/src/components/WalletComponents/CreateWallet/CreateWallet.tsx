@@ -6,7 +6,8 @@ import {
   genRootPrivateKey,
   genBaseAddressFromEntropy,
   genStakeAddressFromEntropy,
-  encrypt
+  encrypt,
+  decrypt
 } from '../../../lib/cryptoPLUTS'
 import { networkSelectHook } from '../../../hooks/networkSelectHook'
 import * as pluts from '@harmoniclabs/plu-ts'
@@ -47,10 +48,10 @@ export const CreateWallet: React.FC = () => {
     console.log('seedPhrase', seedPhrase)
     const entropy = seedPhraseToEntropy(seedPhrase)
     console.log('entropy', entropy)
-    const prvKey: any = genRootPrivateKey(entropy)
+    const root_prvKey: any = genRootPrivateKey(entropy)
     // console.log('prvKey', prvKey)
-    const pubKey =  new pluts.PublicKey(prvKey.public().toPubKeyBytes()).toString()
-    setWalletId(pubKey)
+    const pubKey =  new pluts.PublicKey(root_prvKey.public().toPubKeyBytes()).toString()
+    setWalletId(`${network}_${pubKey}`)
     setEntropy(entropy)
   }
 
@@ -105,9 +106,11 @@ export const CreateWallet: React.FC = () => {
     // Save wallet data to the database
     console.log('saving wallet data')
     console.log("accountsInfo", accountsInfo)
-    const entropyEncrypted = encrypt(spendingPassword, entropy )
+    console.log("spendingPassword", spendingPassword)
+    const entropyEncrypted: any = encrypt(entropy, spendingPassword )
     console.log('entropyEncrypted', entropyEncrypted)
-    
+    const entropyDecrypted = decrypt(entropyEncrypted, spendingPassword)
+    console.log('entropyDecrypted', entropyDecrypted)
     const saveNewWalletRes = await saveNewWallet({ 
       entropyEncrypt: entropyEncrypted, 
       walletId: walletId, 
@@ -162,11 +165,11 @@ export const CreateWallet: React.FC = () => {
         <Button variant="outlined" color="primary" onClick={() => setMenu('ViewWallets')}>
           Cancel
         </Button>
-        {/*       
+            
          <Button variant="outlined" color="primary" onClick={() => saveWalletData()}>
           Test Save
         </Button>
-        */}
+        
 
         {progress === 0 && (
           <SeedPhraseDisplay

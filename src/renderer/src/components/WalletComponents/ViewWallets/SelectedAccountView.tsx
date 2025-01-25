@@ -7,26 +7,25 @@ import { WalletAccountTabs } from './ViewWalletAccountTabs'
 interface SelectedAccountViewProps {}
 
 export const SelectedAccountView: React.FC<SelectedAccountViewProps> = () => {
-  const [selectedAccount, setSelectedAccount] = selectedAccountHook() as any
+  const [selectedAccount, setSelectedAccount ] = selectedAccountHook() as any
   const account = JSON.parse(selectedAccount)
   const [ accountInfo, setAccountInfo ] = React.useState<any>()
-  const [backEnd, setBackEnd]: [string | null, (config: string) => Promise<void>] = backendHook()
+  const  [backEnd, setBackEnd ]: [string | null, (config: string) => Promise<void>] = backendHook()
 
-  React.useEffect(() => {
-    console.log('account', account)
+  const fetchAccountAddressUtxos = async () => {
     const backend = JSON.parse(backEnd as any)
-    console.log('backend', backend)
-    backend &&
-      backend[0] === 'ogmios' &&
-      getAccountUtxoInfoOgmios([account.baseAddress_bech32]).then((data: any) => {
-        console.log('data', data)
-        const parssedAssets = parseOgmiosUtxosForWallet(data)
-        console.log('parssedAssets', parssedAssets)
-        const everything = { account, value: parssedAssets, utxos: data }
-        console.log('everything', everything)
-        setAccountInfo(everything)
-      })
-  }, [])
+    if (backend && backend[0] === 'ogmios') {
+      const data: any = await getAccountUtxoInfoOgmios([account.baseAddress_bech32])
+      const parssedAssets = parseOgmiosUtxosForWallet(data)
+      const everything = { account, value: parssedAssets, utxos: data }
+      console.log('everything', everything)
+      setAccountInfo(everything)
+    }
+  };
+
+  React.useEffect( () => {
+    fetchAccountAddressUtxos()
+  }, [selectedAccount])
 
   return (
     <>

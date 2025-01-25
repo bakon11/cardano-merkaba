@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Tab, Tabs, TabList, TabPanel } from '@mui/joy'
 import { AccountDashboard } from './AccountDashboard'
 import { AccountAssetsDashboard } from './AccountAssetsDashboard'
-import { SendTxView } from './SendTxView'
+import { SendTxView } from '../SendTxView/SendTxView'
 
 interface WalletTabsProps {
   accountInfo: any

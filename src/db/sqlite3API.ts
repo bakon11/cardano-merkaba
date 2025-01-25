@@ -236,3 +236,31 @@ export const saveNewAccountAddress = async (addressData: any) => {
     return 'error'
   }
 }
+
+export const getWalletEntropy = async (walletId: string) => {
+  const db = await initializeDB()
+  const SQL = `SELECT entropyEncrypt FROM wallets WHERE walletId = ?`
+  try {
+    const data = await db.get(SQL, [walletId])
+    await db.close()
+    return data
+  } catch (error) {
+    console.error('Error getting wallet entropy:', error)
+    await db.close()
+    return 'error'
+  }
+}
+
+export const deleteWallet = async (walletId: string) => {
+  const db = await initializeDB()
+  const SQL = `DELETE FROM wallets WHERE walletId = ?`
+  try {
+    await db.run(SQL, [walletId])
+    await db.close()
+    return 'ok'
+  } catch (error) {
+    console.error('Error deleting wallet:', error)
+    await db.close()
+    return 'error'
+  }
+}

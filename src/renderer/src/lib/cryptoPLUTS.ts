@@ -50,6 +50,15 @@ export const genAccountPrivatekey = (rootKey: pluts.XPrv, index: number) => {
   return accountKey
 }
 
+export const genAddressPrv = (xprv_root: pluts.XPrv, accIndex: number, addressType: number, addressIndex: number) => {
+  return xprv_root
+  .derive(pluts.harden(1852))
+  .derive(pluts.harden(1815))
+  .derive(pluts.harden(0))
+  .derive(0)
+  .derive(0)
+}
+
 export const genAddressPrivateKey = (accountKey: any, index: number) => {
   const spendingKey = accountKey
     .derive(0) // 0 external || 1 change || 2 stake key
@@ -109,23 +118,27 @@ export const genStakeAddressFromEntropy = (
   return stakeAddress
 }
 
-export const encrypt = (passPhrase: string, text: string) => {
+export const encrypt = (text: string, passPhrase: string): string => {
   try {
-    const encrypted = CryptoJS.AES.encrypt(JSON.stringify(text), passPhrase).toString()
-    return encrypted
+    // Encrypt the text directly
+    const encrypted = CryptoJS.AES.encrypt(text, passPhrase).toString();
+    return encrypted;
   } catch (error) {
-    console.log('encrypt error', error)
-    return error
+    console.error('Encryption error:', error);
+    throw error; // Or handle it more gracefully depending on your application needs
   }
 }
 
-export const decrypt = (passPhrase: string, text: string) => {
+export const decrypt = (encryptedText: string, passPhrase: string): string => {
   try {
-    const decrypted = CryptoJS.AES.decrypt(text, passPhrase).toString(CryptoJS.enc.Utf8)
-    return decrypted
+    // Decrypt the encrypted text
+    const decrypted = CryptoJS.AES.decrypt(encryptedText, passPhrase);
+    // Convert the decrypted bytes to a UTF-8 string
+    const originalText = decrypted.toString(CryptoJS.enc.Utf8);
+    return originalText;
   } catch (error) {
-    console.log('decreypt error', error)
-    return error
+    console.error('Decryption error:', error);
+    throw error; // Or handle it more gracefully
   }
 }
 

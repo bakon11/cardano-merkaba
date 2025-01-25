@@ -5,7 +5,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import { selectedAccountHook } from '../../../hooks/selectedAccountHook'
 import { menuHook } from '../../../hooks/menuHook'
 import { backendHook } from '../../../hooks/backendHook'
-
+import CloseIcon from '@mui/icons-material/Close'
 // Define the Account type for clarity and type checking
 interface Account {
   accountName: string
@@ -33,6 +33,7 @@ interface AccountProps {
 }
 
 const Row: React.FC<AccountProps> = ({ row, initialOpen }) => {
+  const deleteWallet = (walletId: any): any => window.api.deleteWallet(walletId)
   const [open, setOpen] = React.useState(initialOpen || false)
   const [selectedAccount, setSelectedAccount] = selectedAccountHook()
   const [menu, setMenu] = menuHook()
@@ -40,10 +41,16 @@ const Row: React.FC<AccountProps> = ({ row, initialOpen }) => {
 
   const handleSelectAccount = (account: Account) => {
     const backend = JSON.parse(backEnd)
-    console.log("backend", backend[1])
-    if(backend[1] === "") {return alert(`Backend: ${backend[0]}, is missing the hostname.`)}
+    console.log('backend', backend[1])
+    if (backend[1] === '') {
+      return alert(`Backend: ${backend[0]}, is missing the hostname.`)
+    }
     setSelectedAccount(JSON.stringify(account))
     setMenu('SelectedAccountView')
+  }
+
+  const handleDeleteWallet = (walletId: string) => {
+    deleteWallet(walletId)
   }
 
   return (
@@ -69,7 +76,19 @@ const Row: React.FC<AccountProps> = ({ row, initialOpen }) => {
             {row.walletId}
           </Typography>
         </td>
+        <td>
+          <IconButton
+            aria-label="expand row"
+            variant="plain"
+            color="neutral"
+            size="sm"
+            onClick={() => handleDeleteWallet(row.walletId)}
+          >
+            <CloseIcon />
+          </IconButton>
+        </td>
       </tr>
+      
       <tr>
         <td style={{ height: 0, padding: 0 }} colSpan={3}>
           {open && (

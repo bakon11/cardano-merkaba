@@ -1,6 +1,22 @@
-import * as React from 'react';
-import { Sheet, Typography, Input, Button, Select, Option, Box, IconButton, List, ListItem } from '@mui/joy';
-import CloseIcon from '@mui/icons-material/Close';
+import * as React from 'react'
+import {
+  Sheet,
+  Typography,
+  Input,
+  Button,
+  Select,
+  Option,
+  Box,
+  IconButton,
+  List,
+  ListItem
+} from '@mui/joy'
+import CloseIcon from '@mui/icons-material/Close'
+import { getProtocolParametersOgmios, constructOgmiosProtocolParams } from '../../../API/ogmios'
+import { backendHook } from '../../../hooks/backendHook'
+import { toUtf8, fromHex } from '@harmoniclabs/uint8array-utils'
+import { txBuilder_PLUTS } from './txBuilder'
+import { ProcessTxModal } from './ProcessTxModal'
 
 interface Token {
   policyId: string
@@ -22,7 +38,7 @@ interface SendTxViewProps {
 
 export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
   const [utxoOutputs, setUtxoOutputs] = React.useState<UtxoOutput[]>([])
-  const [currentAddress, setCurrentAddress] = React.useState('')
+  const [receivingAddress, setReceivingAddress] = React.useState('')
   const [currentAmount, setCurrentAmount] = React.useState<number>(0)
   const [currentTokens, setCurrentTokens] = React.useState<Token[]>([])
   const [selectedToken, setSelectedToken] = React.useState<{
@@ -31,12 +47,13 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
   } | null>(null)
   const [tokenAmount, setTokenAmount] = React.useState<number>(0)
   const [lovelaces, setLovelaces] = React.useState<number>(0)
+  const [backEnd, setBackEnd]: [string | null, (config: string) => Promise<void>] = backendHook()
 
   const handleAddUtxo = () => {
     const newUtxo: UtxoOutput = {
-      address: currentAddress,
+      address: receivingAddress,
       value: {
-        coins: (currentAmount * 1000000),
+        coins: currentAmount * 1000000,
         assets: currentTokens.reduce(
           (acc, token) => {
             acc[`${token.policyId}.${token.assetName}`] = token.amount
@@ -49,7 +66,7 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
     setUtxoOutputs([...utxoOutputs, newUtxo])
 
     // Reset form
-    setCurrentAddress('')
+    setReceivingAddress('')
     setCurrentAmount(0)
     setCurrentTokens([])
   }
@@ -69,15 +86,15 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
     }
   }
 
-  const handleRemoveUtxo = (index: number, output: UtxoOutput ) => {
-    setUtxoOutputs(utxoOutputs.filter((_, i) => i !== index));
+  const handleRemoveUtxo = (index: number, output: UtxoOutput) => {
+    setUtxoOutputs(utxoOutputs.filter((_, i) => i !== index))
     console.log('lovelaces', lovelaces)
-    setLovelaces(Number(lovelaces) + (Number(output.value.coins)));
-  };
+    setLovelaces(Number(lovelaces) + Number(output.value.coins))
+  }
 
   const handleRemoveToken = (index: number) => {
-    setCurrentTokens(currentTokens.filter((_, i) => i !== index));
-  };
+    setCurrentTokens(currentTokens.filter((_, i) => i !== index))
+  }
 
   const availableTokens = Object.entries(accountInfo?.value?.assets || {}).flatMap(
     ([policyId, assets]) =>
@@ -97,6 +114,43 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
       setLovelaces(accountInfo.value.lovelace)
     }
   }
+
+  const getProtocolParams = async () => {
+    const backend = JSON.parse(backEnd as any)
+    let params: any
+    backend &&
+      backend[0] === 'ogmios' &&
+      (params = await getProtocolParametersOgmios())
+    // console.log('params', params)
+    return params
+  }
+
+  const genMetadata = () => {
+    const metadata = {
+      label: 420,
+      properties: {
+        type: 'Cardano Merkaba',
+        message: 'Cardano Merkaba IN THE HOUSE',
+        message2: 'TX Crafted With PLU-TS'
+      }
+    }
+    return metadata
+  }
+
+  const processTx = async (address_xprv) => {
+    const protocolParams = await getProtocolParams()
+    console.log('protocolParams', protocolParams)
+    const metadata = genMetadata()
+    return await txBuilder_PLUTS(
+      protocolParams,
+      accountInfo.utxos,
+      utxoOutputs,
+      accountInfo.account.baseAddress_bech32,
+      address_xprv,
+      metadata
+    )
+  }
+
   React.useEffect(() => {
     accountInfo && accountInfo.value && setLovelaces(accountInfo.value.lovelace)
   }, [accountInfo])
@@ -116,28 +170,28 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
         Send Transaction
       </Typography>
       <Box display="flex" alignItems="center" mb={2}>
-        <Typography level="body-md" mr={0} variant="">
+        <Typography level="body-md" mr={0}>
           Account:
         </Typography>
         <Button variant="outlined" color="primary">
           {accountInfo?.account?.accountName}
         </Button>
-
         <Typography level="body-md" ml={1}>
-          ADA:
+          Available ADA:
         </Typography>
         <Button variant="outlined" color="primary">
           ₳{(lovelaces / 1000000).toFixed(6)}
         </Button>
       </Box>
-
+      <hr />
+      <br />
       <Input
         placeholder="Address"
         fullWidth
-        value={currentAddress}
-        onChange={(e) => setCurrentAddress(e.target.value)}
+        value={receivingAddress}
+        onChange={(e) => setReceivingAddress(e.target.value)}
         endDecorator={
-          <IconButton variant="plain" onClick={() => setCurrentAddress('')}>
+          <IconButton variant="plain" onClick={() => setReceivingAddress('')}>
             <CloseIcon />
           </IconButton>
         }
@@ -153,8 +207,8 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
           <IconButton
             variant="plain"
             onClick={() => {
-              setLovelaces(Number(currentAmount * 1000000) + Number(lovelaces));
-              setCurrentAmount(0);
+              setLovelaces(Number(currentAmount * 1000000) + Number(lovelaces))
+              setCurrentAmount(0)
             }}
           >
             <CloseIcon />
@@ -164,19 +218,19 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
       />
       <Box display="flex" alignItems="center" mb={2}>
         <Select
-          placeholder="Select Token"
+          placeholder="Select Token/s to send"
           value={selectedToken ? `${selectedToken.policyId}.${selectedToken.assetName}` : ''}
           onChange={(_, newValue) => {
             if (newValue) {
-              const [policyId, assetName] = newValue.split('.');
-              setSelectedToken({ policyId, assetName });
+              const [policyId, assetName] = newValue.split('.')
+              setSelectedToken({ policyId, assetName })
             }
           }}
           sx={{ mr: 1, flexGrow: 1 }}
         >
           {availableTokens.map((token, index) => (
             <Option key={index} value={`${token.policyId}.${token.assetName}`}>
-              {`${token.policyId}.${token.assetName} - ${token.amount}`}
+              {token.policyId} - {toUtf8(fromHex(token.assetName))} - {`${token.amount}`}
             </Option>
           ))}
         </Select>
@@ -191,31 +245,54 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
       </Box>
 
       {/* Displaying added tokens */}
-      <Typography level="h4" mb={2}>Added Tokens</Typography>
-      <List>
-        {currentTokens.map((token, index) => (
-          <ListItem key={index}>
-            <Typography>{`${token.policyId}.${token.assetName} - ${token.amount}`}</Typography>
-            <IconButton variant="plain" onClick={() => handleRemoveToken(index)}>
-              <CloseIcon />
-            </IconButton>
-          </ListItem>
-        ))}
-      </List>
+      <Box alignItems="center" p={2}>
+        <Typography level="h4" mb={2}>
+          Added Tokens
+        </Typography>
+        <Box display="flex" alignItems="center" p={2} border="1px solid black">
+          <List>
+            {currentTokens.map((token, index) => (
+              <ListItem key={index}>
+                <Typography>{`${token.policyId} - ${toUtf8(fromHex(token.assetName))} - ${token.amount}`}</Typography>
+                <IconButton variant="plain" onClick={() => handleRemoveToken(index)}>
+                  <CloseIcon />
+                </IconButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Box>
 
-      <Button onClick={handleAddUtxo} sx={{ mb: 2 }}>
-        Add Output
-      </Button>
+      <Box display="flex" alignItems="center" mb={2}>
+        <Button onClick={handleAddUtxo} sx={{ m: 2 }}>
+          Add Output
+        </Button>
+        <ProcessTxModal processTx={processTx} accountInfo={accountInfo} />
+      </Box>
 
+      {/* Displaying added UTXO outputs */}
       <Typography level="h4" mb={2}>
         UTXO Outputs
       </Typography>
       <Sheet sx={{ background: '#1E1E1E', p: 2, borderRadius: 'sm' }}>
         {utxoOutputs.map((output, index) => (
-          <Box key={index} sx={{ mb: 1, p: 1, bgcolor: 'background.level2', borderRadius: 'sm', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box
+            key={index}
+            sx={{
+              mb: 1,
+              p: 1,
+              bgcolor: 'background.level2',
+              borderRadius: 'sm',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
             <Box>
               <Typography level="body-sm">Address: {output.address}</Typography>
-              <Typography level="body-sm">Amount: ₳{(output.value.coins / 1000000).toFixed(6)}</Typography>
+              <Typography level="body-sm">
+                Amount: ₳{(output.value.coins / 1000000).toFixed(6)}
+              </Typography>
               <Typography level="body-sm">Tokens: {JSON.stringify(output.value.assets)}</Typography>
             </Box>
             <IconButton variant="plain" onClick={() => handleRemoveUtxo(index, output)}>
@@ -225,5 +302,5 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
         ))}
       </Sheet>
     </Sheet>
-  );
+  )
 }
