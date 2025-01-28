@@ -124,12 +124,13 @@ export const encrypt = (text: string, passPhrase: string): string => {
     const encrypted = CryptoJS.AES.encrypt(text, passPhrase).toString();
     return encrypted;
   } catch (error) {
-    console.error('Encryption error:', error);
-    throw error; // Or handle it more gracefully depending on your application needs
+    console.log('Encryption error:', error);
+    return("error"); // Or handle it more gracefully depending on your application needs
   }
 }
 
 export const decrypt = (encryptedText: string, passPhrase: string): string => {
+  // console.log('passPhrase', passPhrase)
   try {
     // Decrypt the encrypted text
     const decrypted = CryptoJS.AES.decrypt(encryptedText, passPhrase);
@@ -137,8 +138,8 @@ export const decrypt = (encryptedText: string, passPhrase: string): string => {
     const originalText = decrypted.toString(CryptoJS.enc.Utf8);
     return originalText;
   } catch (error) {
-    console.error('Decryption error:', error);
-    throw error; // Or handle it more gracefully
+    console.log('Decryption error:', error);
+    return("error"); // Or handle it more gracefully
   }
 }
 

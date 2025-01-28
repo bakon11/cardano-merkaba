@@ -16,7 +16,8 @@ import { getProtocolParametersOgmios } from '../../../API/ogmios'
 import { backendHook } from '../../../hooks/backendHook'
 import { toUtf8, fromHex } from '@harmoniclabs/uint8array-utils'
 import { txBuilder_PLUTS } from './txBuilder'
-import { ProcessTxModal } from './ProcessTxModal'
+import { ProcessTxModal } from '../../ProcessTxModal/ProcessTxModal'
+import { professionalStyle, accentStyle, sectionTitleStyle, displayAssets } from './styles'
 
 interface Token {
   policyId: string
@@ -97,7 +98,7 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
   }
 
   const availableTokens = Object.entries(accountInfo?.value?.assets || {}).flatMap(
-    ([policyId, assets]) =>
+    ([policyId, assets]: any) =>
       Object.entries(assets).map(([assetName, amount]) => ({ policyId, assetName, amount }))
   )
 
@@ -264,10 +265,12 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
       </Box>
 
       <Box display="flex" alignItems="center" mb={2}>
-        <Button onClick={handleAddUtxo} sx={{ m: 2 }}>
+      <Button
+        sx={{ m: 2, cursor: 'pointer', ...accentStyle, color: '#121212' }}
+        onClick={() => handleAddUtxo()}
+      >
           Add Output
         </Button>
-        <ProcessTxModal processTx={processTx} accountInfo={accountInfo} />
       </Box>
 
       {/* Displaying added UTXO outputs */}
@@ -300,7 +303,9 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
             </IconButton>
           </Box>
         ))}
+
       </Sheet>
+      <ProcessTxModal processTx={processTx} accountInfo={accountInfo} />
     </Sheet>
   )
 }

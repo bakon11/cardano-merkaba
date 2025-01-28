@@ -3,16 +3,17 @@
 import * as pluts from '@harmoniclabs/plu-ts'
 import { splitAsset, fromBuffer } from '../../lib/utils'
 import { createInputValuesOgmios } from '../../API/ogmios'
+import { toUtf8, fromHex, toHex, fromAscii, toAscii } from '@harmoniclabs/uint8array-utils'
 
 export const txBuilderMint: any = async (
   protocolParameters: any,
   utxoInputs: any,
-  utxoOutputs: any,
   changeAddress: any,
   accountAddressKeyPrv: any,
   metadata: any,
   script: any,
   scriptAddr: any,
+  mints: any,
   mintedValue: any
 ) => {
   /*
@@ -64,14 +65,18 @@ export const txBuilderMint: any = async (
   )
 
   console.log('inputs', inputs)
-  const inputsParsed = inputs.map((utxo: any) => ({ utxo: utxo }))
-  console.log('inputsParsed', inputsParsed)
+  // const inputsParsed = inputs.map((utxo: any) => ({ utxo: utxo }))
+  // console.log('inputsParsed', inputsParsed)
 
   /*
   ##########################################################################################################
   Creating outputs for receiving address
   #############################d############################################################################
   */
+  const mintOutputs: any = await mintedTokensOutputs(mintedValue, changeAddress, scriptAddr)
+  console.log('mintOutputs', mintOutputs)
+
+  /*
   let outputsParsed: pluts.TxOut[] = []
   Promise.all(
     await utxoOutputs.map(async (output: any) => {
@@ -85,7 +90,9 @@ export const txBuilderMint: any = async (
       )
     })
   )
+  */
   // console.log("outputsParsed", outputsParsed);
+
   /*
     ##########################################################################################################
     Attach Metadata to transaction when passed.
@@ -93,7 +100,7 @@ export const txBuilderMint: any = async (
   */
   const txMeta: any = new pluts.TxMetadata({
     [metadata.label]: pluts.jsonToMetadata(metadata.properties),
-    [metadata.label]: pluts.jsonToMetadata(metadata.properties),
+    [metadata.label]: pluts.jsonToMetadata(metadata.properties)
   })
   // console.log("txMeta", txMeta);
 
@@ -125,25 +132,16 @@ export const txBuilderMint: any = async (
   try {
     let builtTx = txBuilder.buildSync({
       inputs: inputs,
-      changeAddress,
-      collaterals: [colateral],
-      collateralReturn: {
-        address: colateral.resolved.address,
-        value: pluts.Value.sub(colateral.resolved.value, pluts.Value.lovelaces(5_000_000))
-      },
-      // outputs: outputsParsed,
+      // collaterals: [colateral],
+      // collateralReturn: {
+      //   address: colateral.resolved.address,
+      //   value: pluts.Value.sub(colateral.resolved.value, pluts.Value.lovelaces(5_000_000))
+      //},
       // invalidAfter: ttl,
       metadata: txMeta,
-      mints: [
-        {
-          value: mintedValue,
-          script: {
-            inline: script,
-            policyId: scriptAddr.paymentCreds.hash,
-            redeemer: pluts.Address.fromString(changeAddress).toData()
-          }
-        }
-      ]
+      mints: mints,
+      outputs: mintOutputs,
+      changeAddress
     })
     // Sign tx hash
     const signedTx = accountAddressKeyPrv.sign(builtTx.body.hash.toBuffer())
@@ -167,12 +165,43 @@ export const txBuilderMint: any = async (
     return 'tx error: ' + error
   }
 }
-
 /*
 ##########################################################################################################
 Helper Functions
 #############################d############################################################################
 */
+
+//this function adds outputs for minted tokens
+const mintedTokensOutputs = async (mintedValue: any, changeAddress: string, scriptAddr: any) => {
+  let mintOutputs: any[] = []
+  // console.log('mintedValue', mintedValue.toJson())
+  Promise.all(
+    Object.entries(mintedValue.toJson()).map(([policyId, assets]: any) => {
+      // policyId !== '' && console.log('policyId', fromHex(policyId))
+      // policyId !== '' && console.log('assets', assets)
+      policyId !== '' &&
+        Object.entries(assets).map(([assetName, quantity]: any) => {
+          // policyId !== '' && console.log('policyId', scriptAddr.paymentCreds.hash)
+          // assetName !== '' && console.log('assetName', assetName)
+          // assetName !== '' && console.log('quantity', quantity)
+          assetName !== '' &&
+            mintOutputs.push({
+              address: changeAddress,
+              value: pluts.Value.add(
+                pluts.Value.lovelaces(2_000_000),
+                pluts.Value.singleAsset(
+                  scriptAddr.paymentCreds.hash,
+                  fromHex(assetName),
+                  quantity
+                )
+              )
+            })
+        })
+    })
+  )
+  return mintOutputs
+}
+
 // Function to convert hex string to byte array using slice
 export function hexToBytes(hex: string): number[] {
   let bytes: number[] = []

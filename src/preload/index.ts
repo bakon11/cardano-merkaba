@@ -1,6 +1,6 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import {setupWalletTables, getAllWallets, saveNewWallet, saveNewAccount, saveNewAccountAddress, getWalletEntropy, deleteWallet } from '../db/sqlite3API'
+import {setupWalletTables, getAllWallets, saveNewWallet, saveNewAccount, saveNewAccountAddress, getWalletEntropy, deleteWallet, saveAsset } from '../db/sqlite3API'
 
 // Custom APIs for renderer
 const api = {
@@ -10,7 +10,8 @@ const api = {
   saveNewAccount: saveNewAccount,
   saveNewAccountAddress: saveNewAccountAddress,
   getWalletEntropy: getWalletEntropy,
-  deleteWallet: deleteWallet
+  deleteWallet: deleteWallet,
+  saveAsset:saveAsset
 }
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

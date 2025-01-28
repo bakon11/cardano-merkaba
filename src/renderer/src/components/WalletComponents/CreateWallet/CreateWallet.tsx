@@ -40,10 +40,9 @@ export const CreateWallet: React.FC = () => {
   // console.log('checking entropy wipe', entropy)
 
   const createNewWallet = async () => {
-    const seedPhrase: any = await genSeedPhrase()
-
+    // const seedPhrase: any = await genSeedPhrase()
     //Don't get too excited it's just a random seed phrase used for testing :).
-    // const seedPhrase = 'earth unlock drill mirror setup economy sphere illegal stamp wedding pill act desert near hidden gadget media grass join wealth acid medal segment equal'
+    const seedPhrase = 'earth unlock drill mirror setup economy sphere illegal stamp wedding pill act desert near hidden gadget media grass join wealth acid medal segment equal'
     setSeedPhrase(seedPhrase)
     console.log('seedPhrase', seedPhrase)
     const entropy = seedPhraseToEntropy(seedPhrase)

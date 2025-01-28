@@ -1,38 +1,26 @@
 import * as React from 'react'
 import { Sheet, Typography, Button, Input, Stack, List, ListItem, IconButton } from '@mui/joy'
 import { Close } from '@mui/icons-material'
-import { selectedAccountHook } from '../../hooks/selectedAccountHook'
 import { backendHook } from '../../hooks/backendHook'
+import { networkSelectHook } from '../../hooks/networkSelectHook'
 import {
   getProtocolParametersOgmios,
   getAccountUtxoInfoOgmios,
   parseOgmiosUtxosForWallet
 } from '../../API/ogmios'
 import { txBuilderMint } from './txBuilderMint'
+import { ProcessTxModal } from '../ProcessTxModal/ProcessTxModal'
 import { toUtf8, fromHex, toHex, fromAscii, toAscii } from '@harmoniclabs/uint8array-utils'
-import {
-  Address,
-  PScriptContext,
-  PTokenName,
-  ScriptType,
-  Credential,
-  Script,
-  compile,
-  pfn,
-  unit,
-  PubKeyHash,
-  Value,
-  pBool,
-  passert
-} from '@harmoniclabs/plu-ts'
+import { PubKeyHash, Value, DataConstr } from '@harmoniclabs/plu-ts'
 import { genRootPrivateKey, genAddressPrv, decrypt } from '../../lib/cryptoPLUTS'
+import { genPolicy, genPolicy2 } from './genPolicy'
+import { professionalStyle, accentStyle, sectionTitleStyle } from './styles'
 
 export const MinterHome: React.FC = () => {
   // const [selectedAccount, setSelectedAccount] = selectedAccountHook() as any
   // const account = JSON.parse(selectedAccount)
   const getAllWallets = (): any => window.api.getAllWallets()
   const [allWallets, setAllWallets] = React.useState<any>([])
-  const [mintingAccount, setMintingAccount] = React.useState()
   const [accountInfo, setAccountInfo] = React.useState<any>()
   const [backEnd, setBackEnd]: [string | null, (config: string) => Promise<void>] = backendHook()
   const [scriptHook, setScript] = React.useState<any>()
@@ -40,9 +28,12 @@ export const MinterHome: React.FC = () => {
   const [policyIdHook, setPolicyId] = React.useState<PubKeyHash>()
   const [assetsToMint, setAssetsToMint] = React.useState<any>([])
   const [mintedValue, setMintedValue] = React.useState<any>()
+  const [mints, setMints] = React.useState<any>([])
   const [assetName, setAssetName] = React.useState<string>('')
   const [assetQuantity, setAssetQuantity] = React.useState<number>(0)
   const [tokenPolicyNameHook, setTokenPolicyName] = React.useState<string>('')
+  const [network, setNetwork] = networkSelectHook()
+  const [txCBOR, setTXCBOR] = React.useState<string>('')
 
   const getWalletAccounts = async () => {
     const data = await getAllWallets()
@@ -81,49 +72,17 @@ export const MinterHome: React.FC = () => {
   }
 
   const genPolicyInfo = () => {
-    const namedTokenPolicy = pfn(
-      [PTokenName.type, PScriptContext.type],
-      unit
-    )((tn, { redeemer, tx, purpose }) => {
-      return passert.$(true);
-    })
-    const aTn = fromAscii(tokenPolicyNameHook)
-    const aPolicySrc = namedTokenPolicy.$(aTn)
-
-    const aPolicy = new Script(ScriptType.PlutusV3, compile(aPolicySrc))
-    console.log('Script: ', aPolicy)
-
-    const scriptAddr = new Address('testnet', Credential.script(aPolicy.hash))
-    console.log('Script address: ', scriptAddr)
-
-    setScript(aPolicy)
+    const { scriptCompiled, scriptAddr, policyID } = genPolicy(tokenPolicyNameHook)
+    setScript(scriptCompiled)
     setScriptAddr(scriptAddr)
-    setPolicyId(scriptAddr.paymentCreds.hash)
+    setPolicyId(policyID)
   }
 
   const genPolicyInfo2 = () => {
-    const contract = pfn([
-      PScriptContext.type
-    ], unit)
-    (({ redeemer, tx, purpose }) => {
-      return passert.$(true);
-    });
-    
-    const compiledContract = compile(contract);
-    
-    const script = new Script(
-      ScriptType.PlutusV3,
-      compiledContract
-    );
-    
-    const scriptTestnetAddr = new Address(
-      "testnet",
-      Credential.script(script.hash)
-    );
-
-    setScript(script)
-    setScriptAddr(scriptTestnetAddr)
-    setPolicyId(scriptTestnetAddr.paymentCreds.hash)
+    const { scriptCompiled, scriptAddr, policyID } = genPolicy2(tokenPolicyNameHook)
+    setScript(scriptCompiled)
+    setScriptAddr(scriptAddr)
+    setPolicyId(policyID)
   }
 
   const genAssets = () => {
@@ -136,15 +95,25 @@ export const MinterHome: React.FC = () => {
     const mintedValue = new Value([
       {
         // policy: scriptAddr.paymentCreds.hash,
-        policy: policyIdHook as any,
+        policy: policyIdHook as PubKeyHash,
         assets: currentAssets
       }
     ])
+    const mints = [
+      {
+        script: {
+          inline: scriptHook,
+          redeemer: new DataConstr(0, [])
+        },
+        value: mintedValue
+      }
+    ]
     setAssetsToMint(currentAssets)
     setMintedValue(mintedValue)
-    console.log('currentAssets', currentAssets)
+    setMints(mints)
     setAssetName('')
     setAssetQuantity(0)
+    console.log('mintedValue', mintedValue.toJson())
   }
 
   const removeAsset = (index: number) => {
@@ -153,10 +122,11 @@ export const MinterHome: React.FC = () => {
     setAssetsToMint(newAssets)
   }
 
+  // This will pull protcol params, encrypted entropy for selected account, and generate the minting transaction
+  //And sign it then give you ready CBOR and option to send it off.
   const genMintTx = async () => {
     const protocolParams = await getProtocolParams()
     const metadata = genMetadata()
-    const outputs = []
     console.log('accountInfo', accountInfo)
     const getWalletEntropy = (walletId: string): any => window.api.getWalletEntropy(walletId)
     const walletEntropy = await getWalletEntropy(accountInfo.account.walletId)
@@ -177,17 +147,15 @@ export const MinterHome: React.FC = () => {
     const tx = await txBuilderMint(
       protocolParams,
       accountInfo.utxos,
-      outputs,
       accountInfo.account.baseAddress_bech32,
       address_xprv,
       metadata,
       scriptHook,
       scriptAddrHook,
+      mints,
       mintedValue
     )
-    const txCBOR = tx.toCbor().toString()
-    const txHash = tx.hash.toString()
-    console.log('tx', txCBOR)
+    return tx
   }
 
   React.useEffect(() => {
@@ -203,7 +171,7 @@ export const MinterHome: React.FC = () => {
           left: 60,
           width: 1200,
           height: 'auto',
-          maxHeight: 9000,
+          maxHeight: 950,
           overflowY: 'scroll',
           p: 4,
           bgcolor: 'background.body',
@@ -218,7 +186,7 @@ export const MinterHome: React.FC = () => {
           }}
         >
           <Stack spacing={2} direction="column">
-            <Typography level="h5">Select Minting Account:</Typography>
+            <Typography level="body-md">Select Minting Account:</Typography>
             <Sheet
               sx={{
                 p: 2,
@@ -229,11 +197,11 @@ export const MinterHome: React.FC = () => {
             >
               <SelectMintingAccount
                 allWallets={allWallets}
-                setMintingAccount={setMintingAccount}
+                setAccountInfo={setAccountInfo}
                 fetchAccountAddressUtxos={fetchAccountAddressUtxos}
               />
             </Sheet>
-            <Typography level="h5">Policy Info:</Typography>
+            <Typography level="body-md">Policy Info:</Typography>
             <Sheet
               sx={{
                 p: 2,
@@ -243,32 +211,77 @@ export const MinterHome: React.FC = () => {
               }}
             >
               {/* Minting Contract Hash */}
-              <Input startDecorator="Compiled Contract HASH:" value={''} disabled />
+              <Input
+                startDecorator="Compiled Contract CBOR:"
+                value={scriptHook && scriptHook.toCbor().toString()}
+                sx={{
+                  ...professionalStyle,
+                  color: '#E0E0E0',
+                  borderColor: '#212121',
+                  width: '100%'
+                }}
+                disabled
+              />
               {/* Script Hash */}
-              <Input startDecorator="Script Hash:" value={scriptHook && scriptHook.hash} disabled />
+              <Input
+                startDecorator="Script Hash:"
+                value={scriptHook && (scriptHook.hash as string)}
+                disabled
+                sx={{
+                  ...professionalStyle,
+                  color: '#E0E0E0',
+                  borderColor: '#212121',
+                  width: '100%'
+                }}
+              />
               {/* Script Address */}
               <Input
                 startDecorator="Script Address:"
                 value={scriptAddrHook && scriptAddrHook}
                 disabled
+                sx={{
+                  ...professionalStyle,
+                  color: '#E0E0E0',
+                  borderColor: '#212121',
+                  width: '100%'
+                }}
               />
               {/* Policy Id */}
-              <Input startDecorator="Policy Id:" value={policyIdHook && policyIdHook} disabled />
+              <Input
+                startDecorator="Policy Id:"
+                value={policyIdHook && (policyIdHook as unknown as string)}
+                disabled
+                sx={{
+                  ...professionalStyle,
+                  color: '#E0E0E0',
+                  borderColor: '#212121',
+                  width: '100%'
+                }}
+              />
 
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 2 }}>
-                <Button onClick={() => genPolicyInfo()} disabled={!tokenPolicyNameHook}>
+                <Button
+                  onClick={() => genPolicyInfo()}
+                  disabled={!tokenPolicyNameHook}
+                  sx={{ m: 2, cursor: 'pointer', ...accentStyle, color: '#121212' }}
+                >
                   Generate Policy
                 </Button>
                 <Input
                   startDecorator="Token Policy Name:"
                   value={tokenPolicyNameHook}
                   onChange={(e) => setTokenPolicyName(e.target.value)}
-                  sx={{ maxWidth: '400px' }}
+                  sx={{
+                    ...professionalStyle,
+                    color: '#E0E0E0',
+                    borderColor: '#212121',
+                    width: '100%'
+                  }}
                 />
               </Stack>
             </Sheet>
 
-            <Typography level="h5">Add Assets:</Typography>
+            <Typography level="body-md">Add Assets:</Typography>
             <Sheet
               sx={{
                 p: 2,
@@ -282,20 +295,36 @@ export const MinterHome: React.FC = () => {
                   startDecorator="Asset Name:"
                   value={assetName}
                   onChange={(e) => setAssetName(e.target.value)}
+                  sx={{
+                    ...professionalStyle,
+                    color: '#E0E0E0',
+                    borderColor: '#212121',
+                    width: '100%'
+                  }}
                 />
                 <Input
                   startDecorator="Asset Quantity:"
                   value={assetQuantity}
                   type="number"
                   onChange={(e) => setAssetQuantity(Number(e.target.value))}
+                  sx={{
+                    ...professionalStyle,
+                    color: '#E0E0E0',
+                    borderColor: '#212121',
+                    width: '100%'
+                  }}
                 />
-                <Button onClick={genAssets} disabled={!policyIdHook}>
+                <Button
+                  onClick={genAssets}
+                  disabled={!policyIdHook}
+                  sx={{ m: 2, cursor: 'pointer', ...accentStyle, color: '#121212' }}
+                >
                   Add Assets
                 </Button>
               </Stack>
             </Sheet>
 
-            <Typography level="h5">Assets to Mint:</Typography>
+            <Typography level="body-md">Assets to Mint:</Typography>
             <Sheet
               sx={{
                 bgcolor: 'background.default',
@@ -334,7 +363,7 @@ export const MinterHome: React.FC = () => {
               )}
             </Sheet>
 
-            <Typography level="h5">Assets Metadata:</Typography>
+            <Typography level="body-md">Assets Metadata:</Typography>
             <Sheet
               sx={{
                 height: '100px',
@@ -347,15 +376,7 @@ export const MinterHome: React.FC = () => {
               {/* Placeholder for future metadata display */}
               <Typography>Metadata will be shown here...</Typography>
             </Sheet>
-
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={genMintTx}
-              disabled={assetsToMint.length === 0}
-            >
-              Mint
-            </Button>
+            <ProcessTxModal processTx={genMintTx} accountInfo={accountInfo} />
           </Stack>
         </Sheet>
       </Sheet>
@@ -367,13 +388,13 @@ import { Select, Option } from '@mui/joy'
 
 interface SelectMintingAccountProps {
   allWallets: any[]
-  setMintingAccount: React.Dispatch<React.SetStateAction<any | null>>
+  setAccountInfo: React.Dispatch<React.SetStateAction<any | null>>
   fetchAccountAddressUtxos: (selectedAccount: any) => Promise<void>
 }
 
 const SelectMintingAccount: React.FC<SelectMintingAccountProps> = ({
   allWallets,
-  setMintingAccount,
+  setAccountInfo,
   fetchAccountAddressUtxos
 }) => {
   const [selectedWalletId, setSelectedWalletId] = React.useState<string | null>(null)
@@ -383,7 +404,7 @@ const SelectMintingAccount: React.FC<SelectMintingAccountProps> = ({
       const selectedWallet = allWallets.find((wallet) => wallet.walletId === selectedWalletId)
       console.log('selectedWallet', selectedWallet)
       if (selectedWallet) {
-        setMintingAccount(selectedWallet)
+        setAccountInfo(selectedWallet)
         fetchAccountAddressUtxos(selectedWallet)
       }
     }

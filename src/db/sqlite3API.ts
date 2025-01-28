@@ -94,14 +94,27 @@ export const setupWalletTables = async (network = 'testnet'): Promise<null | str
   UNIQUE (walletId, accountIndex, addressIndex),
   UNIQUE (walletId, accountIndex, baseAddress_bech32),
   UNIQUE (walletId, accountIndex, stakeAddress_bech32)`
+  const assetsColumns = `
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  walletId TEXT NOT NULL,
+  accountIndex INTEGER NOT NULL,
+  policyId TEXT NOT NULL,
+  policyName TEXT NOT NULL,
+  assetDecimals INTEGER NOT NULL,
+  txHash TEXT NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (walletId, accountIndex) REFERENCES accounts_testnet(walletId, accountIndex) ON DELETE CASCADE,
+  UNIQUE (walletId, accountIndex, policyId, policyName)`
 
   const SQLCreateWalletsTBL = `CREATE TABLE IF NOT EXISTS wallets ( ${walletsColumns} )`
   const SQLCreateAccountsTBL = `CREATE TABLE IF NOT EXISTS accounts_${network} ( ${accountsColumns} )`
   const SQLCreateAccountAddressesTBL = `CREATE TABLE IF NOT EXISTS account_addresses_${network} ( ${addressesColumns} )`
+  const SQLCreateAssetsTBL = `CREATE TABLE IF NOT EXISTS assets_${network} ( ${assetsColumns} )`
   try {
     await db.run(SQLCreateWalletsTBL)
     await db.run(SQLCreateAccountsTBL)
     await db.run(SQLCreateAccountAddressesTBL)
+    await db.run(SQLCreateAssetsTBL)
     await db.close()
     return null
   } catch (error) {
@@ -158,6 +171,10 @@ export const getWalletAccountInfo = async (walletId: string, accountIndex: numbe
     aa.addressIndex,
     aa.baseAddress_bech32,
     aa.stakeAddress_bech32
+    aaa.policyId,
+    aaa.policyName,
+    aaa.assetDecimals,
+    aaa.txHash
   FROM 
     wallets w
   JOIN 
@@ -261,6 +278,29 @@ export const deleteWallet = async (walletId: string) => {
   } catch (error) {
     console.error('Error deleting wallet:', error)
     await db.close()
+    return 'error'
+  }
+}
+
+export const saveAsset = async (assetData: any) => {
+  let network = localStorage.getItem('networkSelect') || 'testnet'
+  const db = await initializeDB()
+  const SQLAsset = `INSERT INTO assets_${network} (walletId, accountIndex, policyId, policyName, assetDecimals, txHash) VALUES (?, ?, ?, ?, ?, ?)`
+  try {
+    await db.run(SQLAsset, [
+      assetData.walletId,
+      assetData.accountIndex,
+      assetData.policyId,
+      assetData.policyName,
+      assetData.assetDecimals,
+      assetData.txHash
+    ])
+    await db.close()
+    return 'ok'
+  } catch (error) {
+    console.error('Error saving new asset data:', error)
+    await db.close()
+    // process.exit(1)
     return 'error'
   }
 }
