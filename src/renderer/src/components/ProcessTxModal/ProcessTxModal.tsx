@@ -20,6 +20,7 @@ import {
 import { Close } from '@mui/icons-material'
 import { genRootPrivateKey, genAddressPrv, decrypt } from '../../lib/cryptoPLUTS'
 import { professionalStyle, accentStyle, sectionTitleStyle, displayAssets } from './styles'
+import { wsp } from '../../API/ogmios'
 
 // Custom component for collapsible sections
 const CollapsibleSection: React.FC<{ title: string; children: React.ReactNode }> = ({
@@ -65,8 +66,8 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
     console.log('walletEntropy', walletEntropy.entropyEncrypt)
     const entropyDecrypted = decrypt(walletEntropy.entropyEncrypt, spendingPassword)
     console.log('entropyDecrypted', entropyDecrypted)
-    entropyDecrypted && setSigned(true)
-    const root_xprv: any = genRootPrivateKey(entropyDecrypted)
+    entropyDecrypted !== 'error' ? setSigned(true) : setSigned(false)
+    const root_xprv: any = genRootPrivateKey(entropyDecrypted !== 'error' && entropyDecrypted !=="" ? entropyDecrypted : '')
     console.log('root_xprv', root_xprv)
     const address_xprv = genAddressPrv(
       root_xprv,
@@ -81,6 +82,40 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
     console.log('txProcessed json', txProcessed.toJson())
     setTX(txProcessed.toJson())
     setTXRaw(txProcessed)
+    // wsp('releaseMempool', {})
+    // sendTx(txProcessed.toCbor().toString())
+    // getMemoPool(txProcessed.hash.toString())
+  }
+
+  const sendTx = async () => {
+    const txSend = wsp('submitTransaction', {
+      transaction: {
+        cbor: txRaw.toCbor().toString()
+      }
+    })
+
+    txSend.onmessage = (e: MessageEvent) => {
+      try {
+        const results = JSON.parse(e.data)
+        console.log('WebSocket message received:', results)
+      } catch (parseError) {
+        console.log('Error parsing WebSocket message:', parseError)
+      }
+    }
+  }
+
+  const getMemoPool = async (txhash: string) => {
+    const mempool = wsp('nextTransaction', { fields: 'all' })
+    mempool.onmessage = (e: MessageEvent) => {
+      try {
+        const results = JSON.parse(e.data)
+        results.result.transaction === null && setTimeout(() => getMemoPool(txhash), 1000)
+        results.result.transaction !== null && wsp('nextTransaction', { pfields: 'all' })
+        console.log('WebSocket message received:', results.result.transaction)
+      } catch (parseError) {
+        console.log('Error parsing WebSocket message:', parseError)
+      }
+    }
   }
 
   React.useEffect(() => {
@@ -154,7 +189,7 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
                   <Button
                     variant="outlined"
                     color="primary"
-                    onClick={signTx}
+                    onClick={() => sendTx()}
                     sx={{ ...accentStyle, color: '#121212', borderColor: '#121212' }}
                   >
                     Send
@@ -172,7 +207,9 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
               {/* Transaction Size */}
               <Input
                 startDecorator="SIZE:"
-                value={tx ? JSON.stringify(tx).length + ' BYTES' : 'N/A'}
+                value={
+                  tx ? JSON.stringify(tx?.body?.inputs?.[0]?.utxoRef?.id).length + ' BYTES' : 'N/A'
+                }
                 disabled
                 sx={{ ...professionalStyle, color: '#E0E0E0', borderColor: '#212121' }}
               />

@@ -124,26 +124,10 @@ export const MinterHome: React.FC = () => {
 
   // This will pull protcol params, encrypted entropy for selected account, and generate the minting transaction
   //And sign it then give you ready CBOR and option to send it off.
-  const genMintTx = async () => {
+  const processTx = async (address_xprv) => {
     const protocolParams = await getProtocolParams()
+    console.log('protocolParams', protocolParams)
     const metadata = genMetadata()
-    console.log('accountInfo', accountInfo)
-    const getWalletEntropy = (walletId: string): any => window.api.getWalletEntropy(walletId)
-    const walletEntropy = await getWalletEntropy(accountInfo.account.walletId)
-    console.log('walletEntropy', walletEntropy.entropyEncrypt)
-    const entropyDecrypted = decrypt(walletEntropy.entropyEncrypt, 'baca1983')
-    console.log('entropyDecrypted', entropyDecrypted)
-    const root_xprv: any = genRootPrivateKey(entropyDecrypted)
-    console.log('root_xprv', root_xprv)
-    // const account_xprv = genAccountPrivatekey(root_xprv, accountInfo.account.accountIndex)
-    // console.log('account_xprv', account_xprv)
-    const address_xprv = genAddressPrv(
-      root_xprv,
-      accountInfo.account.accountIndex,
-      0,
-      accountInfo.account.addressIndex
-    )
-
     const tx = await txBuilderMint(
       protocolParams,
       accountInfo.utxos,
@@ -376,7 +360,7 @@ export const MinterHome: React.FC = () => {
               {/* Placeholder for future metadata display */}
               <Typography>Metadata will be shown here...</Typography>
             </Sheet>
-            <ProcessTxModal processTx={genMintTx} accountInfo={accountInfo} />
+            <ProcessTxModal processTx={processTx} accountInfo={accountInfo} />
           </Stack>
         </Sheet>
       </Sheet>

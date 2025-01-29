@@ -120,26 +120,34 @@ export const genStakeAddressFromEntropy = (
 
 export const encrypt = (text: string, passPhrase: string): string => {
   try {
+    // Convert the text to UTF-8 bytes before encryption
+    const utf8Text = CryptoJS.enc.Utf8.parse(text);
     // Encrypt the text directly
-    const encrypted = CryptoJS.AES.encrypt(text, passPhrase).toString();
+    const encrypted = CryptoJS.AES.encrypt(utf8Text, passPhrase).toString();
     return encrypted;
   } catch (error) {
     console.log('Encryption error:', error);
-    return("error"); // Or handle it more gracefully depending on your application needs
+    return "error"; // Or handle it more gracefully depending on your application needs
   }
 }
 
 export const decrypt = (encryptedText: string, passPhrase: string): string => {
-  // console.log('passPhrase', passPhrase)
   try {
     // Decrypt the encrypted text
     const decrypted = CryptoJS.AES.decrypt(encryptedText, passPhrase);
     // Convert the decrypted bytes to a UTF-8 string
     const originalText = decrypted.toString(CryptoJS.enc.Utf8);
+    
+    // Check if the decryption resulted in valid UTF-8
+    if (originalText === '') {
+      // If the result is an empty string, it might indicate an error in decryption
+      throw new Error('Decryption failed, possibly due to incorrect passphrase or malformed data');
+    }
+    
     return originalText;
   } catch (error) {
     console.log('Decryption error:', error);
-    return("error"); // Or handle it more gracefully
+    return "error"; // Or handle it more gracefully
   }
 }
 

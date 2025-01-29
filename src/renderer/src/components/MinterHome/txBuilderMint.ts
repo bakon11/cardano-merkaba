@@ -132,11 +132,11 @@ export const txBuilderMint: any = async (
   try {
     let builtTx = txBuilder.buildSync({
       inputs: inputs,
-      // collaterals: [colateral],
-      // collateralReturn: {
-      //   address: colateral.resolved.address,
-      //   value: pluts.Value.sub(colateral.resolved.value, pluts.Value.lovelaces(5_000_000))
-      //},
+      collaterals: [colateral],
+      collateralReturn: {
+         address: colateral.resolved.address,
+         value: pluts.Value.sub(colateral.resolved.value, pluts.Value.lovelaces(2_000_000))
+      },
       // invalidAfter: ttl,
       metadata: txMeta,
       mints: mints,
@@ -145,20 +145,11 @@ export const txBuilderMint: any = async (
     })
     // Sign tx hash
     const signedTx = accountAddressKeyPrv.sign(builtTx.body.hash.toBuffer())
-    // console.log("txBuffer", builtTx.body.hash.toBuffer());
     const VKeyWitness = new pluts.VKeyWitness(
       new pluts.VKey(signedTx.pubKey),
       new pluts.Signature(signedTx.signature)
     )
-    // console.log("VKeyWitness", VKeyWitness);
     builtTx.witnesses.addVKeyWitness(VKeyWitness)
-    // const txCBOR = builtTx.toCbor().toString()
-    // console.log('builtTx', builtTx)
-    // console.log('txCBOR', txCBOR)
-    // console.log("builtTx hash: ", builtTx.hash);
-    // console.log('builtTx complete: ', builtTx.isComplete)
-    // console.log('bytes', hexToBytes(txCBOR))
-
     return builtTx
   } catch (error) {
     console.log('txBuilder.buildSync', error)
@@ -188,7 +179,7 @@ const mintedTokensOutputs = async (mintedValue: any, changeAddress: string, scri
             mintOutputs.push({
               address: changeAddress,
               value: pluts.Value.add(
-                pluts.Value.lovelaces(2_000_000),
+                pluts.Value.lovelaces(5_000_000),
                 pluts.Value.singleAsset(
                   scriptAddr.paymentCreds.hash,
                   fromHex(assetName),
@@ -202,7 +193,7 @@ const mintedTokensOutputs = async (mintedValue: any, changeAddress: string, scri
   return mintOutputs
 }
 
-// Function to convert hex string to byte array using slice
+// Function to converSome outputs have an insufficient amount of Ada attached to them. In fact, any new output created in a system must pay for the resources it occupies. Because user-created assets are worthless (from the point of view of the protocol), those resources must be paid in the form of a Ada deposit. The exact depends on the size of the serialized output: the more assets, the higher the amount. The field 'data.insufficientlyFundedOutputs.[].output' contains a list of all transaction outputs that are insufficiently funded. Starting from the Babbage era, the field 'data.insufficientlyFundedOutputs.[].minimumRequiredValue' indicates the required amount of Lovelace (1e6 Lovelace = 1 Ada) needed for each output.t hex string to byte array using slice
 export function hexToBytes(hex: string): number[] {
   let bytes: number[] = []
   for (let c = 0; c < hex.length; c += 2) {

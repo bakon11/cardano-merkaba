@@ -45,10 +45,10 @@ export const wsp = (method: string, params: object): W3CWebSocket => {
   if (ws && ws.readyState === WebSocket.OPEN) {
     console.log('WebSocket connection already open, reusing it.')
     const message: OgmiosRequest = {
-      jsonrpc: '2.0',
+      "jsonrpc": "2.0",
       method,
       params,
-      id: 'init-1234-5678'
+      "id": "null"
     }
 
     try {
