@@ -1,23 +1,12 @@
 import * as React from 'react'
-import {
-  Sheet,
-  Typography,
-  Input,
-  Button,
-  Select,
-  Option,
-  Box,
-  IconButton,
-  List,
-  ListItem
-} from '@mui/joy'
+import { Sheet, Typography, Input, Button, Select, Option, Box, IconButton, List, ListItem } from '@mui/joy'
 import CloseIcon from '@mui/icons-material/Close'
 import { getProtocolParametersOgmios } from '../../../API/ogmios'
 import { backendHook } from '../../../hooks/backendHook'
 import { toUtf8, fromHex } from '@harmoniclabs/uint8array-utils'
-import { txBuilder_PLUTS } from './txBuilder'
 import { ProcessTxModal } from '../../ProcessTxModal/ProcessTxModal'
-import { professionalStyle, accentStyle, sectionTitleStyle, displayAssets } from './styles'
+import { accentStyle, } from './styles'
+import { txBuilder_buildooor } from './txBuilder'
 
 interface Token {
   policyId: string
@@ -142,7 +131,7 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
     const protocolParams = await getProtocolParams()
     console.log('protocolParams', protocolParams)
     const metadata = genMetadata()
-    return await txBuilder_PLUTS(
+    return await txBuilder_buildooor(
       protocolParams,
       accountInfo.utxos,
       utxoOutputs,

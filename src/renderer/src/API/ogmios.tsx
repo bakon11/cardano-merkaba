@@ -1,8 +1,9 @@
-import * as React from 'react'
+// import * as React from 'react'
 import { w3cwebsocket as W3CWebSocket } from 'websocket'
-import * as pluts from '@harmoniclabs/plu-ts'
-import { splitAsset, fromBuffer } from '../lib/utils'
-import { OgmiosUtxos } from './utxosExample/'
+import * as buildooor from '@harmoniclabs/buildooor'
+// import { splitAsset } from '../lib/utils'
+// import { OgmiosUtxos } from './utxosExample/'
+import { fromHex } from '@harmoniclabs/uint8array-utils'
 
 interface OgmiosRequest {
   jsonrpc: '2.0'
@@ -129,7 +130,7 @@ export const ogmiosHealth = async () => {
     redirect: 'follow'
   }
   try {
-    const fetchResponse = await fetch(`${ogmiosServer}/health`, requestOptions)
+    const fetchResponse = await fetch(`$ogmiosServer/health`, requestOptions)
     const data = await fetchResponse.json()
     // console.log(data);
     return data
@@ -225,26 +226,26 @@ export const parseOgmiosUtxosForWallet = (utxos: Utxo[]): Result => {
 Generate inputs for PLU-TS from utxoInputsOgmios
 #############################d############################################################################
 */
-export const paraseOgmiosUtxoToPlutsTX = async (utxoInputsOgmios: any) => {
+export const paraseOgmiosUtxoTobuildooorTX = async (utxoInputsOgmios: any) => {
   let inputs: any = []
   Promise.all(
     await utxoInputsOgmios.map(async (utxo: any) => {
       // console.log("adding inputs")
       inputs.push(
-        new pluts.UTxO({
+        new buildooor.UTxO({
           utxoRef: {
             id: utxo.transaction_id,
             index: utxo.output_index
           },
           resolved: {
-            address: pluts.Address.fromString(utxo.address),
+            address: buildooor.Address.fromString(utxo.address),
             value: await createInputValuesOgmios(utxo)
             // datum: [], // parse kupo datum
             // refScript: [] // look for ref script if any
           }
         })
       )
-      // console.log("address used", pluts.Address.fromString(utxo.address).paymentCreds)
+      // console.log("address used", buildooor.Address.fromString(utxo.address).paymentCreds)
     })
   )
   const inputsKupoParsed = inputs.map((utxo: any) => ({ utxo: utxo }))
@@ -253,7 +254,7 @@ export const paraseOgmiosUtxoToPlutsTX = async (utxoInputsOgmios: any) => {
 
 /*
 ####################################################################################################################################################################################################################
-This function will create UTXO input values like: UTXO lovelaces and UTXO assets for PLU-TS to be used with paraseOgmiosUtxoToPlutsTX() function
+This function will create UTXO input values like: UTXO lovelaces and UTXO assets for PLU-TS to be used with paraseOgmiosUtxoTobuildooorTX() function
 ####################################################################################################################################################################################################################
 */
 export const createInputValuesOgmios = async (utxo: any) => {
@@ -264,17 +265,17 @@ export const createInputValuesOgmios = async (utxo: any) => {
     Object.entries(utxo.value).map(([key, value]: any) => {
       // console.log("key", key);
       // console.log("value", value);
-      key === 'ada' && assets.push(pluts.Value.lovelaces(value.lovelace))
+      key === 'ada' && assets.push(buildooor.Value.lovelaces(value.lovelace))
       key !== 'ada' &&
         Object.entries(value).map(([asset, quantity]: any) => {
           // console.log("asset", fromBuffer(asset));
           // console.log("quantity", quantity);
-          let assetNew = pluts.Value.singleAsset(new pluts.Hash28(key), fromBuffer(asset), quantity)
+          let assetNew = buildooor.Value.singleAsset(new buildooor.Hash28(key), fromHex(asset), quantity)
           assets.push(assetNew)
         })
     })
   )
-  return assets.reduce(pluts.Value.add)
+  return assets.reduce(buildooor.Value.add)
 }
 
 interface ProtocolParameters {
@@ -298,9 +299,9 @@ interface ProtocolParameters {
     PlutusScriptV2: []
     PlutusScriptV3: []
   }
-  executionUnitPrices: pluts.CborPositiveRational[]
-  maxTxExecutionUnits: pluts.ExBudget
-  maxBlockExecutionUnits: pluts.ExBudget
+  executionUnitPrices: buildooor.CborPositiveRational[]
+  maxTxExecutionUnits: buildooor.ExBudget
+  maxBlockExecutionUnits: buildooor.ExBudget
   maxValueSize: number
   collateralPercentage: number
   maxCollateralInputs: number
@@ -426,27 +427,27 @@ export const constructOgmiosProtocolParams = async (protocolParams: any) => {
     executionUnitPrices: [
       //(protocolParams.scriptExecutionPrices.memory.split('/')[0] / protocolParams.scriptExecutionPrices.memory.split('/')[1]),
       //(protocolParams.scriptExecutionPrices.cpu.split('/')[0] / protocolParams.scriptExecutionPrices.cpu.split('/')[1])
-      // new pluts.CborPositiveRational(protocolParams.price_mem * 10000, 100), // mem
-      // new pluts.CborPositiveRational(protocolParams.price_step * 10000000, 1e5) // cpu
+      // new buildooor.CborPositiveRational(protocolParams.price_mem * 10000, 100), // mem
+      // new buildooor.CborPositiveRational(protocolParams.price_step * 10000000, 1e5) // cpu
       // protocolParams.price_mem * 100,
-      new pluts.CborPositiveRational(
+      new buildooor.CborPositiveRational(
         (protocolParams.scriptExecutionPrices.memory.split('/')[0] /
           protocolParams.scriptExecutionPrices.memory.split('/')[1]) *
           10000,
         100
       ), // mem
-      new pluts.CborPositiveRational(
+      new buildooor.CborPositiveRational(
         (protocolParams.scriptExecutionPrices.cpu.split('/')[0] /
           protocolParams.scriptExecutionPrices.cpu.split('/')[1]) *
           10000000,
         1e5
       ) // cpu
     ],
-    maxTxExecutionUnits: new pluts.ExBudget({
+    maxTxExecutionUnits: new buildooor.ExBudget({
       mem: protocolParams.maxExecutionUnitsPerTransaction.memory,
       cpu: protocolParams.maxExecutionUnitsPerTransaction.cpu
     }),
-    maxBlockExecutionUnits: new pluts.ExBudget({
+    maxBlockExecutionUnits: new buildooor.ExBudget({
       mem: protocolParams.maxExecutionUnitsPerBlock.memory,
       cpu: protocolParams.maxExecutionUnitsPerBlock.cpu
     }),

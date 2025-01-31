@@ -1,16 +1,8 @@
 import * as React from 'react'
 import { Sheet, Button, Typography } from '@mui/joy'
-import {
-  seedPhraseToEntropy,
-  genSeedPhrase,
-  genRootPrivateKey,
-  genBaseAddressFromEntropy,
-  genStakeAddressFromEntropy,
-  encrypt,
-  decrypt
-} from '../../../lib/cryptoPLUTS'
+import { seedPhraseToEntropy, genSeedPhrase, genRootPrivateKey, genBaseAddressFromEntropy, genStakeAddressFromEntropy, encrypt, decrypt } from '../../../lib/buildooor'
 import { networkSelectHook } from '../../../hooks/networkSelectHook'
-import * as pluts from '@harmoniclabs/plu-ts'
+import * as buildooor from '@harmoniclabs/buildooor'
 import { menuHook } from '../../../hooks/menuHook'
 import { SeedPhraseDisplay } from './SeedPhraseDisplay'
 import { CreateWalletAccounts } from './CreateWalletAccounts'
@@ -40,16 +32,16 @@ export const CreateWallet: React.FC = () => {
   // console.log('checking entropy wipe', entropy)
 
   const createNewWallet = async () => {
-    // const seedPhrase: any = await genSeedPhrase()
+    const seedPhrase: any = await genSeedPhrase()
     //Don't get too excited it's just a random seed phrase used for testing :).
-    const seedPhrase = 'earth unlock drill mirror setup economy sphere illegal stamp wedding pill act desert near hidden gadget media grass join wealth acid medal segment equal'
+    // const seedPhrase = 'earth unlock drill mirror setup economy sphere illegal stamp wedding pill act desert near hidden gadget media grass join wealth acid medal segment equal'
     setSeedPhrase(seedPhrase)
     console.log('seedPhrase', seedPhrase)
     const entropy = seedPhraseToEntropy(seedPhrase)
     console.log('entropy', entropy)
     const root_prvKey: any = genRootPrivateKey(entropy)
     // console.log('prvKey', prvKey)
-    const pubKey =  new pluts.PublicKey(root_prvKey.public().toPubKeyBytes()).toString()
+    const pubKey =  new buildooor.PublicKey(root_prvKey.public().toPubKeyBytes()).toString()
     setWalletId(`${network}_${pubKey}`)
     setEntropy(entropy)
   }
@@ -67,13 +59,13 @@ export const CreateWallet: React.FC = () => {
         accountName: `Account ${existingAccounts.length + i}`,
         baseAddress: genBaseAddressFromEntropy(
           entropy,
-          network as pluts.NetworkT,
+          network as buildooor.NetworkT,
           existingAccounts.length + i,
           0
         ).toString(),
         stakeAddress: genStakeAddressFromEntropy(
           entropy,
-          network as pluts.NetworkT,
+          network as buildooor.NetworkT,
           existingAccounts.length + i,
           0
         ).toString()

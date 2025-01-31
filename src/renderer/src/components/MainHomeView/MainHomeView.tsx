@@ -69,29 +69,43 @@ export const MainHomeView: React.FC = () => {
         Info
       </Typography>
       <Typography>
-        The Cardano Merkaba is build using the PLU-TS Library and is create to run as a stand alone
-        applicaiton in a trustless manner on your own Cardano infrastructure. Currently main requirment for node is Ogmios hooked up to Cardano Node.
+        The Cardano Merkaba is built using the{' '}
+        <a href="https://github.com/HarmonicLabs/buildooor"  style={{color: "white", fontWeight: "bolder", fontSize: "1.2em"}}> 
+          buildooor
+          <img
+            src="https://github.com/HarmonicLabs/buildooor/blob/main/assets/buildooor.png?raw=true"
+            height="75"
+            alt="buildooor logo"
+          />
+        </a>{' '}
+        library from Harmonic Labs. It's designed to run as a standalone, trustless application on
+        your own Cardano infrastructure. The main requirement for node setup is Ogmios connected to
+        a Cardano Node.
       </Typography>
       <br />
       <Typography>
-        In the near future options like Harmonic Labs - Gerolamo (Typescript node with browser support) will be an option too, and to run it locally as well.
+        In the near future, Node options like Harmonic Labs' Gerolamo (a TypeScript node with
+        browser support) will be available to run locally as well.
       </Typography>
       <Typography level="body-md" sx={{ mt: 2, fontWeight: 'bold' }}>
         What does that mean?
       </Typography>
       <Typography>
-        It means that you are in control of your own data and your own keys. The wallet is a
-        front-end that connects to your own Cardano Node and or Indexer. This way you can be sure
-        that your data is secure and private. If you're familiar with the Daedalus wallet, this is very similar.
+        It means you're in control of your data and keys. The wallet acts as a front-end that
+        connects to your own Cardano Node or Indexer, ensuring your data is secure and private. If
+        you've used Daedalus, this setup is quite similar.
       </Typography>
+      <br />
       <Typography>
-        However Daedalus forces you to run the node on the same Machine it is running on. Which means that if it's on your laptop you travel with often,
-        or your machine isn't of the greatest specs or even if it is but you're running a damanding task on it, you have to stop the wallet which stops the node syncing.
-        And next time you tunr it on you have to wait till it catches up which is a bit reosurce demnading in itself.
+        However, unlike Daedalus, which requires running the node on the same machine as the wallet,
+        Cardano Merkaba offers more flexibility. If you're using a laptop with limited specs or
+        running demanding tasks, you won't need to stop syncing your wallet every time. With
+        Merkaba, your node can run on a different machine or server, avoiding the resource-intensive
+        process of catching up after each restart.
       </Typography>
-      
+
       <Typography>
-        however other hosted cloud solutions like{' '}
+        Additionally, other hosted cloud solutions like{' '}
         <a href="https://demeter.run/" target="_blank" rel="noopener noreferrer">
           Demeter.run
         </a>{' '}
@@ -105,13 +119,22 @@ export const MainHomeView: React.FC = () => {
       </Typography>
       <Typography>
         The bare minimum you need to run Cardano Merkaba is a Cardano Node with Ogmios. Querying
-        info like your Address UTXO's takes a fraction longer dependaing on the system your Node is
-        running on VS if you queried against a indexer like KUPO. However because of using PLU-TS,
-        all transactions are generated off chain e.g.: Ada and assets, Pool delegation
-        transacations, governance transactions, etc.
+        info like your address's UTXOs might take a bit longer depending on the system your Node is
+        running on compared to querying against an indexer like KUPO. However, because we use
+        <a href="https://github.com/HarmonicLabs/buildooor"  style={{color: "white", fontWeight: "bolder", fontSize: "1.2em"}}> 
+          buildooor
+          <img
+            src="https://github.com/HarmonicLabs/buildooor/blob/main/assets/buildooor.png?raw=true"
+            height="75"
+            alt="buildooor logo"
+          />
+        </a>{' '}<br />
+        all transactions (e.g., ADA and assets, pool delegation, governance transactions) are
+        generated off-chain in the user space securley.
       </Typography>
       <Typography>
-        If you want to view metadata information about your assets, you will need to run the Metadata Indexer.
+        If you want to view metadata information about your assets, you'll need to run the Metadata
+        Indexer.
       </Typography>
       <List
         sx={{
@@ -155,9 +178,9 @@ export const MainHomeView: React.FC = () => {
       </List>
       <Typography>
         If you don't have any of those services running it's not a big deal we do provide public end
-        points as well. And if you have a little bit of Linux knowledge and aren't intimidate by using
-        terminal, there is a small tool I careated called Noderunner that will help you run each of
-        the above software mentioned. https://github.com/bakon11/noderunner
+        points as well. And if you have a little bit of Linux knowledge and aren't intimidate by
+        using terminal, there is a small tool I careated called Noderunner that will help you run
+        each of the above software mentioned. https://github.com/bakon11/noderunner
       </Typography>
       <Typography level="body-md" sx={{ mt: 2 }}>
         - Getting Started: Click here for setup instructions.

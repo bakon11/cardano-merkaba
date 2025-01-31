@@ -1,24 +1,7 @@
 import * as React from 'react'
-import {
-  Modal,
-  ModalClose,
-  ModalDialog,
-  Typography,
-  Sheet,
-  Button,
-  Input,
-  Stack,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemContent,
-  ListItemDecorator,
-  IconButton,
-  Box,
-  Grid
-} from '@mui/joy'
+import {  Modal,  ModalClose,  ModalDialog,  Typography,  Sheet,  Button,  Input,  Stack,  List,  ListItem,  ListItemButton,  ListItemContent,  ListItemDecorator,  IconButton,  Box,  Grid} from '@mui/joy'
 import { Close } from '@mui/icons-material'
-import { genRootPrivateKey, genAddressPrv, decrypt } from '../../lib/cryptoPLUTS'
+import { genRootPrivateKey, genAddressPrv, decrypt } from '../../lib/buildooor'
 import { professionalStyle, accentStyle, sectionTitleStyle, displayAssets } from './styles'
 import { wsp } from '../../API/ogmios'
 
@@ -30,7 +13,7 @@ const CollapsibleSection: React.FC<{ title: string; children: React.ReactNode }>
   const [open, setOpen] = React.useState(true)
   return (
     <List>
-      <ListItemButton onClick={() => setOpen(!open)} sx={{ ...accentStyle, color: '#121212' }}>
+      <ListItemButton onClick={() => setOpen(!open)} sx={{ ...accentStyle, color: '#121212', height:"20px" }}>
         <ListItemDecorator>
           <IconButton>
             <Close sx={{ color: '#121212' }} />

@@ -1,5 +1,5 @@
 import * as pluts from '@harmoniclabs/plu-ts'
-import {  splitAsset, fromBuffer } from '../lib/utils'
+import {  splitAsset, fromBuffer } from '../lib/utils.ts.example'
 
 /*
 ##########################################################################################################

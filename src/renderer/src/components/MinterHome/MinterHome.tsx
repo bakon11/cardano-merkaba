@@ -10,11 +10,10 @@ import {
 } from '../../API/ogmios'
 import { txBuilderMint } from './txBuilderMint'
 import { ProcessTxModal } from '../ProcessTxModal/ProcessTxModal'
-import { toUtf8, fromHex, toHex, fromAscii, toAscii } from '@harmoniclabs/uint8array-utils'
-import { PubKeyHash, Value, DataConstr } from '@harmoniclabs/plu-ts'
-import { genRootPrivateKey, genAddressPrv, decrypt } from '../../lib/cryptoPLUTS'
+import { fromAscii, toAscii } from '@harmoniclabs/uint8array-utils'
+import { PubKeyHash, Value, DataConstr } from '@harmoniclabs/buildooor'
 import { genPolicy, genPolicy2 } from './genPolicy'
-import { professionalStyle, accentStyle, sectionTitleStyle } from './styles'
+import { professionalStyle, accentStyle } from './styles'
 
 export const MinterHome: React.FC = () => {
   // const [selectedAccount, setSelectedAccount] = selectedAccountHook() as any

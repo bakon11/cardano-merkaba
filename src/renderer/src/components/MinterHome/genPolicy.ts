@@ -1,19 +1,4 @@
-import {
-  Address,
-  PScriptContext,
-  PTokenName,
-  ScriptType,
-  Credential,
-  Script,
-  compile,
-  pfn,
-  unit,
-  passert,
-  NetworkT,
-  pmatch,
-  pBool,
-  pisEmpty
-} from '@harmoniclabs/plu-ts'
+import { Address, PScriptContext, PTokenName, ScriptType, Credential, Script, compile, pfn, unit, passert, NetworkT, pmatch, pBool, pisEmpty } from '@harmoniclabs/buildooor'
 import { toUtf8, fromHex, toHex, fromAscii, toAscii } from '@harmoniclabs/uint8array-utils'
 
 export const genPolicy = (tokenPolicyName) => {

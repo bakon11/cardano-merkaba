@@ -6,9 +6,9 @@ import {
   genBaseAddressFromEntropy,
   genStakeAddressFromEntropy,
   encrypt
-} from '../../../lib/cryptoPLUTS'
+} from '../../../lib/buildooor'
 import { networkSelectHook } from '../../../hooks/networkSelectHook'
-import * as pluts from '@harmoniclabs/plu-ts'
+import * as buildooor from '@harmoniclabs/buildooor'
 import { menuHook } from '../../../hooks/menuHook'
 import { CreateWalletAccounts } from './CreateWalletAccounts'
 import { EnterSeedPhrase } from './EnterSeedPhrase'
@@ -46,7 +46,7 @@ export const RestoreWallet: React.FC = () => {
     console.log('entropy', entropy)
     const prvKey: any = genRootPrivateKey(entropy)
     // console.log('prvKey', prvKey)
-    const pubKey = new pluts.PublicKey(prvKey.public().toPubKeyBytes()).toString()
+    const pubKey = new buildooor.PublicKey(prvKey.public().toPubKeyBytes()).toString()
     setWalletId(pubKey)
     setEntropy(entropy)
   }
@@ -64,13 +64,13 @@ export const RestoreWallet: React.FC = () => {
         accountName: `Account ${existingAccounts.length + i}`,
         baseAddress: genBaseAddressFromEntropy(
           entropy,
-          network as pluts.NetworkT,
+          network as buildooor.NetworkT,
           existingAccounts.length + i,
           0
         ).toString(),
         stakeAddress: genStakeAddressFromEntropy(
           entropy,
-          network as pluts.NetworkT,
+          network as buildooor.NetworkT,
           existingAccounts.length + i,
           0
         ).toString()

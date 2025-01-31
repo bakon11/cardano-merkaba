@@ -26,7 +26,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fontsource/space-grotesk": "^5.1.0",
-    "@harmoniclabs/plu-ts": "^0.9.0",
+    "@harmoniclabs/buildooor": "^0.1.0",
     "@mui/icons-material": "^6.2.1",
     "@mui/joy": "^5.0.0-beta.51",
     "@mui/material": "^6.2.1",
