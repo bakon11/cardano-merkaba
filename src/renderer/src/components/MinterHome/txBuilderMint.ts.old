@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as buildooor from '@harmoniclabs/buildooor'
 import { splitAsset } from '../../lib/utils'
-import { createInputValuesOgmios } from '../../API/ogmios'
+import { OgmiosUtxoToInputsBuildooor } from '../../API/ogmios'
 import { fromHex } from '@harmoniclabs/uint8array-utils'
 
 export const txBuilderMint: any = async (
   protocolParameters: any,
   utxoInputs: any,
+  utxoOutputs: any,
   changeAddress: any,
   accountAddressKeyPrv: any,
   metadata: any,
@@ -20,49 +21,15 @@ export const txBuilderMint: any = async (
   Constructing TxBuilder instance
   #############################d############################################################################
   */
-
   const txBuilder = new buildooor.TxBuilder(protocolParameters)
   console.log('txBuilder protocolParamters', txBuilder)
 
   /*
   ##########################################################################################################
-  Constructing UTxO instances from CBORs gathered through CIP30 getUtxos() method
+  Generate inputs
   #############################d############################################################################
   */
-  // const inputsCbor: any = utxoInputsCBOR.map(buildooor.UTxO.fromCbor) // UTxO[]
-  // console.log("inputs", inputsCbor);
-  // const inputsCborParsed = inputsCbor.map((utxo: any) => ({ utxo: utxo }))
-  // console.log("inputsCborParsed", inputsCborParsed[1].utxo.resolved.value.lovelaces);
-
-  /*
-  ##########################################################################################################
-  Generate inputs from utxoInputsKupo
-  #############################d############################################################################
-  */
-  // utxoInputsKupo = await selectInputs(utxoInputsKupo, utxoOutputs)
-  let inputs: any = []
-
-  Promise.all(
-    await utxoInputs.map(async (utxo: any) => {
-      // console.log("adding inputs")
-      inputs.push(
-        new buildooor.UTxO({
-          utxoRef: {
-            id: utxo.transaction.id,
-            index: utxo.index
-          },
-          resolved: {
-            address: buildooor.Address.fromString(utxo.address),
-            value: await createInputValuesOgmios(utxo)
-            // datum: [], // parse kupo datum
-            // refScript: [] // look for ref script if any
-          }
-        })
-      )
-      // console.log("address used", buildooor.Address.fromString(utxo.address).paymentCreds)
-    })
-  )
-
+  let inputs: any = await OgmiosUtxoToInputsBuildooor(utxoInputs)
   console.log('inputs', inputs)
   // const inputsParsed = inputs.map((utxo: any) => ({ utxo: utxo }))
   // console.log('inputsParsed', inputsParsed)
@@ -72,25 +39,26 @@ export const txBuilderMint: any = async (
   Creating outputs for receiving address
   #############################d############################################################################
   */
-  const mintOutputs: any = await mintedTokensOutputs(mintedValue, changeAddress, scriptAddr)
-  console.log('mintOutputs', mintOutputs)
+  // If there is any mints
+  let mintOutputs: any = []
+  if (mints.length > 0) {
+    // console.log('mints', mints)
+    // console.log('mintedValue', mintedValue)
+    mintOutputs = await mintedTokensOutputs(mintedValue, changeAddress, scriptAddr)
+    console.log('mintOutputs', mintOutputs)
+  }
 
   /*
-  let outputsParsed: buildooor.TxOut[] = []
-  Promise.all(
-    await utxoOutputs.map(async (output: any) => {
-      outputsParsed.push(
-        new buildooor.TxOut({
-          address: buildooor.Address.fromString(output.address),
-          value: await createOutputValues(output, txBuilder) // parse kupo value
-          // datum: [], // parse kupo datum
-          // refScript: [] // look for ref script if any
-        })
-      )
-    })
-  )
+  ##########################################################################################################
+  Creating outputs for receiving address
+  #############################d############################################################################
   */
-  // console.log("outputsParsed", outputsParsed);
+  // Simple outputs
+  let outputsbuildooor: any = []
+  if (utxoOutputs.length > 0) {
+    outputsbuildooor = createOutputs(utxoOutputs, txBuilder)
+    // console.log("outputsParsed", outputsParsed);
+  }
 
   /*
     ##########################################################################################################
@@ -131,15 +99,15 @@ export const txBuilderMint: any = async (
   try {
     let builtTx = txBuilder.buildSync({
       inputs: inputs,
-      collaterals: [colateral],
-      collateralReturn: {
-         address: colateral.resolved.address,
-         value: buildooor.Value.sub(colateral.resolved.value, buildooor.Value.lovelaces(2_000_000))
-      },
+      // collaterals: [colateral],
+      // collateralReturn: {
+      //    address: colateral.resolved.address,
+      //    value: buildooor.Value.sub(colateral.resolved.value, buildooor.Value.lovelaces(2_000_000))
+      //},
       // invalidAfter: ttl,
       metadata: txMeta,
       mints: mints,
-      outputs: mintOutputs,
+      outputs: [...mintOutputs, ...outputsbuildooor],
       changeAddress
     })
     // Sign tx hash
@@ -192,18 +160,11 @@ const mintedTokensOutputs = async (mintedValue: any, changeAddress: string, scri
   return mintOutputs
 }
 
-// Function to converSome outputs have an insufficient amount of Ada attached to them. In fact, any new output created in a system must pay for the resources it occupies. Because user-created assets are worthless (from the point of view of the protocol), those resources must be paid in the form of a Ada deposit. The exact depends on the size of the serialized output: the more assets, the higher the amount. The field 'data.insufficientlyFundedOutputs.[].output' contains a list of all transaction outputs that are insufficiently funded. Starting from the Babbage era, the field 'data.insufficientlyFundedOutputs.[].minimumRequiredValue' indicates the required amount of Lovelace (1e6 Lovelace = 1 Ada) needed for each output.t hex string to byte array using slice
-export function hexToBytes(hex: string): number[] {
-  let bytes: number[] = []
-  for (let c = 0; c < hex.length; c += 2) {
-    bytes.push(parseInt(hex.slice(c, c + 2), 16))
-  }
-  return bytes
-}
-
 /*
-##########################################################################################################
+#############################################################################################################################
 This function will create UTXO outputs meaning sending to someone from following Objectcreated during selection in the wallet
+THe below is an example how to pass an aray of UTXO outputs to the function
+#############################################################################################################################
 {
   address: "addr1q9shhjkju8aw2fpt4ttdnzrqcdacaegpglfezen33kq9l2wcdqua0w5yj7d8thpulynjly2yrhwxvdhtrxqjpmy60uqs4h7cyp",
   value: {
@@ -218,7 +179,21 @@ This function will create UTXO outputs meaning sending to someone from following
 }
 #############################d############################################################################
 */
-
+const createOutputs = async (utxoOutputs: any, txBuilder: any) => {
+  let outputsbuildooor: buildooor.TxOut[] = []
+  Promise.all(
+    await utxoOutputs.map(async (output: any) => {
+      outputsbuildooor.push(
+        new buildooor.TxOut({
+          address: buildooor.Address.fromString(output.address),
+          value: await createOutputValues(output, txBuilder) // parse kupo value
+          // datum: [], // parse kupo datum
+          // refScript: [] // look for ref script if any
+        })
+      )
+    })
+  )
+}
 const createOutputValues = async (output: any, txBuilder: any) => {
   // console.log("output", output);
   let outputAssets: any = []
