@@ -1,6 +1,6 @@
 {
   "name": "cardano-merkaba",
-  "version": "0.3npm ins.0",
+  "version": "0.3.0",
   "description": "A tool to give you full access to the Cardano Network.",
   "main": "./out/main/index.js",
   "author": "bakon",
