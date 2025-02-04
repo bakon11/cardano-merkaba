@@ -36,11 +36,12 @@ interface ProcessTxModalProps {
 }
 
 export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accountInfo }) => {
-  const [open, setOpen] = React.useState(false)
-  const [tx, setTX] = React.useState<any>()
-  const [txRaw, setTXRaw] = React.useState<any>()
-  const [spendingPassword, setSpendingPassword] = React.useState('')
-  const [signed, setSigned] = React.useState(false)
+  const [ open, setOpen ] = React.useState(false)
+  const [ tx, setTX] = React.useState<any>()
+  const [ txRaw, setTXRaw] = React.useState<any>()
+  const [ spendingPassword, setSpendingPassword] = React.useState('')
+  const [ signed, setSigned] = React.useState(false)
+  const [ status, setStatus ] = React.useState('')
 
   const signTx = async () => {
     console.log('accountInfo', accountInfo)
@@ -50,6 +51,7 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
     const entropyDecrypted = decrypt(walletEntropy.entropyEncrypt, spendingPassword)
     console.log('entropyDecrypted', entropyDecrypted)
     entropyDecrypted !== 'error' ? setSigned(true) : setSigned(false)
+    entropyDecrypted !== 'error' ? setStatus('Press send to publish your tx to the Cardano blockchain.') : setStatus('Please enter your Spending Password to sign the transaction.')
     const root_xprv: any = genRootPrivateKey(entropyDecrypted !== 'error' && entropyDecrypted !=="" ? entropyDecrypted : '')
     console.log('root_xprv', root_xprv)
     const address_xprv = genAddressPrv(
@@ -60,9 +62,6 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
     )
     console.log('address_xprv', address_xprv)
     const txProcessed: any = await processTx(address_xprv)
-    console.log('txProcessed hash', txProcessed.hash.toString())
-    console.log('txProcessed Cbor', txProcessed.toCbor().toString())
-    console.log('txProcessed json', txProcessed.toJson())
     setTX(txProcessed.toJson())
     setTXRaw(txProcessed)
     // wsp('releaseMempool', {})
@@ -80,6 +79,13 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
     txSend.onmessage = (e: MessageEvent) => {
       try {
         const results = JSON.parse(e.data)
+        results.error && setStatus(results.error.message || "Error sending transaction. Please try again.")
+        if (results.result) {
+          setStatus("TX has been sent: " + 
+            `<a href="https://preprod.cardanoscan.io/transaction/${results.result.transaction.id}" target="_blank">
+              ${results.result.transaction.id}
+            </a>`)}
+        results.result && getMemoPool(results.result.transaction.id)
         console.log('WebSocket message received:', results)
       } catch (parseError) {
         console.log('Error parsing WebSocket message:', parseError)
@@ -179,6 +185,11 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
                   </Button>
                 </>
               )}{' '}
+              {status && 
+                <Typography sx={{ ...professionalStyle, color: '#E0E0E0', borderColor: '#212121' }}>
+                  {status}
+                </Typography>
+              }
               {/* Increased spacing for better visual separation */}
               {/* Transaction ID */}
               <Input
@@ -191,7 +202,7 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
               <Input
                 startDecorator="SIZE:"
                 value={
-                  tx ? JSON.stringify(tx?.body?.inputs?.[0]?.utxoRef?.id).length + ' BYTES' : 'N/A'
+                  tx ? txRaw.toCbor().toBuffer().length + ' BYTES' : 'N/A'
                 }
                 disabled
                 sx={{ ...professionalStyle, color: '#E0E0E0', borderColor: '#212121' }}
@@ -199,7 +210,7 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
               {/* Transaction Fee */}
               <Input
                 startDecorator="FEE:"
-                value={tx?.body?.fee || 'N/A'}
+                value={tx?.body?.fee + ' lovelaces' + " | ₳" + (tx?.body?.fee / 1000000) + " ADA" || 'N/A'}
                 disabled
                 sx={{ ...professionalStyle, color: '#E0E0E0', borderColor: '#212121' }}
               />

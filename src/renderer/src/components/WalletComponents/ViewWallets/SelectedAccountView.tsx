@@ -7,10 +7,10 @@ import { WalletAccountTabs } from './ViewWalletAccountTabs'
 interface SelectedAccountViewProps {}
 
 export const SelectedAccountView: React.FC<SelectedAccountViewProps> = () => {
-  const [selectedAccount, setSelectedAccount ] = selectedAccountHook() as any
+  const [ selectedAccount, setSelectedAccount ] = selectedAccountHook() as any
   const account = JSON.parse(selectedAccount)
   const [ accountInfo, setAccountInfo ] = React.useState<any>()
-  const  [backEnd, setBackEnd ]: [string | null, (config: string) => Promise<void>] = backendHook()
+  const [ backEnd, setBackEnd ]: [string | null, (config: string) => Promise<void>] = backendHook()
 
   const fetchAccountAddressUtxos = async () => {
     const backend = JSON.parse(backEnd as any)

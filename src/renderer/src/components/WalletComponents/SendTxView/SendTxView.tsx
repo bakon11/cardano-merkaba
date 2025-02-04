@@ -6,7 +6,8 @@ import { backendHook } from '../../../hooks/backendHook'
 import { toUtf8, fromHex } from '@harmoniclabs/uint8array-utils'
 import { ProcessTxModal } from '../../ProcessTxModal/ProcessTxModal'
 import { accentStyle, } from './styles'
-import { txBuilder_buildooor } from './txBuilder'
+// import { txBuilder_buildooor } from './txBuilder'
+import { txBuilder_buildooor } from "../../ProcessTxModal/txBuilder"
 
 interface Token {
   policyId: string
@@ -137,7 +138,11 @@ export const SendTxView: React.FC<SendTxViewProps> = ({ accountInfo }) => {
       utxoOutputs,
       accountInfo.account.baseAddress_bech32,
       address_xprv,
-      metadata
+      metadata,
+      "",
+      "",
+      [],
+      []
     )
   }
 

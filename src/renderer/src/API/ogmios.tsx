@@ -226,16 +226,17 @@ export const parseOgmiosUtxosForWallet = (utxos: Utxo[]): Result => {
 Generate inputs for PLU-TS from utxoInputsOgmios
 #############################d############################################################################
 */
-export const paraseOgmiosUtxoTobuildooorTX = async (utxoInputsOgmios: any) => {
-  let inputs: any = []
+export const OgmiosUtxoToInputsBuildooor = async (utxoInputsOgmios: any) => {
+  console.log('utxoInputsOgmios', utxoInputsOgmios)
+  let inputsBuildooor: any = []
   Promise.all(
     await utxoInputsOgmios.map(async (utxo: any) => {
       // console.log("adding inputs")
-      inputs.push(
+      inputsBuildooor.push(
         new buildooor.UTxO({
           utxoRef: {
-            id: utxo.transaction_id,
-            index: utxo.output_index
+            id: utxo.transaction.id,
+            index: utxo.index
           },
           resolved: {
             address: buildooor.Address.fromString(utxo.address),
@@ -248,8 +249,8 @@ export const paraseOgmiosUtxoTobuildooorTX = async (utxoInputsOgmios: any) => {
       // console.log("address used", buildooor.Address.fromString(utxo.address).paymentCreds)
     })
   )
-  const inputsKupoParsed = inputs.map((utxo: any) => ({ utxo: utxo }))
-  return inputsKupoParsed
+  const inputsParsed = inputsBuildooor.map((utxo: any) => ({ utxo: utxo }))
+  return inputsBuildooor
 }
 
 /*

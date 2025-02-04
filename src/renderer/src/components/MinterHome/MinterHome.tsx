@@ -8,7 +8,8 @@ import {
   getAccountUtxoInfoOgmios,
   parseOgmiosUtxosForWallet
 } from '../../API/ogmios'
-import { txBuilderMint } from './txBuilderMint'
+// import { txBuilder_buildooor } from './txBuilder'
+import { txBuilder_buildooor } from "../ProcessTxModal/txBuilder"
 import { ProcessTxModal } from '../ProcessTxModal/ProcessTxModal'
 import { fromAscii, toAscii } from '@harmoniclabs/uint8array-utils'
 import { PubKeyHash, Value, DataConstr } from '@harmoniclabs/buildooor'
@@ -31,6 +32,7 @@ export const MinterHome: React.FC = () => {
   const [assetName, setAssetName] = React.useState<string>('')
   const [assetQuantity, setAssetQuantity] = React.useState<number>(0)
   const [tokenPolicyNameHook, setTokenPolicyName] = React.useState<string>('')
+  const [Metadata, setMetadata] = React.useState<any>([])
   const [network, setNetwork] = networkSelectHook()
   const [txCBOR, setTXCBOR] = React.useState<string>('')
 
@@ -67,6 +69,7 @@ export const MinterHome: React.FC = () => {
         message2: 'Mint TX Crafted With PLU-TS'
       }
     }
+    setMetadata(metadata)
     return metadata
   }
 
@@ -127,9 +130,10 @@ export const MinterHome: React.FC = () => {
     const protocolParams = await getProtocolParams()
     console.log('protocolParams', protocolParams)
     const metadata = genMetadata()
-    const tx = await txBuilderMint(
+    const tx = await txBuilder_buildooor(
       protocolParams,
       accountInfo.utxos,
+      [],
       accountInfo.account.baseAddress_bech32,
       address_xprv,
       metadata,

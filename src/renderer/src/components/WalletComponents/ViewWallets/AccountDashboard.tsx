@@ -71,7 +71,7 @@ export const AccountDashboard: React.FC<AccountDashboardProps> = ({ accountInfo 
 
       {/* Receive Address */}
       <Box mt={2}>
-        <Typography level="h4">Stake Address</Typography>
+        <Typography level="h4">Base Address</Typography>
         <Input
           fullWidth
           value={accountInfo ? accountInfo.account.baseAddress_bech32 : '****'}
