@@ -1,6 +1,6 @@
 {
   "name": "cardano-merkaba",
-  "version": "0.2.0",
+  "version": "0.3npm ins.0",
   "description": "A tool to give you full access to the Cardano Network.",
   "main": "./out/main/index.js",
   "author": "bakon",
@@ -12,7 +12,8 @@
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "start": "electron-vite preview",
-    "dev": "rm -rf node_modules/.vite && rm -rf node_modules/@harmoniclabs/buildooor/dist && cp -a /media/bakon/data/Dev/HarmonicLabs/pluts_dev/buildooor/dist node_modules/@harmoniclabs/buildooor/ && electron-vite dev",
+    "dev": "electron-vite dev",
+    "dev:linux": "rm -rf node_modules/.vite && rm -rf node_modules/@harmoniclabs/buildooor/dist && cp -a /media/bakon/data/Dev/HarmonicLabs/pluts_dev/buildooor/dist node_modules/@harmoniclabs/buildooor/ && electron-vite dev",
     "build": "npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
