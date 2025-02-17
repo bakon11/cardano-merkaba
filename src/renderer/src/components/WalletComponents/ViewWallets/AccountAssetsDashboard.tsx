@@ -90,7 +90,7 @@ export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ 
       <List>
         {Object.entries(filteredAssets).map(([policyId, tokens]) => (
           <React.Fragment key={policyId}>
-            <Typography level="h5" sx={{ mt: 2 }}>
+            <Typography level="body-md" sx={{ mt: 2 }}>
               Poliocy ID: {policyId}
             </Typography>
             {tokens.map((asset, index) => (

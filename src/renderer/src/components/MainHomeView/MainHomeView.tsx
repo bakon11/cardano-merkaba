@@ -25,7 +25,7 @@ export const MainHomeView: React.FC = () => {
           fontWeight: 'light'
         }}
       >
-        Welcome to the Merkaba Wallet
+        Welcome to the Merkaba
       </Typography>
       <Typography
         sx={{
@@ -34,7 +34,7 @@ export const MainHomeView: React.FC = () => {
           fontWeight: 'light'
         }}
       >
-        (Currenlty the wallet uses Testnet by default, switch to mainnet at your own risk.)
+        (Currenlty the Merkaba uses Testnet by default, switch to mainnet at your own risk.)
       </Typography>
       <hr />
       <br />

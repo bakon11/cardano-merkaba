@@ -140,6 +140,50 @@ export const ogmiosHealth = async () => {
   }
 }
 
+/*
+##########################################################################################################
+Ogmios helpfer functions to fetch data
+#############################d############################################################################
+*/
+
+export const getTipOgmios = async () => {
+  const params = {};
+  try {
+    const tipWS = wsp("queryLedgerState/tip", params);
+    return await new Promise((resolve, reject) => {
+      tipWS.onmessage = (e: any) => {
+        try {
+          const results = JSON.parse(e.data);
+          // console.log('WebSocket message received:', results)
+          resolve(results.result);
+        } catch (parseError) {
+          console.error("Error parsing WebSocket message:", parseError);
+          reject(parseError);
+        }
+      };
+
+      tipWS.onerror = (error: Error) => {
+        console.error("WebSocket error:", error);
+        reject(error);
+      };
+
+      tipWS.onclose = (event: any) => {
+        console.log("WebSocket connection closed:", event);
+        if (!event.wasClean) {
+          reject(new Error("WebSocket connection was closed unexpectedly"));
+        } else {
+          resolve(null);
+        }
+      };
+    });
+  } catch (error) {
+    console.error("Failed to get tip:", error);
+    throw error;
+  }
+
+}  
+
+
 export const getAccountUtxoInfoOgmios = async (addresses: string[]): Promise<Utxo[] | null> => {
   const params = {
     addresses: [...addresses]

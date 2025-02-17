@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as buildooor from '@harmoniclabs/buildooor'
 import { splitAsset } from '../../lib/utils'
-import { OgmiosUtxoToInputsBuildooor } from '../../API/ogmios'
+import { OgmiosUtxoToInputsBuildooor, getTipOgmios } from '../../API/ogmios'
 import { fromHex } from '@harmoniclabs/uint8array-utils'
 
 export const txBuilder_buildooor: any = async (
@@ -66,10 +66,11 @@ export const txBuilder_buildooor: any = async (
   Attach Metadata to transaction when passed.
   ##########################################################################################################
   */
-  const txMeta: any = new buildooor.TxMetadata({
-    [metadata.label]: buildooor.jsonToMetadata(metadata.properties)
-  })
-  // console.log("txMeta", txMeta);
+  
+  // const txMeta: any = new buildooor.TxMetadata({ [metadata.label]: buildooor.jsonToMetadata(metadata.properties) })
+  
+  const txMeta = new buildooor.TxMetadata({ ["721"]: buildooor.jsonToMetadata(metadata), });
+  console.log("txMeta", txMeta.toCbor().toString());
 
   // const stakeCred = accountAddressKeyPrv
   // console.log("stakeCred", stakeCred);
@@ -80,8 +81,9 @@ export const txBuilder_buildooor: any = async (
   Transaction time to live till after slot?
   #############################d############################################################################
   */
-  const ttl: any = setTtl(mints)
-
+  const tip: any = await setTtl(mints)
+  const invalidAfter = tip ? tip + 129600 : null
+  const invalidBefore = tip ? tip : null
   /*
   ##########################################################################################################
   Find UTXO for collateral
@@ -103,22 +105,15 @@ export const txBuilder_buildooor: any = async (
           address: utxo.resolved.address,
           value: buildooor.Value.sub(utxo.resolved.value, buildooor.Value.lovelaces(2_000_000))
       },
-      invalidBefore: 500000,
-      metadata: txMeta,
+      // invalidAfter: invalidAfter,
+      // invalidBefore: invalidBefore,
       mints: mints.length > 0 ? mints : null,
       outputs: [...mintOutputs, ...outputsbuildooor],
-      changeAddress
+      changeAddress,
+      metadata: txMeta,
     })
-    // Sign tx hash
-    const signedTx = accountAddressKeyPrv.sign(builtTx.body.hash.toBuffer())
-    // console.log("txBuffer", builtTx.body.hash.toBuffer());
 
-    const VKeyWitness = new buildooor.VKeyWitness(
-      new buildooor.VKey(signedTx.pubKey),
-      new buildooor.Signature(signedTx.signature)
-    )
-    // console.log("VKeyWitness", VKeyWitness);
-    builtTx.witnesses.addVKeyWitness(VKeyWitness)
+
     console.log('tx app hash', builtTx.hash.toString())
     console.log('tx app Cbor', builtTx.toCbor().toString())
     console.log('tx app json', builtTx.toJson())
@@ -131,13 +126,28 @@ export const txBuilder_buildooor: any = async (
 }
 
 /*
+DEPRECATED WAY TO SIGN TX
+    // Sign tx hash
+    const signedTx = accountAddressKeyPrv.sign(builtTx.body.hash.toBuffer())
+    // console.log("txBuffer", builtTx.body.hash.toBuffer());
+    const VKeyWitness = new buildooor.VKeyWitness(
+      new buildooor.VKey(signedTx.pubKey),
+      new buildooor.Signature(signedTx.signature)
+    )
+    // console.log("VKeyWitness", VKeyWitness);
+    builtTx.witnesses.addVKeyWitness(VKeyWitness)
+*/
+/*
 ##########################################################################################################
 Helper Functions
 #############################d############################################################################
 */
+const nowPosix = Date.now();
 
 const setTtl = async (mints: any) => {
-  return mints.length === 0 ? {"invalidAfter": 1000} : null
+  const tip: any = await getTipOgmios();
+  console.log('tip', tip?.slot)
+  return mints.length === 0 ? tip?.slot : null
 }
 //this function adds outputs for minted tokens
 const mintedTokensOutputs = async (mintedValue: any, changeAddress: string, scriptAddr: any) => {

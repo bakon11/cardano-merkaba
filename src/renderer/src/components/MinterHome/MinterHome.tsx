@@ -25,7 +25,7 @@ export const MinterHome: React.FC = () => {
   const [backEnd, setBackEnd]: [string | null, (config: string) => Promise<void>] = backendHook()
   const [scriptHook, setScript] = React.useState<any>()
   const [scriptAddrHook, setScriptAddr] = React.useState<any>()
-  const [policyIdHook, setPolicyId] = React.useState<PubKeyHash>()
+  const [policyIdHook, setPolicyId] = React.useState<PubKeyHash | string>()
   const [assetsToMint, setAssetsToMint] = React.useState<any>([])
   const [mintedValue, setMintedValue] = React.useState<any>()
   const [mints, setMints] = React.useState<any>([])
@@ -69,8 +69,22 @@ export const MinterHome: React.FC = () => {
         message2: 'Mint TX Crafted With PLU-TS'
       }
     }
-    setMetadata(metadata)
-    return metadata
+    const policyIdStr: string  = policyIdHook?.toString();
+
+    const nftName = "DCL CARDANO NFT";
+    const m = {
+      [policyIdStr]: {
+        [nftName]: {
+          name: nftName,
+          description: "This is an NFT from DeepchainLabs",
+          image: "https://deepchainlabs.com/_next/image?url=/images/DCL_logo_header.png",
+          id: "2",
+        },
+      },
+    };
+
+    setMetadata(m)
+    return m
   }
 
   const genPolicyInfo = () => {
