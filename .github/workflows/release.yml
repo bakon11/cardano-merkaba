@@ -3,7 +3,7 @@ name: Build/release Electron app
 on:
   push:
     tags:
-      - v0.0.2
+      - v0.0.3
 jobs:
   release:
     runs-on: ${{ matrix.os }}
@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20.14.0
-          
+
       - name: Set PREBUILD_NODE_API_VERSION
         run: echo "PREBUILD_NODE_API_VERSION=6" >> $GITHUB_ENV
 
