@@ -3,6 +3,7 @@ import * as buildooor from '@harmoniclabs/buildooor'
 import { splitAsset } from '../../lib/utils'
 import { OgmiosUtxoToInputsBuildooor, getTipOgmios } from '../../API/ogmios'
 import { fromHex } from '@harmoniclabs/uint8array-utils'
+import { defaultMainnetGenesisInfos, defaultPreprodGenesisInfos, defaultProtocolParameters, IGetGenesisInfos, IGetProtocolParameters, TxBuilder } from "@harmoniclabs/plu-ts";
 
 export const txBuilder_buildooor: any = async (
   protocolParameters: any,
@@ -21,7 +22,7 @@ export const txBuilder_buildooor: any = async (
   Constructing TxBuilder instance
   #############################d############################################################################
   */
-  const txBuilder = new buildooor.TxBuilder(protocolParameters, buildooor.defaultPreprodGenesisInfos)
+  const txBuilder = new buildooor.TxBuilder(defaultProtocolParameters, buildooor.defaultPreprodGenesisInfos)
   // console.log("txBuilder", txBuilder.protocolParamters);
 
   /*
@@ -89,8 +90,8 @@ export const txBuilder_buildooor: any = async (
   Find UTXO for collateral
   #############################d############################################################################
   */
-  const utxo = inputsbuildooor.find((u: any) => u.resolved.value.lovelaces > 5_000_000)
-  // console.log('colateral', utxo)
+  const utxoSelected = inputsbuildooor.find((u: any) => u.resolved.value.lovelaces > 5_000_000)
+  console.log('inputsbuildooor',inputsbuildooor)
 
   /*
   ##########################################################################################################
@@ -99,12 +100,14 @@ export const txBuilder_buildooor: any = async (
   */
   try {
     let builtTx = txBuilder.buildSync({
-      inputs: [ ...inputsbuildooor ],
-      collaterals: [utxo],
+      inputs: inputsbuildooor ,
+      collaterals: [ utxoSelected ],
+      
       collateralReturn: {
-          address: utxo.resolved.address,
-          value: buildooor.Value.sub(utxo.resolved.value, buildooor.Value.lovelaces(2_000_000))
+          address: utxoSelected.resolved.address,
+          value: buildooor.Value.sub(utxoSelected.resolved.value, buildooor.Value.lovelaces(2_000_000))
       },
+      
       // invalidAfter: invalidAfter,
       // invalidBefore: invalidBefore,
       mints: mints.length > 0 ? mints : null,
@@ -112,8 +115,8 @@ export const txBuilder_buildooor: any = async (
       changeAddress,
       metadata: txMeta,
     })
-
-
+    builtTx.signWith(accountAddressKeyPrv);
+    // const linearFee = txBuilder.calcLinearFee(txCBOR);
     console.log('tx app hash', builtTx.hash.toString())
     console.log('tx app Cbor', builtTx.toCbor().toString())
     console.log('tx app json', builtTx.toJson())

@@ -218,7 +218,7 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
               <Grid container spacing={2}>
                 <Grid xs={12} md={4}>
                   <CollapsibleSection title="WITNESS SET">
-                    {tx && <VkeyWitnesses vkeyWitnesses={tx.witnesses.vkeyWitnesses} />}
+                    {tx && tx.witnesses.vkeyWitnesses && <VkeyWitnesses vkeyWitnesses={tx.witnesses.vkeyWitnesses} />}
                   </CollapsibleSection>
                 </Grid>
                 <Grid xs={12} md={4}>

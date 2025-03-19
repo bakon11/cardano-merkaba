@@ -15,7 +15,9 @@
       "@renderer/*": [
         "src/renderer/src/*"
       ]
-    }
+    },
+    "moduleResolution": "node16",
+    "module": "Node16"
   },
   "rules": {
     "prettier/prettier": "error", // This enables Prettier within ESLint

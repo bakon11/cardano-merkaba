@@ -172,7 +172,7 @@ export const MinterHome: React.FC = () => {
           left: 60,
           width: 1200,
           height: 'auto',
-          maxHeight: 950,
+          maxHeight: 1250,
           overflowY: 'scroll',
           p: 4,
           bgcolor: 'background.body',

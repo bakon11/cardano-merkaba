@@ -3,7 +3,7 @@ import { Sheet, Button, Stack, Modal, ModalClose, Typography } from '@mui/joy'
 import {  NodeFaqs } from './SelectNode'
 import {  IndexerFaqs } from './SelectIndexer'
 import { SelectBackend } from './SelectBackend'
-
+import { SetOllamaHost } from './SetOllamaHost'
 interface NodeConfigModalProps {
   // Add any props here if needed
 }
@@ -39,6 +39,7 @@ export const NodeConfigModal: React.FC<NodeConfigModalProps> = () => {
             <ModalClose variant="plain" sx={{ m: 1 }} />
             <Stack direction="row" spacing={2} justifyContent="center">
               <SelectBackend />
+              <SetOllamaHost />
               {/*For now we will replace this with a simpler single backend selection
               <SelectNode
                 selectedNode={selectedNode}

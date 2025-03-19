@@ -4,12 +4,12 @@ import React from 'react'
 import { CssVarsProvider } from '@mui/joy/'
 import { TopBar } from '../components/TopBar/TopBar'
 import { SideBar } from '../components/SideBar/SideBar'
-import CssBaseline from '@mui/joy/CssBaseline'
-import { GravityMain } from '../components/Gravity/GravityMain'
+import { PromptInputInterface } from '../components/AiAgent/PromptInputInterface'
 import { menuHook } from '../hooks/menuHook'
+import CssBaseline from '@mui/joy/CssBaseline'
 import '@fontsource/space-grotesk'
 
-const Gravity = (): JSX.Element => {
+const AiAgentMain = (): JSX.Element => {
   const [menu, setMenu] = menuHook()
   return (
     <>
@@ -17,10 +17,10 @@ const Gravity = (): JSX.Element => {
         <CssBaseline />
         <TopBar />
         <SideBar />
-        {menu === 'GravityMain' && <GravityMain />}
+        {menu === 'AiAgentMain' && <PromptInputInterface />}
       </CssVarsProvider>
     </>
   )
 }
 
-export default Gravity
+export default AiAgentMain

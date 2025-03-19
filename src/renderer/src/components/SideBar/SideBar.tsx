@@ -2,9 +2,7 @@ import { Sheet, Typography, Button } from '@mui/joy/'
 import { menuHook } from '../../hooks/menuHook'
 import { useNavigate } from 'react-router-dom'
 
-
 export const SideBar = (): JSX.Element => {
-
   const [menu, setMenu] = menuHook()
   const navigate = useNavigate()
 
@@ -104,16 +102,27 @@ export const SideBar = (): JSX.Element => {
         >
           Home
         </Button>
-        {/* Add more menu items as needed */}
+        <br />
+        <Button
+          variant="plain"
+          color="primary"
+          sx={buttonStyle}
+          onClick={() => {
+            setMenu('AiAgentMain')
+            handleNavigate('/AiAgentMain')
+          }}
+        >
+          Merkaba Sentient
+        </Button>
         <br />
         <Button
           onClick={() => {
             setMenu('GravityMain')
             handleNavigate('/gravity')
           }}
-        >
-          
-        </Button>
+        ></Button>
+
+        {/* Add more menu items as needed */}
       </Sheet>
     </>
   )

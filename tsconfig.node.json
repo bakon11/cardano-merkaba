@@ -4,6 +4,8 @@
   "compilerOptions": {
     "composite": true,
     "types": ["electron-vite/node"],
+    "moduleResolution": "node16",
+    "module": "Node16"
   },
   "rules": {
     "prettier/prettier": "error", // This enables Prettier within ESLint
