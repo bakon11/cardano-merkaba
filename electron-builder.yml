@@ -34,8 +34,6 @@ linux:
   icon: resources/logo.png
   target:
     - AppImage
-    - snap
-    - deb
   maintainer: bakon
   category: Utility
 appImage:
