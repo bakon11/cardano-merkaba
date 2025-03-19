@@ -39,11 +39,14 @@ Cardano Merkaba is being fully developed using - **[**Harmonic Labs PLU-TS Tools
 - **[MetaData Indexer](https://github.com/bakon11/cardano_metadata_indexer)**
 
 Stay tuned for more information.
-![image](https://github.com/user-attachments/assets/6a4a7af9-ecb0-4070-a474-ea028c968a99)
-![image](https://github.com/user-attachments/assets/562efc05-890f-420d-8b31-068a7ee300e5)
-![image](https://github.com/user-attachments/assets/cbc7fae1-bcc8-4c09-a445-5f929b88b17b)
-![image](https://github.com/user-attachments/assets/065487af-8e92-4c27-b258-3c179c3651f3)
-![image](https://github.com/user-attachments/assets/0730ace5-4801-4989-aab6-b899bfbcb072)
+![image](https://github.com/user-attachments/assets/1eea8a27-23ed-4f04-8c29-e10b9024ee92)
+![image](https://github.com/user-attachments/assets/168c78e3-c11d-4100-9a1d-a49c6b84d124)
+![image](https://github.com/user-attachments/assets/7e2add18-aec9-439c-83ce-b4c89f84c8cc)
+![image](https://github.com/user-attachments/assets/97caef88-c373-4076-9ddc-dd6e08aaf793)
+![image](https://github.com/user-attachments/assets/932d1f89-034e-44e7-91be-282a7022d2a0)
+![image](https://github.com/user-attachments/assets/a72b35b4-5e05-4b6c-91dd-55cfa08d5a37)
+![image](https://github.com/user-attachments/assets/f91db584-483a-4a7a-aa8d-f1cf32192940)
+![image](https://github.com/user-attachments/assets/cfc2b39e-cfd5-45ca-a017-fa03f5348387)
 
 ## How to run
 Quickest way to run this repo atm is to 
