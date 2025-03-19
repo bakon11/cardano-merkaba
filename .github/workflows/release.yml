@@ -22,7 +22,7 @@ jobs:
           node-version: 20.14.0
 
       - name: Set npm_config_build_from_source
-      run: echo "npm_config_build_from_source=true" >> $GITHUB_ENV
+        run: echo "npm_config_build_from_source=true" >> $GITHUB_ENV
 
       - name: Install Dependencies
         run: npm install
