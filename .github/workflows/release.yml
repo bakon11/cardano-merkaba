@@ -3,7 +3,7 @@ name: Build/release Electron app
 on:
   push:
     tags:
-      - v0.0.3
+      - v0.0.4
 jobs:
   release:
     runs-on: ${{ matrix.os }}
@@ -21,8 +21,8 @@ jobs:
         with:
           node-version: 20.14.0
 
-      - name: Set PREBUILD_NODE_API_VERSION
-        run: echo "PREBUILD_NODE_API_VERSION=6" >> $GITHUB_ENV
+      - name: Set npm_config_build_from_source
+      run: echo "npm_config_build_from_source=true" >> $GITHUB_ENV
 
       - name: Install Dependencies
         run: npm install
