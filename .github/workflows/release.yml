@@ -49,7 +49,6 @@ jobs:
         with:
           draft: true
           files: |
-            dist/*.AppImage
-            dist/*.exe
-            dist/*-x64.dmg
-            dist/*-arm64.dmg
+            dist/*-linux.AppImage
+            dist/*-win-*-setup.exe
+            dist/*-macos-*.dmg

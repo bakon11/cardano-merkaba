@@ -42,7 +42,7 @@ linux:
   maintainer: bakon
   category: Utility
 appImage:
-  artifactName: ${name}-${version}-${os}-${arch}.${ext}
+  artifactName: ${name}-${version}-${os}.${ext}
 npmRebuild: false
 publish:
   provider: generic
