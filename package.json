@@ -72,5 +72,8 @@
     "typescript": "^5.5.2",
     "vite": "^5.3.1",
     "vite-plugin-node-polyfills": "^0.22.0"
+  },
+  "resolutions": {
+  "node-gyp": "^11.1.0"
   }
 }
