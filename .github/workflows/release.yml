@@ -3,7 +3,7 @@ name: Build/release Electron app
 on:
   push:
     tags:
-      - v0.0.2
+      - v0.0.4
 jobs:
   release:
     permissions:
@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, mac-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - name: Check out Git repository
@@ -41,7 +41,7 @@ jobs:
         run: npm run build:win
 
       - name: build-mac
-        if: matrix.os == 'mac-latest'
+        if: matrix.os == 'macos-latest'
         run: npm run build:mac
 
       - name: release
@@ -51,4 +51,5 @@ jobs:
           files: |
             dist/*.AppImage
             dist/*.exe
-            dist/*.dmg
+            dist/*-x64.dmg
+            dist/*-arm64.dmg
