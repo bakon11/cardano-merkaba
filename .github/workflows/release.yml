@@ -3,7 +3,7 @@ name: Build/release Electron app
 on:
   push:
     tags:
-      - v0.0.1
+      - v0.0.2
 jobs:
   release:
     permissions:
@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, mac-latest]
 
     steps:
       - name: Check out Git repository
@@ -40,10 +40,15 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: npm run build:win
 
+      - name: build-mac
+        if: matrix.os == 'mac-latest'
+        run: npm run build:mac
+
       - name: release
         uses: softprops/action-gh-release@v1
         with:
           draft: true
           files: |
             dist/*.AppImage
-            dist/*.nsis
+            dist/*.exe
+            dist/*.dmg
