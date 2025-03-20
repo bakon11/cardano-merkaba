@@ -3,7 +3,7 @@ name: Build/release Electron app
 on:
   push:
     tags:
-      - v0.0.1
+      - v0.0.2
 jobs:
   release:
     permissions:
@@ -31,6 +31,9 @@ jobs:
 
       - name: Clean npm cache
         run: npm cache clean --force
+
+      - name: Install node-gyp globally
+        run: npm install -g node-gyp@latest
 
       - name: Install Dependencies
         run: npm install
