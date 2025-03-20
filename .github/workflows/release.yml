@@ -3,7 +3,7 @@ name: Build/release Electron app
 on:
   push:
     tags:
-      - v0.0.3
+      - v0.0.4
 jobs:
   release:
     permissions:
@@ -63,4 +63,4 @@ jobs:
           files: |
             dist/*-linux.AppImage
             dist/*-win-*-setup.exe
-            dist/*-macos-*.dmg
+            dist/*.dmg
