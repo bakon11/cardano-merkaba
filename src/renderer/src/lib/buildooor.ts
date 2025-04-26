@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { generateMnemonic, mnemonicToEntropy, validateMnemonic } from 'bip39'
 import * as buildooor from '@harmoniclabs/buildooor'
+import { Address, StakeAddress, NetworkT, Tx } from "@harmoniclabs/cardano-ledger-ts"
 import CryptoJS from 'crypto-js'
 
 export const genSeedPhrase = () => {
@@ -14,6 +15,10 @@ export const genSeedPhrase = () => {
     console.error(error)
     return error
   }
+}
+
+export const tx = (arg1: any, arg2?: any) => {
+  return new Tx(arg1, arg2);
 }
 
 export const validateSeedPhrase = (seed: string) => {
@@ -75,44 +80,24 @@ export const genAddressStakeKey = (accountKey: any, index: number) => {
 
 export const genBaseAddressFromEntropy = (
   entropy: string,
-  network: buildooor.NetworkT,
+  network: NetworkT,
   accountIndex: number,
   addressIndex: number
 ) => {
-  const addressFromEntropy: any = buildooor.Address.fromEntropy(
-    entropy,
-    network,
-    accountIndex,
-    addressIndex
-  )
+  const addressFromEntropy: any = Address.fromEntropy( entropy, network, accountIndex, addressIndex )
   // console.log('addressFromEntropy', addressFromEntropy)
 
-  const baseAddress = new buildooor.Address(
-    network,
-    addressFromEntropy.paymentCreds,
-    addressFromEntropy.stakeCreds,
-    'base'
-  )
+  const baseAddress = new Address( network, addressFromEntropy.paymentCreds, addressFromEntropy.stakeCreds, 'base' )
   // console.log('base address entropy', baseAddress)
   // console.log('base address entropy', baseAddress.toString())
   return baseAddress
 }
 
-export const genStakeAddressFromEntropy = (
-  entropy: string,
-  network: buildooor.NetworkT,
-  accountIndex: number,
-  addressIndex: number
-) => {
-  const addressFromEntropy: any = buildooor.Address.fromEntropy(
-    entropy,
-    network,
-    accountIndex,
-    addressIndex
-  )
+export const genStakeAddressFromEntropy = ( entropy: string, network: NetworkT, accountIndex: number, addressIndex: number ) => {
+  const addressFromEntropy: any = Address.fromEntropy( entropy, network, accountIndex, addressIndex )
   // console.log('addressFromEntropy stake address', addressFromEntropy)
 
-  const stakeAddress = new buildooor.StakeAddress(network, addressFromEntropy.stakeCreds.hash)
+  const stakeAddress = new StakeAddress(network, addressFromEntropy.stakeCreds.hash)
   // console.log('stake address entropy', stakeAddress)
   // console.log('stake address entropy', stakeAddress.toString())
   return stakeAddress

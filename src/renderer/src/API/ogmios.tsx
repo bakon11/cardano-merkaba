@@ -388,7 +388,33 @@ export const getProtocolParametersOgmios = async (): Promise<ProtocolParameters 
     throw error // Re-throw to be handled by the caller if needed
   }
 }
+export const getCurrentEpochTime = async () => {
+  const chainInfo = await ogmiosHealth();
+  const epochSLotsTotal = 432000;
+  const epoch = chainInfo.currentEpoch;
+  const currentEpochSlot = chainInfo.slotInEpoch;
+  const epochSlotsLeft = epochSLotsTotal - currentEpochSlot;
+  const epochPercentDone = (currentEpochSlot / epochSLotsTotal) * 100;
+  const timeLeftInEpoch = formatSeconds(epochSlotsLeft);
+  return {
+    epoch,
+    currentEpochSlot,
+    epochSlotsLeft,
+    epochPercentDone,
+    timeLeftInEpoch,
+  };
+};
 
+function formatSeconds(totalSeconds) {
+  const days = Math.floor(totalSeconds / 86400); // 86,400 seconds in a day
+  const remainingAfterDays = totalSeconds - (days * 86400);
+  const hours = Math.floor(remainingAfterDays / 3600); // 3,600 seconds in an hour
+  const remainingAfterHours = remainingAfterDays - (hours * 3600);
+  const minutes = Math.floor(remainingAfterHours / 60); // 60 seconds in a minute
+  const seconds = remainingAfterHours - (minutes * 60);
+
+  return `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
+}
 /*
 ##########################################################################################################
 Using current epoch protocol parmaters from Koios API V1 to create a new TxBuilder instance

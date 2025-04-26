@@ -1,25 +1,33 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Sheet, Input, Button, List, ListItem, Typography, Divider } from '@mui/joy'
-import SendIcon from '@mui/icons-material/Send'
-import ClearIcon from '@mui/icons-material/Clear'
+import { Sheet, Input, Button, List, ListItem, Typography, Divider, FormHelperText, FormControl, FormLabel } from '@mui/joy'
 import { useModel } from '../../hooks/useModel'
 import { Ollama } from 'ollama/browser'
 import { useAIEndpoint } from '../../hooks/ollamaEndPointHook'
-import { SelectOllamaModel } from '../../components/SelectModelComponent/SelectModelComponent'
+import { SelectOllamaModel } from '../SelectModelComponent/SelectModelComponent'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import Markdown from 'react-markdown'
 import { BlockMath, InlineMath } from 'react-katex'
-import 'katex/dist/katex.min.css'
 import { duotoneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useColorScheme } from '@mui/joy/styles'
-import './PromptInputInterface.css'
+import rehypeRaw from 'rehype-raw';
+import Markdown from 'react-markdown'
+import { wsp, getCurrentEpochTime } from '../../API/ogmios'
+import SendIcon from '@mui/icons-material/Send'
+import ClearIcon from '@mui/icons-material/Clear'
 import brain from '../../assets/artificial-intelligence.gif'
-import { wsp } from '../../API/ogmios'
+import brain_dark from '../../assets/artificial-intelligence-dark.gif'
+import './PromptInputInterface.css'
+import 'katex/dist/katex.min.css'
+
+
 
 interface Message {
   role: 'user' | 'assistant' | 'thinking'
   content: string | React.ReactNode
 }
+interface MessageHistory {
+    role: 'system' | 'user' | 'assistant' | 'thinking';
+    content: string | React.ReactNode;
+  }
 
 const text = {
   display: 'flex',
@@ -57,7 +65,17 @@ export const PromptInputInterface: React.FC = () => {
   const [domain, setDomain] = useState('')
   const [aiEndpoint, setAIendpoint]: any = useAIEndpoint()
   const { mode, setMode } = useColorScheme()
+  const [ contextSize, setContextSize ] = useState(42000);
+  const [ temp, setTemp ] = useState(0.5);
+  const [ persona , setPersona ] = useState('Franklin D. Roosevelt');
+  const [ epochInfo, setEpochInfo ] = useState<any>();
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const agentPrompt = `
+  You are an AI agent assisting with Cardano governance proposals, take on the persona of ${persona}.
+                You are an Merkaba Sentient assisting with Cardano infromation assiting users to become sovereign and exit the Matrix. 
+                Format responses in Markdown. Use the conversation history and respond to the user's input directly.
+  `
+
 
   function scrollToBottom() {
     if (messagesEndRef.current) {
@@ -65,376 +83,238 @@ export const PromptInputInterface: React.FC = () => {
     }
   }
 
-  /* 
+/**
   -------------------------------------- 
   This is where it all starts 
   -------------------------------------- 
   */
   async function sendMessage() {
-    if (!input.trim()) return
-
-    const userMessage: Message = { role: 'user', content: input }
-
-    setMessages((prev) => [...prev, userMessage])
-    setMessageHistory((prev) => [...prev, userMessage])
-    setInput('')
-
+    if (!input.trim()) return;
+  
+    const userMessage: Message = { role: 'user', content: input };
+  
+    setMessages((prev) => [...prev, userMessage]);
+    setMessageHistory((prev) => [...prev, userMessage]);
+    setInput('');
+  
     setMessages((prev) => [
       ...prev,
-      { role: 'thinking', content: <img src={brain} alt="brain" height="50" /> }
-    ])
-
+      { 
+        role: 'thinking', 
+        content: <img src={mode === "dark" ? brain_dark : brain} alt="brain" height="50" /> 
+      },
+    ]);
+  
     try {
-      console.log('input:', input.toLowerCase().includes('governance proposals'))
-      const isToolRequest =
-        input.toLowerCase().includes('list') ||
-        input.toLowerCase().includes('proposal') ||
-        input.toLowerCase().includes('governance proposals') ||
-        input.toLowerCase().includes('search') ||
-        input.toLowerCase().includes('find')
-
-      console.log('isToolRequest:', isToolRequest)
-
-      if (isToolRequest) {
-        const toolResult = await agentProcess(input)
-        const renderedContent = renderMessageContent(toolResult)
-        console.log('renderedContent: ', renderedContent)
-        setMessages((prev) => [
-          ...prev.filter((item) => item.role !== 'thinking'),
-          { role: 'assistant', content: renderedContent }
-        ])
-        setMessageHistory((prev) => [...prev, { role: 'assistant', content: toolResult }])
-      } else {
-        const aiEndpointParsed = JSON.parse(aiEndpoint)
-        const host = aiEndpointParsed[0]
-        const port = aiEndpointParsed[1]
-        let protocol = port == 443 ? 'https' : 'http'
-        let urlHost =
-          host +
-          ((protocol == 'https' && port != 443) || (protocol == 'http' && port != 80)
-            ? ':' + port
-            : '')
-        const ollama = new Ollama({ host: `${urlHost}` })
-
-        const response = await ollama.chat({
-          model: model,
-          messages: [
-            {
-              role: 'system',
-              content: `
-              You are an Merkaba Sentient assisting with Cardano infromation assiting users to become sovereign and exit the Matrix. 
-              Format responses in Markdown. Use the conversation history and respond to the user's input directly.
-            `
-            },
-            ...messageHistory,
-            { role: 'user', content: input }
-          ],
-          stream: true
-        })
-
-        let accumulatedResponse = ''
-        setMessages((prev) => prev.filter((item) => item.role !== 'thinking'))
-
-        for await (const part of response) {
-          accumulatedResponse += part.message.content
-          const renderedContent = renderMessageContent(accumulatedResponse)
-
-          setMessages((prev) => {
-            const withoutThinking = prev.filter((item) => item.role !== 'thinking')
-            const lastWasAssistant =
-              withoutThinking[withoutThinking.length - 1]?.role === 'assistant'
-
-            if (lastWasAssistant) {
-              return [
-                ...withoutThinking.slice(0, -1),
-                { role: 'assistant', content: renderedContent }
-              ]
-            }
-            return [...withoutThinking, { role: 'assistant', content: renderedContent }]
-          })
+      console.log("messageHistory", messageHistory);
+      const aiEndpointParsed = JSON.parse(aiEndpoint);
+      const host = aiEndpointParsed[0];
+      const port = aiEndpointParsed[1];
+      const urlHost = `${host}:${port}`;
+      const ollama: any = new Ollama({ host: `${urlHost}` });
+  
+      const response: any = await ollama.chat({
+        model: model,
+        messages: [
+          { 
+            role: 'system', 
+            content: agentPrompt 
+          }, // Agent instructions
+          ...messageHistory,
+          { 
+            role: 'user', 
+            content: input 
+          }, // Current user query
+        ],
+        stream: true,
+        options: {
+          num_ctx: contextSize, // Custom context size
+          temperature: temp // Make responses more deterministic
         }
-
-        setMessageHistory((prev) => [...prev, { role: 'assistant', content: accumulatedResponse }])
+      });
+  
+      let accumulatedResponse = '';
+      setMessages((prev) => prev.filter((item) => item.role !== 'thinking'));
+  
+      for await (const part of response) {
+        accumulatedResponse += part.message.content;
+        const renderedContent = renderMessageContent(accumulatedResponse);
+        setMessages((prev) => {
+          const withoutThinking = prev.filter((item) => item.role !== 'thinking');
+          const lastWasAssistant = withoutThinking[withoutThinking.length - 1]?.role === 'assistant';
+          if (lastWasAssistant) {
+            return [...withoutThinking.slice(0, -1), { role: 'assistant', content: renderedContent }];
+          }
+          return [...withoutThinking, { role: 'assistant', content: renderedContent }];
+        });
       }
+  
+      setMessageHistory((prev) => [...prev, { role: 'assistant', content: accumulatedResponse }]);
+      // console.log("token count", await getConversationTokenCount(messageHistory));
     } catch (error) {
-      console.error('Error in sendMessage:', error)
+      console.log('Error in sendMessage:', error);
       setMessages((prev) => [
         ...prev.filter((item) => item.role !== 'thinking'),
-        { role: 'assistant', content: 'Error occurred while processing your request' }
-      ])
+        { role: 'assistant', content: `${error}` },
+      ]);
     }
-  }
+  };
 
-  /* 
+
+  async function loadData ( data: string = "", dataName: string = "") {
+    setMessageHistory((prev: MessageHistory[]) => [
+      ...prev.filter((msg) => !(msg.role === 'system' && typeof msg.content === 'string' && msg.content.startsWith(`${dataName} data:`))),
+      { role: 'system', content: `${dataName} data: ${data}` },
+    ]);
+  };
+  /**
   ----------------------------------------------------------------------------  
-  Function that queries the ledger state for governance proposals
+  Function that fetches epoch information and adds it as part of agent history.
   ----------------------------------------------------------------------------  
   */
-  async function getProposal() {
-    const method: string = 'queryLedgerState/governanceProposals'
-    const params = {}
-
-    let wspRes = await wsp(method, params)
-    return new Promise((resolve, reject) => {
-      wspRes.onmessage = async (e: any) => {
-        try {
-          const results = JSON.parse(e.data)
-          const parsedProposals = await parseResults(results.result)
-          resolve(parsedProposals)
-        } catch (error) {
-          reject(error)
-        }
-      }
-    })
-  }
-  /* 
-  ----------------------------------------------------------------------------  
-  Function that parses all the metadata from the onchain proposals
-  ----------------------------------------------------------------------------  
-  */
-  async function parseResults(results: any[]): Promise<Array<{ proposal: any; metadata: any }>> {
-    console.log('results', results)
+  async function agentGetEpochInformationTool() {
     try {
-      const parsedProposals = await Promise.all(
-        results.map(async (proposal: any) => {
-          const metadataUri = proposal.metadata.url
-          const metadata: any = await loadJsonMetadata(metadataUri)
-          const propInfo: any = { proposal, metadata }
-          console.log('propInfo', propInfo)
-          return propInfo
-        })
-      )
-      return parsedProposals
-    } catch (error) {
-      console.log('Error parsing results:', error)
-      return []
-    }
-  }
-  /* 
-  ----------------------------------------------------------------------------  
-  Fetches metadata from IPFS or HTTP specified in onchain proposal
-  ----------------------------------------------------------------------------  
-  */
-  async function loadJsonMetadata(metadataUri: string) {
-    let uri = metadataUri.startsWith('ipfs://')
-      ? `https://ipfs.onchainapps.io/ipfs/${metadataUri.slice(7)}`
-      : metadataUri
-
-    try {
-      const response = await fetch(uri)
-      if (!response.ok) {
-        console.warn('Failed to fetch metadata:', response.statusText)
-        return null
+      const epochTime = await getCurrentEpochTime();
+      console.log('epochTime:', epochTime);
+      const isDifferent = JSON.stringify(epochTime) !== JSON.stringify(epochInfo);
+      console.log('isDifferent:', isDifferent);
+      if (isDifferent) {
+        setEpochInfo(epochTime);
+        const epochContent = JSON.stringify(epochTime, null, 2);
+        setMessageHistory((prev: any) => [
+          ...prev.filter((msg) => !(msg.role === 'system' && msg.content.startsWith('Epoch data:'))),
+          { role: 'system', content: `Epoch data: ${epochContent}` },
+        ]);
       }
-      const jsonData = await response.json()
-      if (jsonData.body) {
-        for (const key in jsonData.body) {
-          if (typeof jsonData.body[key] === 'string') {
-            jsonData.body[key] = preprocessMath(jsonData.body[key])
-          }
+    } catch (error) {
+      console.error('Failed to fetch Epoch:', error);
+      setMessageHistory((prev: any) => [
+        ...prev,
+        { role: 'system', content: 'Error: Could not fetch epoch data.' },
+      ]);
+    }
+    setInterval(async () => {
+      try {
+        const epochTime = await getCurrentEpochTime();
+        // console.log('epochTime:', epochTime);
+        const isDifferent = JSON.stringify(epochTime) !== JSON.stringify(epochInfo);
+        // console.log('isDifferent:', isDifferent);
+        if (isDifferent) {
+          setEpochInfo(epochTime);
+          const epochContent = JSON.stringify(epochTime, null, 2);
+          setMessageHistory((prev: any) => [
+            ...prev.filter((msg) => !(msg.role === 'system' && msg.content.startsWith('Epoch data:'))),
+            { role: 'system', content: `Epoch data: ${epochContent}` },
+          ]);
         }
+      } catch (error) {
+        console.error('Failed to fetch Epoch:', error);
+        setMessageHistory((prev: any) => [
+          ...prev,
+          { role: 'system', content: 'Error: Could not fetch epoch data.' },
+        ]);
       }
-      console.log('Metadata fetched:', jsonData)
-      return jsonData
-    } catch (error) {
-      console.error('Error loading metadata:', error)
-      return null
-    }
-  }
-  /* 
-  ----------------------------------------------------------------------------  
-  Process math equations in text
-  ----------------------------------------------------------------------------  
-  */
-  const preprocessMath = (text: string): string => {
-    return text.replace(/times/g, '\\cdot').replace(/frac/g, '\\frac').replace(/\\(.)/g, '$1') // Unescapes backslashes if needed
-  }
+    }, 25000);
+  };
 
-  /* 
-  ----------------------------------------------------------------------------  
-  Renders all markdown content in the chat interface that's been preprocessed
-  ----------------------------------------------------------------------------  
-  */
   function renderMessageContent(msg: string | undefined): React.ReactNode {
+    // Type guard for non-string input
     if (typeof msg !== 'string') {
-      console.warn('Expected msg to be a string, received:', typeof msg)
-      return msg as React.ReactNode // Type assertion since we can't return 'msg' directly as ReactNode
+      console.warn('Expected msg to be a string, received:', typeof msg);
+      return msg as React.ReactNode;
     }
-
-    const parts = msg.split(
-      /(```(\w+)?([\s\S]*?)```|\$\$[\s\S]*?\$\$|(?<!\\)\$(?:(?!\\).)*\$(?<!\\))/
-    )
-
-    const elements: React.ReactNode[] = []
-
+  
+    // Helper function to preprocess math content
+    const preprocessMath = (text: string): string => {
+      return text
+        .replace(/times/g, '\\cdot')      // Replace "times" with "\cdot" for multiplication
+        .replace(/frac/g, '\\frac')       // Replace "frac" with "\frac" for fractions
+        .replace(/\\(.)/g, '$1');         // Unescape backslashes
+    };
+  
+    // Helper function to clean text by limiting consecutive newlines
+    const cleanMessage = (text: string): string => {
+      return text.replace(/\n{3,}/g, '\n\n');  // Replace 3+ newlines with 2
+    };
+  
+    // Split message into parts: code blocks, block math, inline math, and regular text
+    const parts = msg.split(/(```(\w+)?([\s\S]*?)```|\$\$[\s\S]*?\$\$|(?<!\\)\$(?:(?!\\).)*\$(?<!\\))/);
+    const elements: React.ReactNode[] = [];
+  
+    // Process each part
     for (let i = 0; i < parts.length; i++) {
-      const part = parts[i]
-
+      const part = parts[i];
+  
       if (part && typeof part === 'string') {
-        if (part.startsWith('```')) {
-          // Code block
-          const language = parts[i + 1] || 'text'
-          const code = parts[i + 2]?.trim() || ''
+        if (part.startsWith('```')) { // Handle code blocks
+          const language = parts[i + 1] || 'text'; // Language or default to 'text'
+          const code = parts[i + 2]?.trim() || ''; // Code content
           if (code) {
-            console.log('language: ', language)
             elements.push(
               <Sheet key={`code-${i}`} variant="outlined" sx={{ borderRadius: 'sm', p: 1, mb: 1 }}>
                 <Divider />
-                <Typography level="body-sm" sx={{ fontWeight: 'bold' }}>
-                  AI code block:
-                </Typography>
+                <Typography level="body-sm" sx={{ fontWeight: 'bold' }}>AI code block:</Typography>
                 <SyntaxHighlighter
-                  key={`code-block-${i}`}
                   language={language}
                   style={mode === 'dark' ? oneDark : duotoneLight}
+                  customStyle={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
                 >
                   {code}
                 </SyntaxHighlighter>
               </Sheet>
-            )
-            i += 2
+            );
+            i += 2; // Skip the captured language and code parts
           }
-        } else if (part.startsWith('$$') && part.endsWith('$$')) {
-          // Block Math
-          const math = part.slice(2, -2).trim()
+        } else if (part.startsWith('$$  ') && part.endsWith('  $$')) { // Handle block math
+          const math = part.slice(2, -2).trim();         // Extract math content
+          const mathProcessed = preprocessMath(math);    // Preprocess math
           elements.push(
             <Typography key={`math-${i}`} level="body-md">
-              <BlockMath>{math}</BlockMath>
+              <BlockMath>{mathProcessed}</BlockMath>
             </Typography>
-          )
-        } else {
-          // Regular text or inline math
-          const inlineMathRegex = /\$(.*?)\$/g
-          let match: RegExpExecArray | null
-          let lastIndex = 0
-          const segments: string[] = []
-
-          while ((match = inlineMathRegex.exec(part))) {
+          );
+        } else { // Handle regular text or inline math
+          const cleanedPart = cleanMessage(part);        // Clean the text
+          const inlineMathRegex = /\$(.*?)\$/g;          // Regex for inline math
+          let match: RegExpExecArray | null;
+          let lastIndex = 0;
+          const segments: string[] = [];
+  
+          // Split part into text and inline math segments
+          while ((match = inlineMathRegex.exec(cleanedPart))) {
             if (match.index > lastIndex) {
-              segments.push(part.slice(lastIndex, match.index))
+              segments.push(cleanedPart.slice(lastIndex, match.index));
             }
-            segments.push(match[0])
-            lastIndex = inlineMathRegex.lastIndex
+            segments.push(match[0]);
+            lastIndex = inlineMathRegex.lastIndex;
           }
-          if (lastIndex < part.length) {
-            segments.push(part.slice(lastIndex))
+          if (lastIndex < cleanedPart.length) {
+            segments.push(cleanedPart.slice(lastIndex));
           }
-
+  
+          // Render segments
           const renderedSegments = segments.map((segment, idx) => {
             if (segment.startsWith('$') && segment.endsWith('$')) {
-              return <InlineMath key={`inline-math-${idx}`}>{segment.slice(1, -1)}</InlineMath>
+              const math = segment.slice(1, -1);         // Extract inline math content
+              const mathProcessed = preprocessMath(math); // Preprocess math
+              return <InlineMath key={`inline-math-${idx}`}>{mathProcessed}</InlineMath>;
             }
-            return <Markdown key={`text-${idx}`}>{segment}</Markdown>
-          })
-
+            return <Markdown rehypePlugins={[rehypeRaw]} key={`text-${idx}`}>{segment}</Markdown>;
+          });
+  
           elements.push(
             <Typography key={`desc-${i}`} level="body-md" sx={{ whiteSpace: 'pre-wrap' }}>
               {renderedSegments}
             </Typography>
-          )
+          );
         }
       }
     }
-
-    return elements.length > 0 ? elements : <Typography level="body-md">{msg}</Typography>
-  }
-  /* 
-  ----------------------------------------------------------------------------  
-  Proccess user input to see if there is anything in it that could be processed by agent tool.
-  ----------------------------------------------------------------------------  
-  */
-  const agentProcess = async (userInput: string): Promise<string> => {
-    const lowercaseInput = userInput.toLowerCase().trim()
-
-    // Tool detection and execution
-    if (
-      lowercaseInput.includes('list') ||
-      lowercaseInput.includes('proposal') ||
-      lowercaseInput.includes('governance proposals')
-    ) {
-      const fetchedProposals: any = await getProposal()
-      console.log('fetchedProposals:', fetchedProposals)
-      return availableTools['list_proposals'].execute(fetchedProposals)
-    }
-
-    if (lowercaseInput.includes('search') || lowercaseInput.includes('find')) {
-      return availableTools['web_search'].execute(userInput)
-    }
-
-    // Default LLM processing with context
-    const aiEndpointParsed = JSON.parse(aiEndpoint)
-    const host = aiEndpointParsed[0]
-    const port = aiEndpointParsed[1]
-    let protocol = port == 443 ? 'https' : 'http'
-    let urlHost = host + ((protocol == 'https' && port != 443) || (protocol == 'http' && port != 80) ? ':' + port : '')
-    const ollama = new Ollama({ host: `${urlHost}` })
-    const systemPrompt = `You are a Merkaba Sentient named Bit assisting with information on the matrix and Cardano. 
-                          You have access to vast information on Cardano data and can provide detailed information when asked. 
-                          For general questions, respond conversationally. Format your responses in Markdown for readability.
-  
-                          Available tools:
-                          - **list_tools**: Lists all dev tools with details
-                          - **web_search**: Simulates a web search (placeholder)
-  
-                          Current tool data is available but will be provided by tools when needed. Respond to the user's input directly.
-                          `
-
-    const response = await ollama.chat({
-      model: model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messageHistory,
-        { role: 'user', content: userInput }
-      ],
-      stream: false // We'll handle streaming in sendMessage
-    })
-
-    return response.message.content
+    // Return rendered elements or fallback to plain text
+    return elements.length > 0 ? elements : <Typography level="body-md">{msg}</Typography>;
   }
 
-  const availableTools = {
-    list_proposals: {
-      description: 'Lists all available proposals with details in Markdown format',
-      execute: (proposalData: any[]) => {
-        console.log('proposalData: ', proposalData)
-        if (!proposalData || proposalData.length === 0) {
-          return 'No proposals available'
-        }
-        const proposalList = proposalData
-          .map((item: any, i: number) => {
-            const p = item.proposal
-            const meta = item.metadata?.body || {}
-            const voteSummary = p.votes.reduce((acc: any, vote: any) => {
-              acc[vote.vote] = (acc[vote.vote] || 0) + 1
-              return acc
-            }, {})
-            return `
-              ### ${i + 1}. ${meta.title || 'Untitled'}  
-              **ID:** \`${p.proposal.transaction.id}\`  
-              **Type:** ${p.action.type}  
-              **Deposit:** ${(p.deposit.ada.lovelace / 1000000).toLocaleString()} ADA  
-              **Active Period:** Epoch ${p.since.epoch} to ${p.until.epoch}  
-              **Metadata URL:** [${p.metadata.url}](${p.metadata.url})  
-              **Votes:**  
-              - Yes: ${voteSummary.yes || 0}  
-              - No: ${voteSummary.no || 0}  
-              - Abstain: ${voteSummary.abstain || 0}  
-              **Description:** ${meta.abstract || 'No description available'}
-            `
-          })
-          .join('\n\n')
-        return proposalList || 'No proposals found'
-      }
-    },
-    web_search: {
-      description: 'Searches the web for information',
-      execute: (query: string) => `
-        **Web Search:**  
-        Searching web for: *${query}*  
-        *(Note: Full implementation would require API integration)*
-        `
-    }
-  }
+
 
   useEffect(() => {
     scrollToBottom()
@@ -445,13 +325,14 @@ export const PromptInputInterface: React.FC = () => {
       
     <Sheet
       sx={{
-        top: 60,
+        top: 90,
         left: 60,
         width: 1400,
-        height: "92vh",
+        height: "85vh",
         p: 4,
         bgcolor: 'background.body',
-        color: 'text.primary'
+        color: 'text.primary',
+        // overflowY: 'auto'
       }}
       >
         <Typography level="body-md" sx={text}>Merkaba Sentient</Typography>
@@ -466,15 +347,14 @@ export const PromptInputInterface: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           width: '100%',
-          height: '70vh',
+          height: '50vh',
           borderRadius: 'md',
-          overflow: 'hidden',
+          // overflow: 'hidden',
           boxShadow: 'sm',
-          overflowY: 'auto',
+          // overflowY: 'auto',
         }}
       >
-        
-        <List>
+        <List style={{ overflowY: 'auto'}}>
             {messages.map((msg, index) => (
               <ListItem
                 key={index}
@@ -482,7 +362,7 @@ export const PromptInputInterface: React.FC = () => {
               >
                 <Sheet
                   variant="soft"
-                  color={msg.role === 'user' ? 'primary' : 'neutral'}
+                  color={msg.role === 'user' ? 'primary' : 'secondary'}
                   sx={{
                     borderRadius: 'lg',
                     p: 1,
@@ -506,7 +386,9 @@ export const PromptInputInterface: React.FC = () => {
             borderTop: '1px solid',
             borderColor: 'neutral.outlinedBorder',
             flexDirection: 'column',
-            [`@media (min-width: 400px)`]: { flexDirection: 'row' }
+            [`@media (min-width: 400px)`]: {
+              flexDirection: 'row'
+            }
           }}
         >
           <Input
@@ -528,11 +410,15 @@ export const PromptInputInterface: React.FC = () => {
             placeholder="Type a message"
             sx={{
               flexGrow: 1,
-              [`@media (max-width: 400px)`]: { mb: 1 },
-              '& .MuiInput-input': { wordWrap: 'break-word', whiteSpace: 'pre-wrap' }
+              [`@media (max-width: 400px)`]: {
+                mb: 1
+              },
+              '& .MuiInput-input': {
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap'
+              }
             }}
           />
-          <br />
           <SelectOllamaModel />
           <Button
             variant="outlined"
@@ -542,7 +428,10 @@ export const PromptInputInterface: React.FC = () => {
             sx={{
               ml: 1,
               mt: 1,
-              [`@media (min-width: 400px)`]: { ml: 1, mt: 0 },
+              [`@media (min-width: 400px)`]: {
+                ml: 1,
+                mt: 0
+              },
               maxHeight: '55px'
             }}
           >
@@ -556,12 +445,114 @@ export const PromptInputInterface: React.FC = () => {
             sx={{
               ml: 1,
               mt: 1,
-              [`@media (min-width: 400px)`]: { ml: 1, mt: 0 },
+              [`@media (min-width: 400px)`]: {
+                ml: 1,
+                mt: 0
+              },
               maxHeight: '55px'
             }}
           >
             Clear
           </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            endDecorator={<ClearIcon />}
+            onClick={() => loadData(JSON.stringify(epochInfo, null, 2), 'Epoch')}
+            sx={{
+              ml: 1,
+              mt: 1,
+              [`@media (min-width: 400px)`]: {
+                ml: 1,
+                mt: 0
+              },
+              maxHeight: '55px'
+            }}
+          >
+            Abort
+          </Button>
+        </Sheet>
+        For testing purposes only.
+        <Sheet
+          sx={{
+            display: 'flex',
+            p: 2,
+            bgcolor: mode === 'dark' ? 'background.surface' : 'background.body',
+            borderTop: '1px solid',
+            borderColor: 'neutral.outlinedBorder',
+            flexDirection: 'column',
+            [`@media (min-width: 400px)`]: {
+              flexDirection: 'row'
+            }
+          }}
+        >
+          <FormControl>
+            <FormLabel>Context Size</FormLabel>
+            <Input
+              //fullWidth
+              variant="outlined"
+              size="md"
+              value={contextSize}
+              type="number"
+              onChange={(e) => setContextSize(Number(e.target.value))}
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  if (e.shiftKey) {
+                    e.preventDefault()
+                    setContextSize((prevInput) => prevInput)
+                  } else {
+                    setContextSize((prevInput) => prevInput)
+                  }
+                }
+              }}
+              placeholder="Context Size"
+              sx={{
+                flexGrow: 1,
+                [`@media (max-width: 400px)`]: {
+                  mb: 1
+                },
+                '& .MuiInput-input': {
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap'
+                }
+              }}
+              
+            />
+            <FormHelperText>If you get RAM errors lower this.</FormHelperText>
+          </FormControl>
+          <FormControl>
+            <FormLabel>Temperature:</FormLabel>
+            <Input
+              //fullWidth
+              variant="outlined"
+              size="md"
+              type="number"
+              value={temp}
+              onChange={(e) => setTemp(Number(e.target.value))}
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  if (e.shiftKey) {
+                    e.preventDefault()
+                    setTemp((prevInput) => prevInput)
+                  } else {
+                    setTemp((prevInput) => prevInput)
+                  }
+                }
+              }}
+              placeholder="Temperature"
+              sx={{
+                flexGrow: 1,
+                [`@media (max-width: 400px)`]: {
+                  mb: 1
+                },
+                '& .MuiInput-input': {
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap'
+                }
+              }}
+            />
+            <FormHelperText>How creative should the llm be.</FormHelperText>
+          </FormControl>
         </Sheet>
         <Sheet
           sx={{
@@ -571,9 +562,57 @@ export const PromptInputInterface: React.FC = () => {
             borderTop: '1px solid',
             borderColor: 'neutral.outlinedBorder',
             flexDirection: 'column',
-            [`@media (min-width: 400px)`]: { flexDirection: 'row' }
+            [`@media (min-width: 400px)`]: {
+              flexDirection: 'row'
+            }
           }}
         >
+          <Input
+            fullWidth
+            variant="outlined"
+            size="md"
+            value={persona}
+            onChange={(e) => setPersona(e.target.value)}
+            onKeyUp={(e) => {
+              if (e.key === 'Enter') {
+                if (e.shiftKey) {
+                  e.preventDefault()
+                  setPersona((prevInput) => prevInput + '\n')
+                } else {
+                  setPersona((prevInput) => prevInput + '\n')
+                }
+              }
+            }}
+            placeholder="Persona"
+            sx={{
+              flexGrow: 1,
+              [`@media (max-width: 400px)`]: {
+                mb: 1
+              },
+              '& .MuiInput-input': {
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap'
+              }
+            }}
+          />
+          <br />
+          <FormHelperText>Short description of personality.</FormHelperText>
+        </Sheet>
+        {/*
+        <Sheet
+          sx={{
+            display: 'flex',
+            p: 2,
+            bgcolor: mode === 'dark' ? 'background.surface' : 'background.body',
+            borderTop: '1px solid',
+            borderColor: 'neutral.outlinedBorder',
+            flexDirection: 'column',
+            [`@media (min-width: 400px)`]: {
+              flexDirection: 'row'
+            }
+          }}
+        >
+          
           <Input
             fullWidth
             variant="outlined"
@@ -593,13 +632,19 @@ export const PromptInputInterface: React.FC = () => {
             placeholder="Domain URL"
             sx={{
               flexGrow: 1,
-              [`@media (max-width: 400px)`]: { mb: 1 },
-              '& .MuiInput-input': { wordWrap: 'break-word', whiteSpace: 'pre-wrap' }
+              [`@media (max-width: 400px)`]: {
+                mb: 1
+              },
+              '& .MuiInput-input': {
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap'
+              }
             }}
           />
+          
         </Sheet>
+        */}
       </Sheet>
-      
     </>
   )
 }
