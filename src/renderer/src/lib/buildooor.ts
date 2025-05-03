@@ -2,8 +2,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { generateMnemonic, mnemonicToEntropy, validateMnemonic } from 'bip39'
-import * as buildooor from '@harmoniclabs/buildooor'
-import { Address, StakeAddress, NetworkT, Tx } from "@harmoniclabs/cardano-ledger-ts"
+import { XPrv, harden, toHex, decodeBech32 } from '@harmoniclabs/buildooor'
+import { Address, StakeAddress, NetworkT } from "@harmoniclabs/cardano-ledger-ts"
+import { getExtendedEd25519PrivateKey } from '@harmoniclabs/crypto';
 import CryptoJS from 'crypto-js'
 
 export const genSeedPhrase = () => {
@@ -17,9 +18,20 @@ export const genSeedPhrase = () => {
   }
 }
 
-export const tx = (arg1: any, arg2?: any) => {
-  return new Tx(arg1, arg2);
+export const ed5519toXPrv = async () => {
+  const ed25519 = "ed25519_sk1q8ht9685t3cd237myzx5267x07gf72unpwthcr3jgvexkklx3jasrys5pt"
+  const ed5519bytes = Buffer.from(ed25519)
+  try {
+    const xprv = await getExtendedEd25519PrivateKey(ed5519bytes)
+    console.log("xprv: ", decodeBech32(toHex(xprv)));
+    return xprv
+  } catch (error) {
+    console.error(error)
+    return error
+  }
 }
+
+ed5519toXPrv();
 
 export const validateSeedPhrase = (seed: string) => {
   try {
@@ -37,29 +49,30 @@ export const seedPhraseToEntropy = (seed_phrase: any) => {
 
 export const genRootPrivateKey = (entropy: any) => {
   try {
-    const rootKey = buildooor.XPrv.fromEntropy(entropy, '')
+    const rootKey = XPrv.fromEntropy(entropy, '')
+  
     // console.log("rootKey", rootKey);
-    return rootKey as buildooor.XPrv
+    return rootKey as XPrv
   } catch (error) {
     console.log('root key error: ', error)
     return 'root key error'
   }
 }
 
-export const genAccountPrivatekey = (rootKey: buildooor.XPrv, index: number) => {
+export const genAccountPrivatekey = (rootKey: XPrv, index: number) => {
   // hardened derivation
   const accountKey = rootKey
-    .derive(buildooor.harden(1852)) // purpose
-    .derive(buildooor.harden(1815)) // coin type
-    .derive(buildooor.harden(index)) // account #0
+    .derive(harden(1852)) // purpose
+    .derive(harden(1815)) // coin type
+    .derive(harden(index)) // account #0
   return accountKey
 }
 
-export const genAddressPrv = (xprv_root: buildooor.XPrv, accIndex: number, addressType: number, addressIndex: number) => {
+export const genAddressPrv = (xprv_root: XPrv, accIndex: number, addressType: number, addressIndex: number) => {
   return xprv_root
-  .derive(buildooor.harden(1852))
-  .derive(buildooor.harden(1815))
-  .derive(buildooor.harden(accIndex))
+  .derive(harden(1852))
+  .derive(harden(1815))
+  .derive(harden(accIndex))
   .derive(addressType)
   .derive(addressIndex)
 }
@@ -78,16 +91,16 @@ export const genAddressStakeKey = (accountKey: any, index: number) => {
   return spendingKey
 }
 
-export const genBaseAddressFromEntropy = (
-  entropy: string,
-  network: NetworkT,
-  accountIndex: number,
-  addressIndex: number
-) => {
+export const genBaseAddressFromEntropy = ( entropy: string, network: NetworkT, accountIndex: number, addressIndex: number ) => {
   const addressFromEntropy: any = Address.fromEntropy( entropy, network, accountIndex, addressIndex )
   // console.log('addressFromEntropy', addressFromEntropy)
 
-  const baseAddress = new Address( network, addressFromEntropy.paymentCreds, addressFromEntropy.stakeCreds, 'base' )
+  const baseAddress = new Address({
+    network, 
+    paymentCreds: addressFromEntropy.paymentCreds, 
+    stakeCreds: addressFromEntropy.stakeCreds, 
+    type: 'base' 
+  })
   // console.log('base address entropy', baseAddress)
   // console.log('base address entropy', baseAddress.toString())
   return baseAddress
@@ -97,7 +110,11 @@ export const genStakeAddressFromEntropy = ( entropy: string, network: NetworkT, 
   const addressFromEntropy: any = Address.fromEntropy( entropy, network, accountIndex, addressIndex )
   // console.log('addressFromEntropy stake address', addressFromEntropy)
 
-  const stakeAddress = new StakeAddress(network, addressFromEntropy.stakeCreds.hash)
+  const stakeAddress = new StakeAddress({
+    network, 
+    credentials: addressFromEntropy.stakeCreds.hash,
+    type: 'stakeKey'
+  })
   // console.log('stake address entropy', stakeAddress)
   // console.log('stake address entropy', stakeAddress.toString())
   return stakeAddress

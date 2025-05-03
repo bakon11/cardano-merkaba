@@ -116,12 +116,28 @@ export const SideBar = (): JSX.Element => {
         </Button>
         <br />
         <Button
+          variant="plain"
+          color="primary"
+          sx={buttonStyle}        
           onClick={() => {
             setMenu('GravityMain')
             handleNavigate('/gravity')
           }}
-        ></Button>
-
+        >
+          Gravity
+        </Button>
+        <br />
+        <Button
+          variant="plain"
+          color="primary"
+          sx={buttonStyle}
+          onClick={() => {
+            setMenu('CborTools')
+            handleNavigate('/Cbor_tools')
+          }}
+        >
+          Cbor Tools
+        </Button>
         {/* Add more menu items as needed */}
       </Sheet>
     </>

@@ -12,10 +12,16 @@ export const genPolicy = (tokenPolicyName) => {
 
   const policySrc = namedTokenPolicy.$(fromAscii(tokenPolicyName))
 
-  const scriptCompiled = new Script(ScriptType.PlutusV3, compile(policySrc))
+  const scriptCompiled = new Script({
+    scriptType: ScriptType.PlutusV3, 
+    bytes: compile(policySrc)
+  })
   console.log('policy: ', scriptCompiled.toCbor().toString())
 
-  const scriptAddr = new Address(network as NetworkT, Credential.script(scriptCompiled.hash))
+  const scriptAddr = new Address({
+      network: network as NetworkT,
+      paymentCreds: Credential.script(scriptCompiled.hash)
+    })
   console.log('Script address: ', scriptAddr)
 
   return { scriptCompiled, scriptAddr, policyID: scriptAddr.paymentCreds.hash }
@@ -41,10 +47,16 @@ export const genPolicy2 = (tokenPolicyName) => {
   )
   const aPolicySrc = namedTokenPolicy.$(fromAscii(tokenPolicyName))
 
-  const scriptCompiled = new Script(ScriptType.PlutusV3, compile(aPolicySrc))
+  const scriptCompiled = new Script({
+      scriptType: ScriptType.PlutusV3, 
+      bytes: compile(aPolicySrc)
+  })
   console.log('Script: ', scriptCompiled)
 
-  const scriptAddr = new Address(network as NetworkT, Credential.script(scriptCompiled.hash))
+  const scriptAddr = new Address({
+    network: network as NetworkT, 
+    paymentCreds: Credential.script(scriptCompiled.hash)
+  })
   console.log('Script address: ', scriptAddr)
 
   return { scriptCompiled, scriptAddr, policyID: scriptAddr.paymentCreds.hash }

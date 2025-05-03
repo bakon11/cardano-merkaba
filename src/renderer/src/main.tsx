@@ -8,6 +8,7 @@ import Wallet from './containers/Wallet';
 import Minter from './containers/Minter';
 import Gravity from './containers/Gravity';
 import AiAgentMain from './containers/Ai_Agent';
+import Cbor_tools from './containers/Cbor_tools';
 
 const routing = (
   <Router>
@@ -17,6 +18,7 @@ const routing = (
       <Route path="/minter" element={<Minter />} />
       <Route path="/gravity" element={<Gravity />} />
       <Route path="/AiAgentMain" element={<AiAgentMain />} />
+      <Route path="/Cbor_tools" element={<Cbor_tools />} />
       <Route path="*" element={<App />} /> {/* Catch-all route */}
     </Routes>
   </Router>

@@ -8,8 +8,6 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { BlockMath, InlineMath } from 'react-katex'
 import { duotoneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useColorScheme } from '@mui/joy/styles'
-import rehypeRaw from 'rehype-raw';
-import Markdown from 'react-markdown'
 import { wsp, getCurrentEpochTime } from '../../API/ogmios'
 import SendIcon from '@mui/icons-material/Send'
 import ClearIcon from '@mui/icons-material/Clear'
@@ -18,7 +16,12 @@ import brain_dark from '../../assets/artificial-intelligence-dark.gif'
 import './PromptInputInterface.css'
 import 'katex/dist/katex.min.css'
 
-
+let rehypeRaw: any;
+let Markdown: any;
+(async () => {
+  rehypeRaw = await import("rehype-raw");
+  Markdown = await import("react-markdown");
+})();
 
 interface Message {
   role: 'user' | 'assistant' | 'thinking'
