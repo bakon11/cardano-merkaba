@@ -11,8 +11,7 @@ import { VerifySeedPhrase } from './VerifySeedPhrase'
 export const CreateWallet: React.FC = () => {
   const saveNewWallet = (walletData: any): any => window.api.saveNewWallet(walletData)
   const saveNewAccount = (accountData: any): any => window.api.saveNewAccount(accountData)
-  const saveNewAccountAddress = (addressData: any): any =>
-    window.api.saveNewAccountAddress(addressData)
+  const saveNewAccountAddress = (addressData: any): any =>  window.api.saveNewAccountAddress(addressData)
 
   const [seedPhrase, setSeedPhrase] = React.useState<any>('')
   const [entropy, setEntropy] = React.useState<string>('')

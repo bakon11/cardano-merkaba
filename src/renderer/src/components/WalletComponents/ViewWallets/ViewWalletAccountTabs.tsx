@@ -3,6 +3,7 @@ import { Tab, Tabs, TabList, TabPanel } from '@mui/joy'
 import { AccountDashboard } from './AccountDashboard'
 import { AccountAssetsDashboard } from './AccountAssetsDashboard'
 import { SendTxView } from '../SendTxView/SendTxView'
+import { ViewStakePools } from '../../StakePools/ViewStakePools'
 
 interface WalletTabsProps {
   accountInfo: any
@@ -21,6 +22,9 @@ export const WalletAccountTabs: React.FC<WalletTabsProps> = ({ accountInfo }) =>
         <Tab variant="outlined" color="neutral">
           Send
         </Tab>
+        <Tab variant="outlined" color="neutral">
+          Stake Pools
+        </Tab>
       </TabList>
       <TabPanel value={0}>
         {' '}
@@ -31,6 +35,9 @@ export const WalletAccountTabs: React.FC<WalletTabsProps> = ({ accountInfo }) =>
       </TabPanel>
       <TabPanel value={2}>
         <SendTxView accountInfo={accountInfo} />
+      </TabPanel>
+      <TabPanel value={3}>
+        <ViewStakePools />
       </TabPanel>
     </Tabs>
   )

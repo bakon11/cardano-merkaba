@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { generateMnemonic, mnemonicToEntropy, validateMnemonic } from 'bip39'
-import { XPrv, harden, toHex, decodeBech32 } from '@harmoniclabs/buildooor'
-import { Address, StakeAddress, NetworkT } from "@harmoniclabs/cardano-ledger-ts"
-import { getExtendedEd25519PrivateKey } from '@harmoniclabs/crypto';
-import CryptoJS from 'crypto-js'
+import { generateMnemonic, mnemonicToEntropy, validateMnemonic } from 'bip39';
+import { XPrv, harden } from '@harmoniclabs/buildooor';
+import { Address, StakeAddress, NetworkT } from "@harmoniclabs/cardano-ledger-ts";
+import CryptoJS from 'crypto-js';
 
 export const genSeedPhrase = () => {
   try {
@@ -17,21 +16,6 @@ export const genSeedPhrase = () => {
     return error
   }
 }
-
-export const ed5519toXPrv = async () => {
-  const ed25519 = "ed25519_sk1q8ht9685t3cd237myzx5267x07gf72unpwthcr3jgvexkklx3jasrys5pt"
-  const ed5519bytes = Buffer.from(ed25519)
-  try {
-    const xprv = await getExtendedEd25519PrivateKey(ed5519bytes)
-    console.log("xprv: ", decodeBech32(toHex(xprv)));
-    return xprv
-  } catch (error) {
-    console.error(error)
-    return error
-  }
-}
-
-ed5519toXPrv();
 
 export const validateSeedPhrase = (seed: string) => {
   try {
@@ -49,10 +33,10 @@ export const seedPhraseToEntropy = (seed_phrase: any) => {
 
 export const genRootPrivateKey = (entropy: any) => {
   try {
-    const rootKey = XPrv.fromEntropy(entropy, '')
+    const xprv_root = XPrv.fromEntropy(entropy, '')
   
     // console.log("rootKey", rootKey);
-    return rootKey as XPrv
+    return xprv_root as XPrv
   } catch (error) {
     console.log('root key error: ', error)
     return 'root key error'

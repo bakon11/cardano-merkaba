@@ -16,8 +16,10 @@ interface AccountAssetsDashboardProps {
 export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ value }) => {
   const [searchTerm, setSearchTerm] = React.useState<string>('')
   const [filteredAssets, setFilteredAssets] = React.useState<{ [key: string]: Asset[] }>({})
+  
   // Filter and group assets by Policy ID
   const filterAssets = (term: string): { [key: string]: Asset[] } => {
+    
     const flatAssets: Asset[] = Object.entries(value.assets).flatMap(([policyId, tokens]) =>
       Object.entries(tokens).map(([tokenName, amount]) => ({
         policyId,
@@ -75,7 +77,12 @@ export const AccountAssetsDashboard: React.FC<AccountAssetsDashboardProps> = ({ 
   }, [value]) // This effect runs when 'value' prop changes
 
   return (
-    <Sheet sx={{ width: '100%', bgcolor: 'background.level1', borderRadius: 'sm', p: 2 }}>
+    <Sheet sx={{ 
+      width: '100%',
+      bgcolor: 'background.level1', 
+      borderRadius: 'sm', 
+      p: 2 
+      }}>
       <Typography level="h3" sx={{ mb: 2 }}>
         Your Assets
       </Typography>

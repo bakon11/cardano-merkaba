@@ -223,6 +223,49 @@ export const getAccountUtxoInfoOgmios = async (addresses: string[]): Promise<Utx
     throw error // Re-throw to be handled by the caller if needed
   }
 }
+/*
+##########################################################################################################
+Ogmios get stake pools
+#############################d############################################################################
+*/
+export const getStakePools = async (): Promise<any> => {
+  const params = {
+    "includeStake": true
+  }
+  try {
+    const stakePoolsWS = wsp('queryLedgerState/stakePools', params)
+    console.log('stakePoolsWS', stakePoolsWS)
+    return await new Promise((resolve, reject) => {
+      stakePoolsWS.onmessage = (e: MessageEvent) => {
+        try {
+          const results = JSON.parse(e.data)
+          console.log('WebSocket message received:', results)
+          resolve(results.result) // Type assertion for Utxo array
+        } catch (parseError) {
+          console.error('Error parsing WebSocket message:', parseError)
+          reject(parseError)
+        }
+      }
+
+      stakePoolsWS.onerror = (error: Event) => {
+        console.error('WebSocket error:', error)
+        reject(error)
+      }
+
+      stakePoolsWS.onclose = (event: CloseEvent) => {
+        console.log('WebSocket connection closed:', event)
+        if (!event.wasClean) {
+          reject(new Error('WebSocket connection was closed unexpectedly'))
+        } else {
+          resolve(null) // Connection closed cleanly, but no data received
+        }
+      }
+    })
+  } catch (error) {
+    console.error('Failed to get stake pools info:', error)
+    throw error // Re-throw to be handled by the caller if needed
+  }
+}
 
 export const parseOgmiosUtxosForWallet = (utxos: Utxo[]): Result => {
   // utxos = OgmiosUtxos

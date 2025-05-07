@@ -315,13 +315,11 @@ export const PromptInputInterface: React.FC = () => {
     }
     // Return rendered elements or fallback to plain text
     return elements.length > 0 ? elements : <Typography level="body-md">{msg}</Typography>;
-  }
-
-
+  };
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    scrollToBottom();
+  }, [messages]);
 
   return (
     <>
