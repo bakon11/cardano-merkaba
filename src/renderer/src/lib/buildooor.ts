@@ -2,8 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { generateMnemonic, mnemonicToEntropy, validateMnemonic } from 'bip39';
-import { XPrv, harden } from '@harmoniclabs/buildooor';
-import { Address, StakeAddress, NetworkT } from "@harmoniclabs/cardano-ledger-ts";
+import { XPrv, harden, Address, StakeAddress, NetworkT } from '@harmoniclabs/buildooor';
 import CryptoJS from 'crypto-js';
 
 export const genSeedPhrase = () => {
@@ -14,8 +13,8 @@ export const genSeedPhrase = () => {
   } catch (error) {
     console.error(error)
     return error
-  }
-}
+  };
+};
 
 export const validateSeedPhrase = (seed: string) => {
   try {
@@ -24,24 +23,23 @@ export const validateSeedPhrase = (seed: string) => {
   } catch (error) {
     console.log(error)
     return error
-  }
-}
+  };
+};
 
 export const seedPhraseToEntropy = (seed_phrase: any) => {
   return mnemonicToEntropy(seed_phrase)
-}
+};
 
 export const genRootPrivateKey = (entropy: any) => {
   try {
     const xprv_root = XPrv.fromEntropy(entropy, '')
-  
     // console.log("rootKey", rootKey);
     return xprv_root as XPrv
   } catch (error) {
     console.log('root key error: ', error)
     return 'root key error'
-  }
-}
+  };
+};
 
 export const genAccountPrivatekey = (rootKey: XPrv, index: number) => {
   // hardened derivation
@@ -50,7 +48,7 @@ export const genAccountPrivatekey = (rootKey: XPrv, index: number) => {
     .derive(harden(1815)) // coin type
     .derive(harden(index)) // account #0
   return accountKey
-}
+};
 
 export const genAddressPrv = (xprv_root: XPrv, accIndex: number, addressType: number, addressIndex: number) => {
   return xprv_root
@@ -59,21 +57,21 @@ export const genAddressPrv = (xprv_root: XPrv, accIndex: number, addressType: nu
   .derive(harden(accIndex))
   .derive(addressType)
   .derive(addressIndex)
-}
+};
 
 export const genAddressPrivateKey = (accountKey: any, index: number) => {
   const spendingKey = accountKey
     .derive(0) // 0 external || 1 change || 2 stake key
     .derive(index) // index
   return spendingKey
-}
+};
 
 export const genAddressStakeKey = (accountKey: any, index: number) => {
   const spendingKey = accountKey
     .derive(2) // 0 external || 1 change || 2 stake key
     .derive(index) // index
   return spendingKey
-}
+};
 
 export const genBaseAddressFromEntropy = ( entropy: string, network: NetworkT, accountIndex: number, addressIndex: number ) => {
   const addressFromEntropy: any = Address.fromEntropy( entropy, network, accountIndex, addressIndex )
@@ -88,7 +86,7 @@ export const genBaseAddressFromEntropy = ( entropy: string, network: NetworkT, a
   // console.log('base address entropy', baseAddress)
   // console.log('base address entropy', baseAddress.toString())
   return baseAddress
-}
+};
 
 export const genStakeAddressFromEntropy = ( entropy: string, network: NetworkT, accountIndex: number, addressIndex: number ) => {
   const addressFromEntropy: any = Address.fromEntropy( entropy, network, accountIndex, addressIndex )
@@ -102,7 +100,7 @@ export const genStakeAddressFromEntropy = ( entropy: string, network: NetworkT, 
   // console.log('stake address entropy', stakeAddress)
   // console.log('stake address entropy', stakeAddress.toString())
   return stakeAddress
-}
+};
 
 export const encrypt = (text: string, passPhrase: string): string => {
   try {
@@ -114,8 +112,8 @@ export const encrypt = (text: string, passPhrase: string): string => {
   } catch (error) {
     console.log('Encryption error:', error);
     return "error"; // Or handle it more gracefully depending on your application needs
-  }
-}
+  };
+};
 
 export const decrypt = (encryptedText: string, passPhrase: string): string => {
   try {
@@ -134,8 +132,10 @@ export const decrypt = (encryptedText: string, passPhrase: string): string => {
   } catch (error) {
     console.log('Decryption error:', error);
     return "error"; // Or handle it more gracefully
-  }
-}
+  };
+};
+
+
 
 /*
 export const xprv_root = XPrv.fromEntropy(

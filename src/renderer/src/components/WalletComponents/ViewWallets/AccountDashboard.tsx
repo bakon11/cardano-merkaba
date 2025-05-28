@@ -18,7 +18,13 @@ interface AccountDashboardProps {
 }
 export const AccountDashboard: React.FC<AccountDashboardProps> = ({ accountInfo }) => {
   return (
-    <Sheet sx={{ width: '100%', bgcolor: 'background.level1', borderRadius: 'sm', p: 2 }}>
+    <Sheet sx={{ 
+        width: '100%', 
+        bgcolor: 'background.level1', 
+        borderRadius: 'sm', 
+        p: 2 
+      }}
+    >
       {/* Account Information */}
       <Box>
         <Typography level="body-md">

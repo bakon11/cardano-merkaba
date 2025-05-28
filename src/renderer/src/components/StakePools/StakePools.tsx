@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { Sheet, Typography } from '@mui/joy'
+import { ViewStakePools } from './ViewStakePools'
 
-export const TemplateView: React.FC = () => {
+export const StakePools: React.FC = () => {
   return (
     <>
       <Typography level="h4">Title</Typography>
@@ -17,8 +18,7 @@ export const TemplateView: React.FC = () => {
           color: 'text.primary'
         }}
       >
-
-        
+        <ViewStakePools />
       </Sheet>
     </>
   )

@@ -6,10 +6,10 @@ export const MainHomeView: React.FC = () => {
   return (
     <Sheet
       sx={{
-        top: 60,
+        top: 30,
         left: 60,
-        width: 1200,
-        height: 900,
+        width: "80vw",
+        height: "90vh",
         overflowY: 'auto',
         p: 4,
         bgcolor: 'background.body',

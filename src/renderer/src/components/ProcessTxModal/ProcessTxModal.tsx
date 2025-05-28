@@ -32,10 +32,10 @@ const CollapsibleSection: React.FC<{ title: string; children: React.ReactNode }>
 
 interface ProcessTxModalProps {
   processTx: (address_xprv: any) => Promise<any>
-  accountInfo: any
+  selectedAccount: any
 }
 
-export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accountInfo }) => {
+export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, selectedAccount }) => {
   const [ open, setOpen ] = React.useState(false)
   const [ tx, setTX] = React.useState<any>()
   const [ txRaw, setTXRaw] = React.useState<any>()
@@ -44,9 +44,9 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
   const [ status, setStatus ] = React.useState('')
 
   const signTx = async () => {
-    console.log('accountInfo', accountInfo)
+    console.log('selectedAccount', selectedAccount)
     const getWalletEntropy = (walletId: string): any => window.api.getWalletEntropy(walletId)
-    const walletEntropy = await getWalletEntropy(accountInfo.account.walletId)
+    const walletEntropy = await getWalletEntropy(selectedAccount.walletId)
     console.log('walletEntropy', walletEntropy.entropyEncrypt)
     const entropyDecrypted = decrypt(walletEntropy.entropyEncrypt, spendingPassword)
     console.log('entropyDecrypted', entropyDecrypted)
@@ -56,9 +56,9 @@ export const ProcessTxModal: React.FC<ProcessTxModalProps> = ({ processTx, accou
     console.log('root_xprv', root_xprv)
     const address_xprv = genAddressPrv(
       root_xprv,
-      accountInfo.account.accountIndex,
+      selectedAccount.accountIndex,
       0,
-      accountInfo.account.addressIndex
+      selectedAccount.addressIndex
     )
     console.log('address_xprv', address_xprv)
     const txProcessed: any = await processTx(address_xprv)

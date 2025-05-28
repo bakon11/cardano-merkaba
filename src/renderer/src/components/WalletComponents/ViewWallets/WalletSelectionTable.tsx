@@ -37,10 +37,10 @@ const Row: React.FC<AccountProps> = ({ row, initialOpen }) => {
   const [open, setOpen] = React.useState(initialOpen || false)
   const [selectedAccount, setSelectedAccount] = selectedAccountHook()
   const [menu, setMenu] = menuHook()
-  const [backEnd, setBackEnd]: [string[] | null, (config: string) => Promise<void>] = backendHook()
+  const [backEnd, setBackEnd] = backendHook()
 
   const handleSelectAccount = (account: Account) => {
-    const backend = JSON.parse(backEnd)
+    const backend = JSON.parse(backEnd || '["", "", "", ""]')
     console.log('backend', backend[1])
     if (backend[1] === '') {
       return alert(`Backend: ${backend[0]}, is missing the hostname.`)

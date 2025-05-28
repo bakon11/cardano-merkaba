@@ -23,8 +23,12 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    mainWindow.maximize()
   })
-
+  // Prevent unmaximizing by re-maximizing if the event occurs
+  // mainWindow.on('unmaximize', () => {
+  //  mainWindow.maximize();
+  //});
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
@@ -45,7 +49,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.merkaba')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

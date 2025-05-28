@@ -31,7 +31,7 @@ export const ViewWallets: React.FC = () => {
       sx={{
         top: 20,
         left: 60,
-        width: 1400,
+        width: "80vw",
         height: 800,
         overflowY: 'auto',
         p: 4,

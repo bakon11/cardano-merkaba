@@ -31,14 +31,11 @@ export const SelectedAccountView: React.FC<SelectedAccountViewProps> = () => {
     <>
       <Sheet
         sx={{
-          top: 20,
+          top: 30,
           left: 60,
-          width: '100%',
-          height: 'auto',
-          minWidth: 1600,
-          maxHeight: 1000,
-          minHeight: 800,
-          overflowY: 'scroll',
+          width: "80vw",
+          height: "90vh",
+          overflowY: 'auto',
           p: 4,
           bgcolor: 'background.body',
           color: 'text.primary'

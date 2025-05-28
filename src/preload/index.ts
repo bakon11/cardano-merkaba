@@ -1,6 +1,7 @@
 import { contextBridge } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
 import {setupWalletTables, getAllWallets, saveNewWallet, saveNewAccount, saveNewAccountAddress, getWalletEntropy, deleteWallet, saveAsset } from '../db/sqlite3API';
+
 // Use node-fetch for Node.js context
 import fetch from 'node-fetch';
 
@@ -10,7 +11,6 @@ async function fetchMetadata(metadataUrl: string): Promise<any> {
   let url = metadataUrl.startsWith('ipfs://')
     ? `https://ipfs.onchainapps.io/ipfs/${metadataUrl.slice(7)}`
     : metadataUrl;
-
   try {
     const response = await fetch(url, {
       headers: {
@@ -18,21 +18,20 @@ async function fetchMetadata(metadataUrl: string): Promise<any> {
       },
     });
 
-    console.log('Response:', response);
+    // console.log('Response:', response);
 
     if (!response.ok && response.status !== 200) {
       console.warn('Failed to fetch metadata:', response.statusText);
-      return {};
-    }
-
+      return undefined;
+    };
     const jsonData = await response.json();
-    console.log('Metadata fetched:', jsonData);
+    // console.log('Metadata fetched:', jsonData);
     return jsonData;
   } catch (error) {
     console.error('Fetch error:', error);
-    return {};
+    return undefined;
   }
-}
+};
 
 // Custom APIs for renderer
 const api = {
@@ -61,5 +60,5 @@ if (process.contextIsolated) {
   window.electron = electronAPI
   // @ts-ignore (define in dts)
   window.api = api
-}
+};
 

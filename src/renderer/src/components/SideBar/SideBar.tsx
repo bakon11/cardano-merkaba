@@ -80,6 +80,18 @@ export const SideBar = (): JSX.Element => {
         </Button>
         <br />
         <Button
+          variant="outlined"
+          color="primary"
+          sx={buttonStyle}
+          onClick={() => {
+            setMenu('StakingPools')
+            handleNavigate('/StakingPools')
+          }}
+        >
+          Stake Pools
+        </Button>
+        <br />
+        <Button
           variant="plain"
           color="primary"
           sx={buttonStyle}

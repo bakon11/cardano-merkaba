@@ -3,7 +3,7 @@ import * as buildooor from '@harmoniclabs/buildooor'
 import { splitAsset } from '../../lib/utils'
 import { OgmiosUtxoToInputsBuildooor, getTipOgmios } from '../../API/ogmios'
 import { fromHex } from '@harmoniclabs/uint8array-utils'
-import { defaultMainnetGenesisInfos, defaultPreprodGenesisInfos, defaultProtocolParameters, IGetGenesisInfos, IGetProtocolParameters, TxBuilder } from "@harmoniclabs/plu-ts";
+import { defaultMainnetGenesisInfos, defaultPreprodGenesisInfos, defaultProtocolParameters, IGetGenesisInfos, IGetProtocolParameters, TxBuilder } from "@harmoniclabs/buildooor";
 
 export const txBuilder_buildooor: any = async (
   protocolParameters: any,
@@ -102,12 +102,10 @@ export const txBuilder_buildooor: any = async (
     let builtTx = txBuilder.buildSync({
       inputs: inputsbuildooor ,
       collaterals: [ utxoSelected ],
-      
       collateralReturn: {
           address: utxoSelected.resolved.address,
           value: buildooor.Value.sub(utxoSelected.resolved.value, buildooor.Value.lovelaces(2_000_000))
       },
-      
       // invalidAfter: invalidAfter,
       // invalidBefore: invalidBefore,
       mints: mints.length > 0 ? mints : null,
