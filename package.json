@@ -29,6 +29,7 @@
     "@fontsource/space-grotesk": "^5.1.0",
     "@harmoniclabs/buildooor": "^0.1.10",
     "@harmoniclabs/cardano-ledger-ts": "^0.4.0-dev2",
+    "@harmoniclabs/ouroboros-miniprotocols-ts": "^0.0.5-dev3",
     "@harmoniclabs/plu-ts": "^0.9.0",
     "@mui/icons-material": "^6.2.1",
     "@mui/joy": "^5.0.0-beta.51",
@@ -56,7 +57,8 @@
     "rehype-rewrite": "^4.0.2",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
-    "websocket": "^1.0.35"
+    "websocket": "^1.0.35",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",

@@ -1,9 +1,11 @@
 import { contextBridge } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
 import {setupWalletTables, getAllWallets, saveNewWallet, saveNewAccount, saveNewAccountAddress, getWalletEntropy, deleteWallet, saveAsset } from '../db/sqlite3API';
-
+import { connectToNode } from './connectToNode';
 // Use node-fetch for Node.js context
 import fetch from 'node-fetch';
+
+
 
 // Define fetchMetadata in the preload script
 async function fetchMetadata(metadataUrl: string): Promise<any> {
@@ -43,7 +45,8 @@ const api = {
   getWalletEntropy: getWalletEntropy,
   deleteWallet: deleteWallet,
   saveAsset:saveAsset,
-  fetchMetadata:fetchMetadata
+  fetchMetadata:fetchMetadata,
+  connectToNode:connectToNode
 }
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

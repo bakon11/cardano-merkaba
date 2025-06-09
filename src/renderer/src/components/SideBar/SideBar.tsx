@@ -150,6 +150,18 @@ export const SideBar = (): JSX.Element => {
         >
           Cbor Tools
         </Button>
+        <br />
+        <Button
+          variant="plain"
+          color="primary"
+          sx={buttonStyle}
+          onClick={() => {
+            setMenu('NodeTools')
+            handleNavigate('/NodeTools')
+          }}
+        >
+          Node Tools
+        </Button>
         {/* Add more menu items as needed */}
       </Sheet>
     </>
