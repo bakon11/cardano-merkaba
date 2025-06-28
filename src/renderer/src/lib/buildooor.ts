@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { generateMnemonic, mnemonicToEntropy, validateMnemonic } from 'bip39';
-import { XPrv, harden, Address, StakeAddress, NetworkT } from '@harmoniclabs/buildooor';
+import { XPrv, harden,  StakeAddress, NetworkT } from '@harmoniclabs/buildooor';
+import { Address, StakeCredentials, StakeCredentialsType  } from "@harmoniclabs/cardano-ledger-ts"
 import CryptoJS from 'crypto-js';
 
 export const genSeedPhrase = () => {
@@ -75,15 +76,26 @@ export const genAddressStakeKey = (accountKey: any, index: number) => {
 
 export const genBaseAddressFromEntropy = ( entropy: string, network: NetworkT, accountIndex: number, addressIndex: number ) => {
   const addressFromEntropy: any = Address.fromEntropy( entropy, network, accountIndex, addressIndex )
-  // console.log('addressFromEntropy', addressFromEntropy)
+  console.log('addressFromEntropy', addressFromEntropy)
 
   const baseAddress = new Address({
-    network, 
+    network:network, 
     paymentCreds: addressFromEntropy.paymentCreds, 
     stakeCreds: addressFromEntropy.stakeCreds, 
     type: 'base' 
   })
-  // console.log('base address entropy', baseAddress)
+
+  const stakeCredentials = new StakeCredentials({
+    type: StakeCredentialsType.KeyHash,
+    hash: addressFromEntropy.stakeCreds.hash,
+  })
+  console.log("stakeCredentials", stakeCredentials.toString());
+
+  const stakeBech32 = stakeCredentials.type
+
+  console.log('stakeBech32', stakeBech32)
+  
+  console.log('base address entropy', baseAddress)
   // console.log('base address entropy', baseAddress.toString())
   return baseAddress
 };
@@ -93,7 +105,7 @@ export const genStakeAddressFromEntropy = ( entropy: string, network: NetworkT, 
   // console.log('addressFromEntropy stake address', addressFromEntropy)
 
   const stakeAddress = new StakeAddress({
-    network, 
+    network: "testnet", 
     credentials: addressFromEntropy.stakeCreds.hash,
     type: 'stakeKey'
   })

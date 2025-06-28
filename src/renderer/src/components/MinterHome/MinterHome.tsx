@@ -9,7 +9,7 @@ import { txBuilder_buildooor } from "../ProcessTxModal/txBuilder";
 import { ProcessTxModal } from '../ProcessTxModal/ProcessTxModal';
 import { fromAscii, toAscii } from '@harmoniclabs/uint8array-utils';
 import { PubKeyHash, Value, DataConstr } from '@harmoniclabs/buildooor';
-import { genPolicy, genPolicy2 } from './genPolicy';
+import { genPolicy } from './genPolicy';
 import { professionalStyle, accentStyle } from './styles';
 import { selectedAccountHook } from '../../hooks/selectedAccountHook';
 import { SelectAccount } from '../SelectAccount/SelectAccount';

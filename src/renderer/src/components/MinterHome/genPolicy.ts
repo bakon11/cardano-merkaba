@@ -1,8 +1,10 @@
-import { Address, PScriptContext, PTokenName, ScriptType, Credential, Script, compile, pfn, unit, passert, NetworkT, pmatch, pBool, pisEmpty } from '@harmoniclabs/plu-ts'
-import { toUtf8, fromHex, toHex, fromAscii, toAscii } from '@harmoniclabs/uint8array-utils'
+import { PScriptContext, PTokenName, compile, pfn, unit, passert, pmatch, pBool, pisEmpty } from '@harmoniclabs/plu-ts'
+import { Script, ScriptType, Hash28, Address, Credential, NetworkT } from '@harmoniclabs/buildooor'
+import { fromAscii } from '@harmoniclabs/uint8array-utils'
 
 export const genPolicy = (tokenPolicyName) => {
-  const network = localStorage.getItem('networkSelect') || 'testnet'
+  const network = localStorage.getItem('networkSelect') || 'testnet';
+
   const namedTokenPolicy = pfn(
     [PTokenName.type, PScriptContext.type],
     unit
@@ -12,16 +14,17 @@ export const genPolicy = (tokenPolicyName) => {
 
   const policySrc = namedTokenPolicy.$(fromAscii(tokenPolicyName))
 
-  const scriptCompiled = new Script({
-    scriptType: ScriptType.PlutusV3, 
-    bytes: compile(policySrc)
-  })
-  console.log('policy: ', scriptCompiled.toCbor().toString())
+  const scriptCompiled = new Script(
+    ScriptType.PlutusV3, 
+    compile(policySrc)
+  )
+  console.log('policy: ', new Hash28(scriptCompiled.hash).toString())
 
   const scriptAddr = new Address({
-      network: network as NetworkT,
-      paymentCreds: Credential.script(scriptCompiled.hash)
+      network: "testnet",
+      paymentCreds: Credential.script(scriptCompiled.hash),
     })
+
   console.log('Script address: ', scriptAddr)
 
   return { scriptCompiled, scriptAddr, policyID: scriptAddr.paymentCreds.hash }
@@ -47,15 +50,15 @@ export const genPolicy2 = (tokenPolicyName) => {
   )
   const aPolicySrc = namedTokenPolicy.$(fromAscii(tokenPolicyName))
 
-  const scriptCompiled = new Script({
-      scriptType: ScriptType.PlutusV3, 
-      bytes: compile(aPolicySrc)
-  })
+  const scriptCompiled = new Script(
+      ScriptType.PlutusV3, 
+       compile(aPolicySrc)
+  )
   console.log('Script: ', scriptCompiled)
 
   const scriptAddr = new Address({
     network: network as NetworkT, 
-    paymentCreds: Credential.script(scriptCompiled.hash)
+    paymentCreds: Credential.script(scriptCompiled.hash.toString())
   })
   console.log('Script address: ', scriptAddr)
 
